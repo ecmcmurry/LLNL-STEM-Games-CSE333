@@ -25,4 +25,23 @@ function draw() {
     ctx.restore();
 }
 
+//need to implement cell selection
+//The user clicks, the position is recorded and then converted into grid coordinates
+//Then run the actual selection code within that cell
+
+ 
+//Allows the user to click the screen
+//TODO: test if this works on mobile
+canvas.addEventListener("click", handleClick);
+
+function handleClick(event) {
+    //Currently this is relative to the screen, not the canvas
+    //TODO: Update to use canvas coordinates if possible
+    const x = event.clientX;
+    const y = event.clientY;
+    grid.handleClick(x, y);
+
+    draw();
+}
+
 draw();
