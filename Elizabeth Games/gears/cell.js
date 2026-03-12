@@ -42,6 +42,12 @@ export class Cell {
         //otherwise, draw a hollow rectangle
         } else {
             ctx.fillRect(x, y, this.size, this.size);
+            //THIS IS TEMPORARY
+            //The user should never have the ability to select blocks
+            //This is just for testing selecting components from the inventory
+            if (this.isSelected) {
+                ctx.strokeRect(x, y, this.size, this.size);
+            }
         }
         //This should also call the draw for the components when they are implemented.
     }
