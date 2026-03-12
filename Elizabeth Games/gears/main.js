@@ -8,6 +8,7 @@ const ctx = canvas.getContext('2d');
 const w = canvas.width;
 const h = canvas.height;
 
+//This is temporary until I work on the loading system
 let grid = new Grid(3, 3);
 
 let inventory = new Grid(1, 5);
