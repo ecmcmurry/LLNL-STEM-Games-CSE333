@@ -427,9 +427,9 @@ function updateSliders() {
 }
 
 //We are now back to code that was written by me
-let ampEnabled = true; // initial state
-let freEnabled = false; // initial state
-let phaEnabled = false; // initial state
+let ampEnabled = true;
+let freEnabled = false;
+let phaEnabled = false;
 
 //Generates a new wave according to the current criteria (wave count, amplitude enabled, etc.)
 function reroll() {
@@ -544,7 +544,7 @@ function changeDifficulty() {
       break;
   }
 
-
+  //Enables waves based on waveCount
   for (let i = 0; i < waveCount; i++) {
       subwaves[i].enabled = 1;
       realwaves[i].enabled = 1;
