@@ -12,6 +12,11 @@ export class Cell {
         //I might change this into a component
         this.isBlocked = isBlocked;
         this.isSelected = false;
+        //Controls whether or not the player should be able to select certain cells
+        this.canSelect = true;
+        if (this.isBlocked) {
+            this.canSelect = false;
+        }
     }
 
     draw(ctx) {
