@@ -21,10 +21,6 @@ export class Grid {
             //Adds a new cell to the current row for each column
             //The rowIndex and columnIndex information is passed into cells as they are created
             for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
-                if (columnIndex == 1 && rowIndex == 1) {
-                    currentRow.push(new Cell(rowIndex, columnIndex, size, true));
-                    continue;
-                }
                 currentRow.push(new Cell(rowIndex, columnIndex, size));
             }
 
@@ -46,7 +42,7 @@ export class Grid {
         }
     }
 
-    handleClick(x,y) {
+    handleClick(x,y, component = "none") {
         //I had to update the grid and cells so that the grid can now define the size of the cells
         //This is important because it means that I can have the decoding from screen/canvas coord -> row/col here, so that the cell only has to worry about it's actual logic
         
@@ -77,6 +73,11 @@ export class Grid {
         if (this.selectedCell.canSelect) {
             this.selectedCell.isSelected = true;
             //console.log("selected a cell");
+        }
+
+        //Just reiterating (mainly for myself in case I forget): This is a temporary solution meant for testing
+        if (component == "block") {
+            this.selectedCell.isBlocked = true;
         }
     }
 }

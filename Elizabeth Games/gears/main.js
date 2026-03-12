@@ -35,13 +35,27 @@ function draw() {
 //TODO: test if this works on mobile
 canvas.addEventListener("click", handleClick);
 
+let selectedGridCell = null;
+let selectedInventoryCell = null;
+
 function handleClick(event) {
     //Currently this is relative to the screen, not the canvas
     //TODO: Update to use canvas coordinates if possible
     const x = event.clientX;
     const y = event.clientY;
-    grid.handleClick(x, y);
+
     inventory.handleClick(x, y);
+    selectedInventoryCell = inventory.selectedCell;
+    //Again this is temporary until I have a better placing system
+    //I just want to test if this idea works (the idea being placing blocks from inventory onto the grid, and having them inherit block logic)
+    //This will need to be revamped once the components are actually introduced
+    if (selectedInventoryCell.isBlocked) {
+        grid.handleClick(x, y, "block");
+    } else {
+        grid.handleClick(x, y);
+    }
+
+    selectedGridCell = grid.selectedCell;
 
     draw();
 }

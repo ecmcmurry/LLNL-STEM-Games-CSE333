@@ -8,6 +8,8 @@ export class Inventory extends Grid {
     constructor(rows, cols, size = 80) {
         //This calls the constructor for Grid using the values passed into Inventory's construction
         super(rows, cols, size);
+        this.cells[0][0].isBlocked = true;
+        this.cells[0][0].canSelect = true;
     }
 
     //The draw function is not needed, as the inventory should be drawn just like a grid
@@ -46,7 +48,9 @@ export class Inventory extends Grid {
         //We use our newly translated coordinates to identify the proper cell
         this.selectedCell = this.cells[selRow][selCol]
         //Then we call the select function of that cell
-        this.selectedCell.isSelected = true;
-        //console.log("selected an inventory cell");
+        if (this.selectedCell.canSelect) {
+            this.selectedCell.isSelected = true;
+            //console.log("selected a cell");
+        };
     }
 }
