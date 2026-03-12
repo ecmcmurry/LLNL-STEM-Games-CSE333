@@ -2,8 +2,6 @@
 
 import { Cell } from "./cell.js";
 
-//let selectedCell = null;
-
 export class Grid {
     //maybe update to be rowNum or rowCount?
     constructor(rows, cols, size = 80) {
@@ -35,6 +33,8 @@ export class Grid {
             this.cells.push(currentRow);
             
         }
+
+        this.selectedCell = null;
     }
 
     draw(ctx) {
@@ -52,10 +52,11 @@ export class Grid {
         
         let offsetSize = this.size + 5;
 
-        if (x > offsetSize*this.rows) {
+        //This prevents clicks from being handled outside of the grid
+        if (x > offsetSize*this.cols) {
             return;
         }
-        if (y > offsetSize*this.cols) {
+        if (y > offsetSize*this.rows) {
             return;
         }
 
@@ -64,21 +65,18 @@ export class Grid {
         let selCol = Math.floor((x-2.5) / offsetSize);
         let selRow = Math.floor((y-2.5) / offsetSize);
 
-        // //Checks if there is a cell that was previously selected before selecting a new cell
-        // if (selectedCell != null && selectedCell.isSelected == true) {
-        //     //if so, unselect that cell
-        //     selectedCell.isSelected = false;
-        //     selectedCell = null;
-        // }
-
-        if (this.selectedCell && this.selectedCell.isSelected) {
+        //Checks if there is a cell that was previously selected before selecting a new cell
+        if (this.selectedCell != null && this.selectedCell.isSelected == true) {
+            //if so, unselect that cell
             this.selectedCell.isSelected = false;
         }
 
         //We use our newly translated coordinates to identify the proper cell
         this.selectedCell = this.cells[selRow][selCol]
         //Then we call the select function of that cell
-        this.selectedCell.isSelected = true;
-        console.log("selected a cell");
+        if (this.selectedCell.canSelect) {
+            this.selectedCell.isSelected = true;
+            //console.log("selected a cell");
+        }
     }
 }

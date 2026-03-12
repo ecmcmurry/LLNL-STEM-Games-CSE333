@@ -1,6 +1,7 @@
 // main.js needs to grab the canvas, create the grid, and draw the grid
 
 import { Grid } from "./grid.js";
+import { Inventory } from "./inventory.js";
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -11,7 +12,7 @@ const h = canvas.height;
 //This is temporary until I work on the loading system
 let grid = new Grid(3, 3);
 
-let inventory = new Grid(1, 5);
+let inventory = new Inventory(1, 5);
 
 function draw() {
     ctx.clearRect(0, 0, w, h);
@@ -40,6 +41,7 @@ function handleClick(event) {
     const x = event.clientX;
     const y = event.clientY;
     grid.handleClick(x, y);
+    inventory.handleClick(x, y);
 
     draw();
 }
