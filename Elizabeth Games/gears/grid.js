@@ -1,0 +1,41 @@
+//Grid needs to import cell, and define a 2D array structure of cells
+
+import { Cell } from "./cell.js";
+
+export class Grid {
+    //maybe update to be rowNum or rowCount?
+    constructor(rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+
+        //need some way for the game to pass in a defined set of cells
+        //such as loading from a string
+        //TODO: Look into optional parameters
+        this.cells = [];
+
+        //For now, the grid always generates a list of empty cells
+        for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+            let currentRow = [];
+
+            //Adds a new cell to the current row for each column
+            //The rowIndex and columnIndex information is passed into cells as they are created
+            for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
+                currentRow.push(new Cell(rowIndex, columnIndex));
+            }
+
+            //After the row list is filled, it is pushed into the cells list
+            //This creates a 2D array of cells for the grid to reference
+            this.cells.push(currentRow);
+            
+        }
+    }
+
+    draw(ctx) {
+        //for each cell in the cell list, they call their own draw function
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                this.cells[r][c].draw(ctx);
+            }
+        }
+    }
+}
