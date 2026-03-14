@@ -4,8 +4,8 @@
 // [ANIMATION] Generates a set of irregular quads that tile the canvas by jittering
 // a grid of vertices. Each shard is given initial physics state (velocity, spin, etc.).
 function generateShards(w, h) {
-  const cols = 9;
-  const rows = 7;
+  const cols = 18;
+  const rows = 12;
   const cellW = w / cols;
   const cellH = h / rows;
 
@@ -39,17 +39,17 @@ function generateShards(w, h) {
       const dx = cx - originX;
       const dy = cy - originY;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      const speed = 80 + Math.random() * 140;
-      const vx = (dx / dist) * speed * (0.35 + Math.random() * 0.65) + (Math.random() - 0.5) * 55;
-      const vy = (dy / dist) * speed * 0.2 - Math.random() * 35;
+      const speed = 220 + Math.random() * 320;
+      const vx = (dx / dist) * speed * (0.35 + Math.random() * 0.65) + (Math.random() - 0.5) * 120;
+      const vy = (dy / dist) * speed * 0.2 - Math.random() * 60;
 
       shards.push({
         poly: [tl, tr, br, bl],
         cx, cy,
         tx: 0, ty: 0,
         vx, vy,
-        gravity: 200 + Math.random() * 200,
-        spin: (Math.random() - 0.5) * 3.8,
+        gravity: 900 + Math.random() * 600,
+        spin: (Math.random() - 0.5) * 7,
         angle: 0,
         alpha: 1,
       });
@@ -72,7 +72,6 @@ function generateShards(w, h) {
 export function runGlassShatterAnimation(ctx, w, h, bgCanvas, drawStructure, onComplete) {
   const shards  = generateShards(w, h);
   const dpr     = window.devicePixelRatio ?? 1;
-  const FADE_RATE = 0.65; // alpha units lost per second
 
   let rafId    = null;
   let prevTime = null;
@@ -91,13 +90,11 @@ export function runGlassShatterAnimation(ctx, w, h, bgCanvas, drawStructure, onC
       s.tx    += s.vx * dt;
       s.ty    += s.vy * dt;
       s.angle += s.spin * dt;
-      s.alpha  = Math.max(0, s.alpha - FADE_RATE * dt);
 
-      if (s.alpha <= 0 || s.cy + s.ty > h + 400) continue;
+      if (s.cy + s.ty > h + 200 || s.cx + s.tx < -400 || s.cx + s.tx > w + 400) continue;
       anyVisible = true;
 
       ctx.save();
-      ctx.globalAlpha = s.alpha;
 
       // ── Step 1: move the shard polygon to its current position ──
       // Translate so the centroid is at its new screen position, rotate around it.
@@ -129,10 +126,10 @@ export function runGlassShatterAnimation(ctx, w, h, bgCanvas, drawStructure, onC
     // ── Glass-edge highlights ──
     // Drawn in a separate pass (without clip) so the full stroke width is visible.
     for (const s of shards) {
-      if (s.alpha <= 0 || s.cy + s.ty > h + 400) continue;
+      if (s.cy + s.ty > h + 200 || s.cx + s.tx < -400 || s.cx + s.tx > w + 400) continue;
 
       ctx.save();
-      ctx.globalAlpha = s.alpha * 0.55;
+      ctx.globalAlpha = 0.55;
       ctx.translate(s.cx + s.tx, s.cy + s.ty);
       ctx.rotate(s.angle);
       ctx.translate(-s.cx, -s.cy);

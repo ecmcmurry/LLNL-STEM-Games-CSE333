@@ -146,28 +146,20 @@ ul { list-style: none; }
 
 /* Mobile: top bar | canvas | bottom bar */
 .screen--build {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr;
-}
-
-/* Desktop: left sidebar | canvas | right sidebar */
-@media (min-width: 768px) {
-  .screen--build {
-    grid-template-rows: 1fr;
-    grid-template-columns: var(--hud-width-side) 1fr var(--hud-width-side);
-  }
-}
-
-/* ─── Canvas wrap ─────────────────────────────────────────────────────────── */
-.build-canvas-wrap {
   position: relative;
   overflow: hidden;
+}
+
+/* ─── Canvas wrap — fills full screen, background behind everything ──────── */
+.build-canvas-wrap {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background-size: cover;
   background-position: center;
+  z-index: 0;
 }
 .build-canvas-wrap--landscape {
   background-image: url('/background-horizontal.png');
@@ -203,134 +195,56 @@ ul { list-style: none; }
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffe082' stroke='%23222' stroke-width='0.5' d='M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z'/%3E%3Cpath fill='%23ffffff' stroke='%23222' stroke-width='0.5' d='M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z'/%3E%3C/svg%3E") 3 21, crosshair;
 }
 
-/* ─── HUD side panels (shared base) ──────────────────────────────────────── */
+/* ─── HUD side panels — float on the background, no opaque backdrop ─────── */
 .hud-side {
-  position: relative;
+  position: absolute;
+  z-index: 10;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  padding: 0 14px;
-  background: var(--hud-bg);
-  background-image: repeating-linear-gradient(
-    -45deg,
-    transparent 0px, transparent 10px,
-    var(--hud-geo-line) 10px, var(--hud-geo-line) 11px
-  );
-  overflow-x: auto;
-  overflow-y: hidden;
+  padding: 14px;
+  background: transparent;
+  pointer-events: none;
 }
+.hud-side > * { pointer-events: auto; }
 
-/* Mobile top bar */
 .hud-side--left {
-  border-bottom: 1px solid var(--hud-border-col);
-  min-height: var(--hud-height-top);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--hud-width-side);
+  flex-direction: column;
 }
 
-/* Mobile bottom bar */
 .hud-side--right {
-  border-top: 1px solid var(--hud-border-col);
-  min-height: var(--hud-height-bot);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--hud-width-side);
+  flex-direction: column;
+  align-items: stretch;
 }
 
-/* On mobile, right-bar buttons share equal width and are compact */
-@media (max-width: 767px) {
-  /* Left bar: title+budget on row 1, element toolbar on row 2 */
-  .hud-side--left {
-    flex-wrap: wrap;
-    align-content: center;
-    overflow: visible;
-    min-height: auto;
-    padding: 8px 14px;
-    gap: 6px 10px;
-  }
-  .hud-side--left .level-strip,
-  .hud-side--left .budget {
-    flex-shrink: 0;
-  }
-  .hud-side--left .element-toolbar {
-    flex: 0 0 100%;
-    width: 100%;
-    order: 3;
-    overflow-x: hidden;
-    gap: 4px;
-  }
-  .hud-side--left .element-toolbar__label {
-    display: none;
-  }
-  .hud-side--left .element-toolbar__btn {
-    flex: 1;
-    min-width: 0;
-    padding: 6px 4px;
-  }
-  .hud-side--left .element-toolbar__name {
-    font-size: 0.7rem;
-  }
+/* Simulate button pinned to bottom of right sidebar */
+.hud-btn--simulate { margin-top: auto; }
 
-  .hud-side--right {
-    padding: 0 8px;
-    gap: 6px;
-  }
-  .hud-side--right .hud-btn {
-    flex: 1;
-    justify-content: center;
-    height: 44px;
-    padding: 0 4px;
-    font-size: 0.72rem;
-    gap: 3px;
-  }
-  .hud-side--right .hud-btn__icon {
-    font-size: 0.85rem;
-  }
+/* Element toolbar vertical stack */
+.element-toolbar {
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+  flex: 1;
+  gap: 6px;
 }
-
-
-/* ─── Desktop sidebar overrides ───────────────────────────────────────────── */
-@media (min-width: 768px) {
-  .hud-side {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 20px 14px;
-    gap: 14px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 100%;
-  }
-
-  .hud-side--left {
-    border-bottom: none;
-    border-right: 1px solid var(--hud-border-col);
-    min-height: auto;
-  }
-
-  .hud-side--right {
-    border-top: none;
-    border-left: 1px solid var(--hud-border-col);
-    min-height: auto;
-    justify-content: flex-start;
-  }
-
-  /* Simulate button pinned to bottom of right sidebar */
-  .hud-btn--simulate { margin-top: auto; }
-
-  /* Element toolbar becomes a vertical stack */
-  .element-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    overflow-x: hidden;
-    overflow-y: auto;
-    flex: 1;
-    gap: 6px;
-  }
-  .element-toolbar__label { margin-bottom: 2px; }
-  .element-toolbar__btn {
-    flex-direction: row;
-    min-width: 0;
-    width: 100%;
-    justify-content: flex-start;
-    gap: 10px;
-  }
-  .element-toolbar__name { font-size: 1rem; }
+.element-toolbar__label { margin-bottom: 2px; }
+.element-toolbar__btn {
+  flex-direction: row;
+  min-width: 0;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 10px;
 }
+.element-toolbar__name { font-size: 1rem; }
 
 /* ─── Level strip ─────────────────────────────────────────────────────────── */
 .level-strip { display: flex; align-items: center; flex: 1; min-width: 0; }
@@ -563,14 +477,33 @@ ul { list-style: none; }
 .museum__ref-note { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
 
 /* ─── Simulation screen ───────────────────────────────────────────────────── */
-.screen--simulate { }
-.sim-canvas-stack {
-  position: fixed; inset: 0; overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
+.screen--simulate { position: relative; }
+.sim-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
 }
-.sim-canvas { position: absolute; display: block; width: 100% !important; height: 100% !important; }
-.sim-canvas--world     { z-index: 1; }
-.sim-canvas--blueprint { z-index: 2; }
+.sim-world-canvas, .sim-shatter-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.sim-world-canvas   { z-index: 1; }
+.sim-shatter-canvas { z-index: 2; }
+.sim-rebuild-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  padding: 8px 18px;
+  background: #111827;
+  color: #fff;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.sim-rebuild-btn:hover { background: #1f2937; }
 
 .sim-hud {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
