@@ -71,8 +71,8 @@ function pointToSegmentDist(px, py, ax, ay, bx, by) {
 // [BUILD-CANVAS] Converts a raw canvas pixel coordinate to the nearest valid grid position.
 // Clamps to the grid bounds.
 export function snapToGrid(x, y, cellPx) {
-  const col = Math.max(0, Math.min(GRID_COLS - 1, Math.round(x / cellPx)));
-  const row = Math.max(0, Math.min(GRID_ROWS - 1, Math.round(y / cellPx)));
+  const col = Math.max(0, Math.min(GRID_COLS - 1, Math.round(x / cellPx - 0.5)));
+  const row = Math.max(0, Math.min(GRID_ROWS - 1, Math.round(y / cellPx - 0.5)));
   return { col, row };
 }
 

@@ -3,12 +3,13 @@ import { LEVELS } from '../data/levels.js';
 import { ELEMENT_TYPE, SUPPORT_TYPE, ELEMENT_PROPERTIES } from '../utils/constants.js';
 import {
   getCurrentLevelIndex, getStructure, getBudgetRemaining,
-  deductBudget, refundBudget, setStructure,
+  deductBudget, refundBudget, setStructure, setBuildScreenSnapshot,
 } from '../state.js';
 import { saveStructure, loadStructure } from '../utils/storage.js';
 import {
   initialiseBlueprintCanvas, drawBlueprintGrid, drawElement, drawNode,
   drawSupportSymbol, drawLoadArrow, drawSnapPreview, drawConnectionPreview,
+  drawElementLegend,
 } from '../canvas/blueprint-canvas.js';
 import {
   findNodeAtCanvasPoint, findElementAtCanvasPoint,
@@ -16,7 +17,7 @@ import {
   isStructureSimulatable, getElementCostOptions,
 } from '../canvas/build-tools.js';
 import {
-  createBudgetDisplay, updateBudgetDisplay, createElementToolbar,
+  createBudgetDisplay, updateBudgetDisplay,
   createUndoButton, createDeleteButton, createRunSimulationButton, createResetButton,
   setSimulateButtonEnabled, createLevelInfoStrip, createCostPreviewTooltip,
   updateCostPreviewTooltip, hideCostPreviewTooltip,
@@ -87,12 +88,10 @@ export function render(container) {
   container.appendChild(screen);
 
   // ── Canvas init ───────────────────────────────────────────────────────────
-  // On mobile subtract a small gap so the silver border never touches screen edges.
-  const _mobileGap = () => window.innerWidth < 768 ? 16 : 0;
   let { ctx, cellPx, canvasW, canvasH } = initialiseBlueprintCanvas(
     canvasEl,
-    (canvasWrap.clientWidth  || window.innerWidth)  - _mobileGap(),
-    (canvasWrap.clientHeight || window.innerHeight) - _mobileGap(),
+    window.innerWidth,
+    window.innerHeight,
   );
 
   // [BUILD-CANVAS] Sizes the silver border div to surround the canvas, and
@@ -124,14 +123,9 @@ export function render(container) {
   const simBtn      = createRunSimulationButton(handleRunSimulation);
   const costTooltip = createCostPreviewTooltip();
 
-  let selectedElementType = ELEMENT_TYPE.BEAM;
-  const toolbar = createElementToolbar(selectedElementType, type => {
-    selectedElementType = type;
-  });
+  const selectedElementType = ELEMENT_TYPE.BEAM;
 
-  // Left panel: level title + budget + element picker
-  // Right panel: history, undo, reset, simulate
-  hudLeftEl.append(levelStrip, budgetEl, toolbar);
+  hudLeftEl.append(levelStrip, budgetEl);
   hudRightEl.append(museumBtn, undoBtn, resetBtn, simBtn);
   canvasWrap.appendChild(costTooltip);
 
@@ -148,6 +142,8 @@ export function render(container) {
   renderCanvas();
   updateBudgetDisplay(getBudgetRemaining());
   setSimulateButtonEnabled(simBtn, isStructureSimulatable(getStructure()));
+  // Re-render once fonts are ready so EngineerHand shows in the legend
+  document.fonts.ready.then(() => renderCanvas());
 
   // ── Canvas pointer handlers ───────────────────────────────────────────────
 
@@ -304,14 +300,43 @@ export function render(container) {
     setSimulateButtonEnabled(simBtn, isStructureSimulatable(structure));
   }
 
-  // [SIMULATION] Navigates to the simulation screen.
+  // [SIMULATION] Captures the full build screen as an offscreen canvas, stores it,
+  // then navigates to the simulation screen.
   function handleRunSimulation() {
     const structure = getStructure();
     if (!isStructureSimulatable(structure)) {
       showWarningNotification('Connect your structure to a support before simulating.');
       return;
     }
-    location.hash = '#simulate';
+    const dpr = window.devicePixelRatio ?? 1;
+    const vw  = window.innerWidth;
+    const vh  = window.innerHeight;
+    const snap = document.createElement('canvas');
+    snap.width  = vw * dpr;
+    snap.height = vh * dpr;
+    const snapCtx = snap.getContext('2d');
+    snapCtx.scale(dpr, dpr);
+
+    // Draw the background image (now fills full screen)
+    const isLandscape = canvasWrap.classList.contains('build-canvas-wrap--landscape');
+    const bgSrc = isLandscape ? '/background-horizontal.png' : '/background-vertical.png';
+    const bgImg = new Image();
+    bgImg.src = bgSrc;
+    const _doSnap = () => {
+      snapCtx.drawImage(bgImg, 0, 0, vw, vh);
+      // Blueprint canvas on top
+      const canvasRect = canvasEl.getBoundingClientRect();
+      snapCtx.drawImage(canvasEl, canvasRect.left, canvasRect.top, canvasRect.width, canvasRect.height);
+      setBuildScreenSnapshot(snap);
+      location.hash = '#simulate';
+    };
+
+    if (bgImg.complete) {
+      _doSnap();
+    } else {
+      bgImg.onload = _doSnap;
+      bgImg.onerror = _doSnap;
+    }
   }
 
   // ── Delete button sync ────────────────────────────────────────────────────
@@ -382,6 +407,9 @@ export function render(container) {
       if (node.isLoadNode && node.load) drawLoadArrow(ctx, node, node.load, cellPx);
     }
 
+    // Element legend below the grid
+    drawElementLegend(ctx, cellPx);
+
     // Snap preview and connection preview
     if (cursorCanvasPos) {
       const snapped = snapToGrid(cursorCanvasPos.x, cursorCanvasPos.y, cellPx);
@@ -399,7 +427,7 @@ export function render(container) {
 
   // ── Resize handler ────────────────────────────────────────────────────────
   function handleResize() {
-    const reinit = initialiseBlueprintCanvas(canvasEl, canvasWrap.clientWidth - _mobileGap(), canvasWrap.clientHeight - _mobileGap());
+    const reinit = initialiseBlueprintCanvas(canvasEl, window.innerWidth, window.innerHeight);
     ctx = reinit.ctx; cellPx = reinit.cellPx; canvasW = reinit.canvasW; canvasH = reinit.canvasH;
     updateCanvasFrame();
     renderCanvas();

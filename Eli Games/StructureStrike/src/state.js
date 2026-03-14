@@ -16,6 +16,9 @@ const state = {
 
   // Full result object set after running the FEM simulation
   simulationResult: null, // { passed, displacements, elementStresses, failedElementIds, failureSequence }
+
+  // Snapshot of the full build screen captured just before transitioning to simulate
+  buildScreenSnapshot: null, // HTMLCanvasElement
 };
 
 // [LEVEL-PROGRESS] Sets the active level index and resets build-phase state
@@ -54,6 +57,16 @@ export function deductBudget(amount) {
 // [BUDGET-COUNTER] Refunds an amount back to the remaining build budget
 export function refundBudget(amount) {
   state.budgetRemaining += amount;
+}
+
+// [SIMULATION] Saves a full-screen canvas snapshot of the build screen taken just before simulate
+export function setBuildScreenSnapshot(canvas) {
+  state.buildScreenSnapshot = canvas;
+}
+
+// [SIMULATION] Returns the saved build screen snapshot, or null
+export function getBuildScreenSnapshot() {
+  return state.buildScreenSnapshot;
 }
 
 // [SIMULATION] Stores the result object produced after the FEM simulation runs

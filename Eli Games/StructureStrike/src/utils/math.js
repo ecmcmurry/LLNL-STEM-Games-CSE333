@@ -16,19 +16,22 @@ export function angleBetween(x1, y1, x2, y2) {
 
 // ─── Grid / canvas coordinate helpers ────────────────────────────────────────
 
+// Half-cell inset so col=0 and col=GRID_COLS-1 have equal margins from the canvas edges.
+const GRID_INSET = 0.5;
+
 // [BUILD-CANVAS] Converts grid column/row integers to canvas pixel coordinates.
 export function gridToCanvas(col, row, cellPx, panOffset) {
   return {
-    x: (col - panOffset.col) * cellPx,
-    y: (row - panOffset.row) * cellPx,
+    x: (col - panOffset.col + GRID_INSET) * cellPx,
+    y: (row - panOffset.row + GRID_INSET) * cellPx,
   };
 }
 
 // [BUILD-CANVAS] Converts canvas pixel coordinates to the nearest grid intersection.
 export function canvasToGrid(x, y, cellPx, panOffset) {
   return {
-    col: Math.round(x / cellPx + panOffset.col),
-    row: Math.round(y / cellPx + panOffset.row),
+    col: Math.round(x / cellPx - GRID_INSET + panOffset.col),
+    row: Math.round(y / cellPx - GRID_INSET + panOffset.row),
   };
 }
 

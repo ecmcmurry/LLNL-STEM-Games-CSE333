@@ -19,14 +19,13 @@ export function computeCellPx(containerWidth) {
 // [BUILD-CANVAS] Sets up the canvas element to exactly fill the container width.
 // Height follows naturally from the number of rows × cellPx.
 // Device pixel ratio is applied to the internal buffer for crisp rendering on retina screens.
+const LEGEND_ROWS = 1.5; // extra rows of height reserved for the element legend strip
+
 export function initialiseBlueprintCanvas(canvasEl, containerWidth, containerHeight) {
   const dpr = window.devicePixelRatio ?? 1;
-  // Apply 5% margin to each axis independently, then take the tightest cell size.
-  // This gives uniform breathing room from whichever edge is the constraint,
-  // without over-shrinking the other axis.
-  const cellPx = 0.95 * Math.min(containerWidth / GRID_COLS, containerHeight / GRID_ROWS);
+  const cellPx = 0.95 * Math.min(containerWidth / GRID_COLS, containerHeight / (GRID_ROWS + LEGEND_ROWS));
   const w = Math.round(GRID_COLS * cellPx);
-  const h = Math.round(GRID_ROWS * cellPx);
+  const h = Math.round((GRID_ROWS + LEGEND_ROWS) * cellPx);
 
   canvasEl.width  = w * dpr;
   canvasEl.height = h * dpr;
@@ -53,29 +52,30 @@ export function drawBlueprintGrid(ctx, cellPx) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, w, h);
 
-  // Grid lines — subtle dark-blue on bright blue
+  // Grid lines — offset by half a cell so col=0 and col=GRID_COLS-1 have equal margins
+  const inset = cellPx * 0.5;
   ctx.strokeStyle = 'rgba(0, 25, 80, 0.35)';
   ctx.lineWidth = 0.5;
   ctx.beginPath();
-  for (let col = 0; col <= GRID_COLS; col++) {
-    const x = col * cellPx;
+  for (let col = 0; col < GRID_COLS; col++) {
+    const x = inset + col * cellPx;
     ctx.moveTo(x, 0);
     ctx.lineTo(x, h);
   }
-  for (let row = 0; row <= GRID_ROWS; row++) {
-    const y = row * cellPx;
+  for (let row = 0; row < GRID_ROWS; row++) {
+    const y = inset + row * cellPx;
     ctx.moveTo(0, y);
     ctx.lineTo(w, y);
   }
   ctx.stroke();
 
-  // Grid intersection dots — white so they pop on blue
+  // Grid intersection dots
   ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
   const dotR = 1.5;
-  for (let col = 0; col <= GRID_COLS; col++) {
-    for (let row = 0; row <= GRID_ROWS; row++) {
+  for (let col = 0; col < GRID_COLS; col++) {
+    for (let row = 0; row < GRID_ROWS; row++) {
       ctx.beginPath();
-      ctx.arc(col * cellPx, row * cellPx, dotR, 0, Math.PI * 2);
+      ctx.arc(inset + col * cellPx, inset + row * cellPx, dotR, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -99,6 +99,101 @@ export function drawBlueprintGrid(ctx, cellPx) {
   ctx.fillStyle = botG;   ctx.fillRect(0, h - fadeDepth, w, fadeDepth);
   ctx.fillStyle = leftG;  ctx.fillRect(0, 0,             fadeDepth, h);
   ctx.fillStyle = rightG; ctx.fillRect(w - fadeDepth, 0, fadeDepth, h);
+}
+
+// [BUILD-CANVAS] Draws the element colour key in the strip below the grid,
+// seamlessly continuing the blueprint aesthetic.
+export function drawElementLegend(ctx, cellPx) {
+  const gridW   = GRID_COLS * cellPx;
+  const legendY = GRID_ROWS * cellPx;
+  const stripH  = LEGEND_ROWS * cellPx;
+  const totalH  = legendY + stripH;
+
+  // ── Continue the blueprint background (dark-edge blue, same as grid corners) ──
+  ctx.fillStyle = '#013c8a';
+  ctx.fillRect(0, legendY, gridW, stripH);
+
+  // Continue grid lines into legend strip
+  ctx.strokeStyle = 'rgba(0, 25, 80, 0.35)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  for (let col = 0; col <= GRID_COLS; col++) {
+    ctx.moveTo(col * cellPx, legendY);
+    ctx.lineTo(col * cellPx, totalH);
+  }
+  // One horizontal grid line at the bottom
+  ctx.moveTo(0, totalH - cellPx * 0.5);
+  ctx.lineTo(gridW, totalH - cellPx * 0.5);
+  ctx.stroke();
+
+  // Continue dots
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  for (let col = 0; col <= GRID_COLS; col++) {
+    ctx.beginPath();
+    ctx.arc(col * cellPx, legendY, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ── Dashed cutoff line — "no build below" boundary ────────────────────────
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([cellPx * 0.35, cellPx * 0.18]);
+  ctx.beginPath();
+  ctx.moveTo(0, legendY);
+  ctx.lineTo(gridW, legendY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+
+  // ── KEY label ─────────────────────────────────────────────────────────────
+  const fontSize = Math.max(11, Math.round(cellPx * 0.3));
+  ctx.font         = `${fontSize}px EngineerHand, Jost, sans-serif`;
+  ctx.textBaseline = 'middle';
+  const cy         = legendY + stripH * 0.5;
+
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.textAlign = 'left';
+  ctx.fillText('KEY', cellPx * 0.3, cy);
+
+  // ── Items ─────────────────────────────────────────────────────────────────
+  const items = Object.values(ELEMENT_PROPERTIES).map(p => ({
+    color: p.blueprintColor,
+    name: p.displayName,
+  }));
+
+  const sqSize = Math.max(8, Math.round(cellPx * 0.22));
+  const gap    = Math.round(cellPx * 0.18);
+  const startX = cellPx * 2.2;
+  const spacing = (gridW - startX - cellPx * 0.5) / items.length;
+
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.font = `${fontSize}px EngineerHand, Jost, sans-serif`;
+
+  items.forEach((item, i) => {
+    const x = startX + i * spacing;
+
+    // Filled square swatch
+    ctx.fillStyle = item.color;
+    ctx.fillRect(x, cy - sqSize / 2, sqSize, sqSize);
+
+    // Thin white outline on square
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth   = 0.5;
+    ctx.strokeRect(x, cy - sqSize / 2, sqSize, sqSize);
+
+    // Label
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText(item.name, x + sqSize + gap, cy);
+  });
+
+  // ── Bottom edge shadow (matches grid) ─────────────────────────────────────
+  const botG = ctx.createLinearGradient(0, totalH - cellPx * 0.12, 0, totalH);
+  botG.addColorStop(0, 'transparent');
+  botG.addColorStop(1, 'rgba(0, 5, 30, 0.72)');
+  ctx.fillStyle = botG;
+  ctx.fillRect(0, totalH - cellPx * 0.12, gridW, cellPx * 0.12);
 }
 
 // ─── Structural element drawing ───────────────────────────────────────────────
