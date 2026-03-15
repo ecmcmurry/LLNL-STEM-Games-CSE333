@@ -21,7 +21,7 @@ function draw() {
     //To offset the inventory vertically, we must first save the context as is, shift it for drawing the inventory, then restore it to what it was
     ctx.save()
     //TODO: Update to shift dynamically
-    ctx.translate(0,600);
+    ctx.translate(0,400);
     inventory.draw(ctx);
     ctx.restore();
 }
