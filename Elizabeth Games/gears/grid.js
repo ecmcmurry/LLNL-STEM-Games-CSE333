@@ -1,6 +1,7 @@
 //Grid needs to import cell, and define a 2D array structure of cells
 
 import { Cell } from "./cell.js";
+import { Gear, Motor, Output } from "./components/index.js";
 
 export class Grid {
     //maybe update to be rowNum or rowCount?
@@ -21,7 +22,14 @@ export class Grid {
             //Adds a new cell to the current row for each column
             //The rowIndex and columnIndex information is passed into cells as they are created
             for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
-                currentRow.push(new Cell(rowIndex, columnIndex, size));
+                //currentRow.push(new Cell(rowIndex, columnIndex, size));
+                if (columnIndex == 1 && rowIndex == 0) {
+                    currentRow.push(new Cell(rowIndex, columnIndex, size, false, new Motor(10, 10)));
+                } else if (columnIndex == 1) {
+                    currentRow.push(new Cell(rowIndex, columnIndex, size, false, new Gear(10, 10)));
+                } else {
+                    currentRow.push(new Cell(rowIndex, columnIndex, size));
+                }
             }
 
             //After the row list is filled, it is pushed into the cells list
@@ -79,5 +87,65 @@ export class Grid {
         if (component == "block") {
             this.selectedCell.isBlocked = true;
         }
+
+        //TEMPORARY
+        this.propagateRPM();
+    }
+
+    //Copied from ChatGPT, refactor later
+    propagateRPM() {
+        let queue = [];
+
+        // Reset all non-motor gears
+        for (let row of this.cells) {
+            for (let cell of row) {
+                let comp = cell.component;
+
+                if (comp && !(comp instanceof Motor)) {
+                    comp.rpm = null;
+                }
+
+                if (comp instanceof Motor) {
+                    queue.push(cell);
+                }
+            }
+        }
+
+        while (queue.length > 0) {
+            let cell = queue.shift();
+            let gear = cell.component;
+
+            let neighbors = this.getNeighbors(cell.row, cell.col);
+
+            for (let [r, c] of neighbors) {
+                let neighborCell = this.cells[r]?.[c];
+                if (!neighborCell) continue;
+
+                let neighborGear = neighborCell.component;
+                if (!neighborGear) continue;
+
+                let newRPM = -gear.rpm * (gear.teeth / neighborGear.teeth);
+
+                // If RPM not assigned yet
+                if (neighborGear.rpm === null) {
+                    neighborGear.rpm = newRPM;
+                    queue.push(neighborCell);
+                }
+                // Detect contradictions
+                else if (Math.abs(neighborGear.rpm - newRPM) > 0.01) {
+                    console.log("Invalid gear configuration detected");
+                }
+            }
+        }
+    }
+
+    //Copied from ChatGPT, refactor later
+    getNeighbors(row, col) {
+        return [
+            [row-1, col],
+            [row+1, col],
+            [row, col-1],
+            [row, col+1]
+        ];
     }
 }

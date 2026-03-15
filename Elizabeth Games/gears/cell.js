@@ -1,11 +1,13 @@
 //Cell needs to define the basic components of a cell
 
+import { Gear, Motor, Output } from "./components/index.js";
+
 const lineWidth = 5;
 
 export class Cell {
     //Expand to include more information like contents
     //Maybe change names to be like, rowIndex?
-    constructor(row, col, size = 80, isBlocked = false) {
+    constructor(row, col, size = 80, isBlocked = false, component = null) {
         this.row = row;
         this.col = col;
         this.size = size;
@@ -17,6 +19,7 @@ export class Cell {
         if (this.isBlocked) {
             this.canSelect = false;
         }
+        this.component = component;
     }
 
     draw(ctx) {
@@ -50,5 +53,8 @@ export class Cell {
             }
         }
         //This should also call the draw for the components when they are implemented.
+        if (this.component != null) {
+            this.component.draw(ctx, x, y);
+        }
     }
 }

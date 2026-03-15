@@ -1,0 +1,28 @@
+//Going to be the foundation class for Motors and Outputs as well
+
+export class Gear {
+    //Technically the rpm shouldn't be included in the gear constructor but I'm just testing for now
+    constructor(teeth) {
+        this.teeth = teeth;
+        this.rpm = null;
+    }
+
+    draw(ctx, x, y) {
+
+        //This TEMPORARY set of code displays the rpm as text in the center of the screen
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            (this.rpm),
+            x + 80 / 2,
+            y + 80 / 2
+        );
+    }
+
+    changeDirection() {
+        this.rpm *= -1;
+    }
+}
