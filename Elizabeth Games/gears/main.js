@@ -10,9 +10,9 @@ const w = canvas.width;
 const h = canvas.height;
 
 //This is temporary until I work on the loading system
-let grid = new Grid(3, 3);
+let grid = new Grid("3,3,80,M10/10,B,E,G10,E,E,E,B,O10/10");
 
-let inventory = new Inventory(1, 5);
+let inventory = new Inventory("1,5,80,B,E,E,E,E");
 
 function draw() {
     ctx.clearRect(0, 0, w, h);
