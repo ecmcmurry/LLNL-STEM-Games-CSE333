@@ -4,32 +4,61 @@ import { Cell } from "./cell.js";
 import { Gear, Motor, Output } from "./components/index.js";
 
 export class Grid {
-    //maybe update to be rowNum or rowCount?
-    constructor(rows, cols, size = 80) {
-        this.rows = rows;
-        this.cols = cols;
-        this.size = size;
+    constructor(levelString) {
+        let loadedValues = levelString.split(",");
 
-        //need some way for the game to pass in a defined set of cells
-        //such as loading from a string
-        //TODO: Look into optional parameters
+        //This is just loading the values I previously had as parameters of the constructor
+        this.rows = Number(loadedValues[0]);
+        this.cols = Number(loadedValues[1]);
+        this.size = Number(loadedValues[2]);
+
+        //Now we get to the actual level loading
         this.cells = [];
 
+        let loadIndex = 3;
         //For now, the grid always generates a list of empty cells
-        for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
             let currentRow = [];
 
+            //establishing some variables necessary for filling the grid
+            let teeth = 0;
+            let rpm = 0;
             //Adds a new cell to the current row for each column
             //The rowIndex and columnIndex information is passed into cells as they are created
-            for (let columnIndex = 0; columnIndex < cols; columnIndex++) {
-                //currentRow.push(new Cell(rowIndex, columnIndex, size));
-                if (columnIndex == 1 && rowIndex == 0) {
-                    currentRow.push(new Cell(rowIndex, columnIndex, size, false, new Motor(10, 10)));
-                } else if (columnIndex == 1) {
-                    currentRow.push(new Cell(rowIndex, columnIndex, size, false, new Gear(10, 10)));
+            for (let columnIndex = 0; columnIndex < this.cols; columnIndex++) {
+                //Checks if the first character of the chunk is a specific letter, indicating what goes into the cell
+                // G for Gear
+                if (loadedValues[loadIndex][0] == "G") {
+                    //The remaining numbers in the chunk are the teeth count of the gear
+                    //They are originally strings and must be converted into integers
+                    teeth = Number(loadedValues[loadIndex].substring(1));
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Gear(teeth)));
+                // M for Motor
+                } else if (loadedValues[loadIndex][0] == "M") {
+                    //Motors are more complex than gears as they have both teeth and an rpm
+                    //We take our input chunk in the format "M10/20" and first turn it into a substring of "10/20", which is then split into chunks "10" and "20"
+                    let loadValueSubstrings = loadedValues[loadIndex].substring(1).split("/");
+                    teeth = Number(loadValueSubstrings[0]);
+                    rpm = Number(loadValueSubstrings[1]);
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Motor(teeth, rpm)));
+                // O for Output
+                } else if (loadedValues[loadIndex][0] == "O") {
+                    //Outputs function the same way as Motors, at least in their construction
+                    let loadValueSubstrings = loadedValues[loadIndex].substring(1).split("/");
+                    teeth = Number(loadValueSubstrings[0]);
+                    rpm = Number(loadValueSubstrings[1]);
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Output(teeth, rpm)));
+                // B for Blocked
+                // TODO: Update blocked cells to be components
+                } else if (loadedValues[loadIndex][0] == "B") {
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, true));
+                // otherwise, the cell is empty
+                // proper formatting is to use E to indicate an Empty Cell, but leaving this as a catch-all is better in my opinion
                 } else {
-                    currentRow.push(new Cell(rowIndex, columnIndex, size));
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size));
                 }
+
+                loadIndex++;
             }
 
             //After the row list is filled, it is pushed into the cells list

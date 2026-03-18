@@ -28,6 +28,7 @@ export class Cell {
         //And finally have an offset of half their width to prevent the grid from getting cutoff from the canvas
         let x = (this.col * (this.size + lineWidth)) + (lineWidth/2);
         let y = (this.row * (this.size + lineWidth)) + (lineWidth/2);
+        //console.log("x:", x, " y:", y, " size:", this.size, " col:", this.col, " row:", this.row);
 
         //Draws the rectangle for the cell
         ctx.lineWidth = lineWidth;

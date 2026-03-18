@@ -5,9 +5,9 @@ import { Grid } from "./grid.js";
 //Inventory is an extension of grid, because I want to reuse that code when possible
 export class Inventory extends Grid {
     //maybe update to be rowNum or rowCount?
-    constructor(rows, cols, size = 80) {
+    constructor(levelString) {
         //This calls the constructor for Grid using the values passed into Inventory's construction
-        super(rows, cols, size);
+        super(levelString);
         this.cells[0][0].isBlocked = true;
         this.cells[0][0].canSelect = true;
     }
