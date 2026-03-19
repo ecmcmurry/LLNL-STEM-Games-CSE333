@@ -1,4 +1,4 @@
-import { ELEMENT_TYPE } from '../utils/constants.js';
+import { ELEMENT_TYPE, SUPPORT_TYPE } from '../utils/constants.js';
 import { gridToCanvas } from '../utils/math.js';
 
 // ─── Pin joint node ───────────────────────────────────────────────────────────
@@ -52,6 +52,161 @@ export function drawPinJoint(ctx, node, cellPx) {
   ctx.arc(x - innerR * 0.3, y - innerR * 0.3, innerR * 0.38, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.22)';
   ctx.fill();
+
+  ctx.restore();
+}
+
+// ─── Concrete support symbol ──────────────────────────────────────────────────
+
+// [SIMULATION] Draws the support symbol for an anchor node using a realistic
+// concrete look: grey gradient body, formwork lines, and a heavy ground line.
+export function drawConcreteSupport(ctx, node, cellPx) {
+  const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+  const size = cellPx * 0.35;
+
+  ctx.save();
+
+  // Shared concrete fill gradient (top-light, bottom-dark, slight warm tint)
+  function makeConcreteFill(x0, y0, x1, y1) {
+    const g = ctx.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0,    '#b0aca8');
+    g.addColorStop(0.35, '#8e8a86');
+    g.addColorStop(0.7,  '#706c68');
+    g.addColorStop(1,    '#504c48');
+    return g;
+  }
+
+  // Shared ground block helper — fills a thick concrete slab below the support
+  function drawGroundSlab(baseY, halfW) {
+    const slabH = size * 0.45;
+    const grad  = ctx.createLinearGradient(0, baseY, 0, baseY + slabH);
+    grad.addColorStop(0,   '#585450');
+    grad.addColorStop(0.5, '#484440');
+    grad.addColorStop(1,   '#302e2c');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - halfW, baseY, halfW * 2, slabH);
+    // Formwork seam line across the top of the slab
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth   = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(x - halfW, baseY + 1);
+    ctx.lineTo(x + halfW, baseY + 1);
+    ctx.stroke();
+    // Bottom edge shadow
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth   = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - halfW, baseY + slabH);
+    ctx.lineTo(x + halfW, baseY + slabH);
+    ctx.stroke();
+  }
+
+  // Horizontal formwork line helper — etched panel marks on flat concrete faces
+  function drawFormworkLines(rx, ry, rw, rh, lineCount) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rx, ry, rw, rh);
+    ctx.clip();
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth   = 0.6;
+    const gap = rh / (lineCount + 1);
+    for (let i = 1; i <= lineCount; i++) {
+      const ly = ry + gap * i;
+      ctx.beginPath();
+      ctx.moveTo(rx, ly);
+      ctx.lineTo(rx + rw, ly);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  switch (node.supportType) {
+
+    case SUPPORT_TYPE.PINNED: {
+      // Concrete triangle
+      ctx.shadowColor   = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur    = 6;
+      ctx.shadowOffsetY = 3;
+      ctx.beginPath();
+      ctx.moveTo(x,          y);
+      ctx.lineTo(x - size,   y + size);
+      ctx.lineTo(x + size,   y + size);
+      ctx.closePath();
+      ctx.fillStyle = makeConcreteFill(x, y, x, y + size);
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+
+      // Etched lines on the triangle face
+      ctx.save();
+      ctx.clip(); // clip to triangle shape
+      drawFormworkLines(x - size, y, size * 2, size, 2);
+      ctx.restore();
+
+      // Outline
+      ctx.strokeStyle = '#2e2c2a';
+      ctx.lineWidth   = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - size, y + size);
+      ctx.lineTo(x + size, y + size);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Ground slab
+      drawGroundSlab(y + size, size * 1.3);
+      break;
+    }
+
+    case SUPPORT_TYPE.FIXED: {
+      // Concrete block
+      const bw = size * 2;
+      const bh = size * 0.85;
+      ctx.shadowColor   = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur    = 6;
+      ctx.shadowOffsetY = 3;
+      ctx.fillStyle = makeConcreteFill(x - size, y, x - size, y + bh);
+      ctx.fillRect(x - size, y, bw, bh);
+      ctx.shadowColor = 'transparent';
+
+      drawFormworkLines(x - size, y, bw, bh, 2);
+
+      ctx.strokeStyle = '#2e2c2a';
+      ctx.lineWidth   = 1.2;
+      ctx.strokeRect(x - size, y, bw, bh);
+
+      // Ground slab
+      drawGroundSlab(y + bh, size * 1.3);
+      break;
+    }
+
+    case SUPPORT_TYPE.ROLLER_H:
+    case SUPPORT_TYPE.ROLLER_V: {
+      // Three concrete cylinder caps (rollers)
+      const rr = Math.max(3, size * 0.2);
+      for (let i = -1; i <= 1; i++) {
+        const cx = x + i * rr * 2.6;
+        const cy = y + size;
+        ctx.shadowColor   = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur    = 4;
+        ctx.shadowOffsetY = 2;
+        const rGrad = ctx.createRadialGradient(cx - rr * 0.3, cy - rr * 0.3, rr * 0.1, cx, cy, rr);
+        rGrad.addColorStop(0,   '#c0bcb8');
+        rGrad.addColorStop(0.5, '#888480');
+        rGrad.addColorStop(1,   '#484440');
+        ctx.beginPath();
+        ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+        ctx.fillStyle = rGrad;
+        ctx.fill();
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = '#2e2c2a';
+        ctx.lineWidth   = 0.8;
+        ctx.stroke();
+      }
+      // Ground slab
+      drawGroundSlab(y + size + rr * 1.1, size * 1.1);
+      break;
+    }
+  }
 
   ctx.restore();
 }

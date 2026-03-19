@@ -4,8 +4,8 @@ import { getCurrentLevelIndex, getStructure, getBuildScreenSnapshot, getBuildCan
 import { mountNotificationContainer, unmountNotificationContainer } from '../ui/notifications.js';
 import { closeModal } from '../ui/modals.js';
 import { runGlassShatterAnimation } from '../canvas/glass-shatter.js';
-import { drawElement, drawNode, drawSupportSymbol, drawLoadArrow } from '../canvas/blueprint-canvas.js';
-import { drawStructuralMember, drawPinJoint } from '../canvas/structural-visuals.js';
+import { drawElement, drawNode, drawLoadArrow } from '../canvas/blueprint-canvas.js';
+import { drawStructuralMember, drawPinJoint, drawConcreteSupport } from '../canvas/structural-visuals.js';
 
 // [SIMULATION] Simulation screen. Mounts a full-screen overlay on top of the
 // existing build screen (no flash), shatters the snapshot of the build screen
@@ -94,10 +94,17 @@ export function render(container) {
       const nodeB = nodeMap[elem.nodeBId];
       if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
     }
+    // Concrete bodies behind members
     for (const node of structure.nodes) {
-      drawNode(worldCtx, node, cellPx, false, false);
-      if (node.isAnchor) drawSupportSymbol(worldCtx, node, cellPx);
+      if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
       if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+    }
+    // Non-anchor nodes (blueprint style) + all pin joints on top
+    for (const node of structure.nodes) {
+      if (!node.isAnchor && !node.isLoadNode) drawNode(worldCtx, node, cellPx, false, false);
+    }
+    for (const node of structure.nodes) {
+      if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
     }
     worldCtx.restore();
   }
@@ -143,12 +150,9 @@ export function render(container) {
         if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
       }
 
-      // Layer 2: hardpoints + load arrows
+      // Layer 2: concrete support bodies + load arrows (behind members)
       for (const node of structure.nodes) {
-        if (node.isAnchor) {
-          drawNode(worldCtx, node, cellPx, false, false);
-          drawSupportSymbol(worldCtx, node, cellPx);
-        }
+        if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
         if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
       }
 
@@ -167,9 +171,9 @@ export function render(container) {
         }
       });
 
-      // Layer 4: pin joints on top of everything (connection nodes)
+      // Layer 4: all pin joints on top of everything — anchors included
       for (const node of structure.nodes) {
-        if (!node.isAnchor && !node.isLoadNode) {
+        if (node.isAnchor || !node.isLoadNode) {
           drawPinJoint(worldCtx, node, cellPx);
         }
       }
@@ -198,25 +202,26 @@ export function render(container) {
     worldCtx.save();
     worldCtx.translate(rect.left, rect.top);
 
+    // Blueprint lines
     for (const elem of structure.elements) {
       const nodeA = nodeMap[elem.nodeAId];
       const nodeB = nodeMap[elem.nodeBId];
       if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
     }
+    // Concrete bodies + load arrows (behind members)
     for (const node of structure.nodes) {
-      if (node.isAnchor) {
-        drawNode(worldCtx, node, cellPx, false, false);
-        drawSupportSymbol(worldCtx, node, cellPx);
-      }
+      if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
       if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
     }
+    // Structural members over blueprint lines
     for (const elem of structure.elements) {
       const nodeA = nodeMap[elem.nodeAId];
       const nodeB = nodeMap[elem.nodeBId];
       if (nodeA && nodeB) drawStructuralMember(worldCtx, nodeA, nodeB, elem.type, cellPx, 1);
     }
+    // All pin joints on top of everything — anchors included
     for (const node of structure.nodes) {
-      if (!node.isAnchor && !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
+      if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
     }
 
     worldCtx.restore();
