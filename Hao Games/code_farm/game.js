@@ -22,6 +22,8 @@ const plantChoices = $("#plantChoices");
 const harvestChoice = $("#harvestChoice");
 const plantA = $("#plantA");
 const plantB = $("#plantB");
+const plantC = $("#plantC");
+const plantD = $("#plantD");
 const harvestBtn = $("#harvestBtn");
 const closeModal = $("#closeModal");
 
@@ -213,6 +215,8 @@ function updateTopUI() {
 function updateInventoryUI() {
   inventoryA.textContent = state.inventory.A;
   inventoryB.textContent = state.inventory.B;
+  inventoryC.textContent = state.inventory.C;
+  inventoryD.textContent = state.inventory.D;
 }
 
 function openInventory() {
@@ -305,6 +309,7 @@ function getStage(plot) {
   if (!plot.planted) return 0;
   const effectiveDay = plot.bugged ? plot.bugStartDay : state.day;
   const age = effectiveDay - plot.plantedDay;
+  // note: add different cases for different flowers
   if (age < 3) return 1;
   if (age < 5) return 2;
   return 3;
@@ -459,16 +464,10 @@ function onPlotClicked(i) {
     modalTitle.textContent = `Plot ${i + 1}`;
     modalDesc.textContent = `Choose a seed to plant.`;
 
-    // plantA.textContent = `Plant Flower A (Remaining seeds: ${state.inventory.A})`;
-    // plantB.textContent = `Plant Flower B (Remaining seeds: ${state.inventory.B})`;
-    plantChoices.innerHTML = "";
-    ["A", "B", "C", "D"].forEach((type) => {
-      const btn = document.createElement("button");
-      btn.className = "btn";
-      btn.textContent = `Plant ${FLOWERS[type].name} (Remaining seeds: ${state.inventory[type]})`;
-      btn.addEventListener("click", ()=> plantFlower(type));
-      plantChoices.appendChild(btn);
-    });
+    plantA.textContent = `Plant Flower A (Remaining seeds: ${state.inventory.A})`;
+    plantB.textContent = `Plant Flower B (Remaining seeds: ${state.inventory.B})`;
+    plantC.textContent = `Plant Flower C (Remaining seeds: ${state.inventory.C})`;
+    plantD.textContent = `Plant Flower D (Remaining seeds: ${state.inventory.D})`;
 
     plantChoices.classList.remove("hidden");
     harvestChoice.classList.add("hidden");
@@ -586,20 +585,20 @@ function toggleEditMode() {
   editBtn.textContent = isEditMode ? "Done Editing" : "Edit Plots";
 }
 
-function pxToPercent(xPx, yPx, wPx, hPx) {
-  const rect = farmStage.getBoundingClientRect();
-  return {
-    x: (xPx / rect.width) * 100,
-    y: (yPx / rect.height) * 100,
-    w: (wPx / rect.width) * 100,
-    h: (hPx / rect.height) * 100,
-  };
-}
+// function pxToPercent(xPx, yPx, wPx, hPx) {
+//   const rect = farmStage.getBoundingClientRect();
+//   return {
+//     x: (xPx / rect.width) * 100,
+//     y: (yPx / rect.height) * 100,
+//     w: (wPx / rect.width) * 100,
+//     h: (hPx / rect.height) * 100,
+//   };
+// }
 
 // check if n in range of (a,b), return the max
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n));
-}
+// function clamp(n, a, b) {
+//   return Math.max(a, Math.min(b, n));
+// }
 
 // function attachDragResize() {
 // }
@@ -679,8 +678,10 @@ function init() {
     if (e.target === modalBackdrop) closeModalFn();
   });
 
-  // plantA.addEventListener("click", () => plantFlower("A"));
-  // plantB.addEventListener("click", () => plantFlower("B"));
+  plantA.addEventListener("click", () => plantFlower("A"));
+  plantB.addEventListener("click", () => plantFlower("B"));
+  plantC.addEventListener("click", () => plantFlower("C"));
+  plantD.addEventListener("click", () => plantFlower("D"));
   harvestBtn.addEventListener("click", harvest);
 
   buyA.addEventListener("click", () => buySeed("A"));
