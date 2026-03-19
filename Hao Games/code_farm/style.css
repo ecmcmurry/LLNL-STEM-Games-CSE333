@@ -238,6 +238,27 @@ body {
   background: rgba(255,255,255,0.1);
 }
 
+/* planting */
+.plantGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.plantFlower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+
+  gap: 6px;
+}
+
 .flowerImage {
   width: 100px;
   height: 100px;
