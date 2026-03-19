@@ -201,6 +201,31 @@ body {
   margin-bottom: 12px;
 }
 
+/* inventory */
+.inventoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.inventoryFlower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+}
+
+.inventoryFlowerImage {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
 .modalFooter {
   display: flex;
   justify-content: flex-end;
