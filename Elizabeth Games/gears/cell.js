@@ -1,24 +1,20 @@
 //Cell needs to define the basic components of a cell
 
 import { Gear, Motor, Output } from "./components/index.js";
+import { Block } from "./components/block.js";
 
 const lineWidth = 5;
 
 export class Cell {
     //Expand to include more information like contents
     //Maybe change names to be like, rowIndex?
-    constructor(row, col, size = 80, isBlocked = false, component = null) {
+    constructor(row, col, size = 80, canSelect = false, component = null) {
         this.row = row;
         this.col = col;
         this.size = size;
-        //I might change this into a component
-        this.isBlocked = isBlocked;
         this.isSelected = false;
         //Controls whether or not the player should be able to select certain cells
-        this.canSelect = true;
-        if (this.isBlocked) {
-            this.canSelect = false;
-        }
+        this.canSelect = canSelect;
         this.component = component;
     }
 
@@ -40,19 +36,18 @@ export class Cell {
             ctx.strokeStyle = "rgb(0, 0, 0)";
         }
 
-        //if a cell is blocked, draw it as a solid rectangle
-        if (!this.isBlocked) {
+        //Code for drawing blocks has been moved to block.js now that they are components
+        // If the cell is selected, draw it in red
+        if (this.isSelected) {
+            ctx.strokeStyle = "rgb(255, 0, 0)";
             ctx.strokeRect(x, y, this.size, this.size);
-        //otherwise, draw a hollow rectangle
+            ctx.strokeStyle = "rgb(0, 0, 0)";
+        // Otherwise draw it in black
         } else {
-            ctx.fillRect(x, y, this.size, this.size);
-            //THIS IS TEMPORARY
-            //The user should never have the ability to select blocks
-            //This is just for testing selecting components from the inventory
-            if (this.isSelected) {
-                ctx.strokeRect(x, y, this.size, this.size);
-            }
+            ctx.strokeStyle = "rgb(0, 0, 0)";
+            ctx.strokeRect(x, y, this.size, this.size);
         }
+        
         //This should also call the draw for the components when they are implemented.
         if (this.component != null) {
             this.component.draw(ctx, x, y);

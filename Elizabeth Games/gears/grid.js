@@ -2,6 +2,8 @@
 
 import { Cell } from "./cell.js";
 import { Gear, Motor, Output } from "./components/index.js";
+import { Belt, HorizontalBelt, VerticalBelt } from './components/belt.js';
+import { Block } from "./components/block.js";
 
 export class Grid {
     constructor(levelString) {
@@ -13,6 +15,7 @@ export class Grid {
         this.size = Number(loadedValues[2]);
 
         //Now we get to the actual level loading
+        //This might need to be offloaded into a separate function so that I can alter the grid with a new level string rather than deleting and recreating it
         this.cells = [];
 
         let loadIndex = 3;
@@ -51,11 +54,19 @@ export class Grid {
                 // B for Blocked
                 // TODO: Update blocked cells to be components
                 } else if (loadedValues[loadIndex][0] == "B") {
-                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, true));
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Block(this.size)));
+                // lowercase h indicates a short hortizontal belt
+                // belts send over RPM while maintaining direction and don't care about teeth count
+                // long belts don't exist, but I'm future-proofing
+                } else if (loadedValues[loadIndex][0] == "h") {
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new HorizontalBelt()));
+                // lowercase v indicates a short vertical belt
+                } else if (loadedValues[loadIndex][0] == "v") {
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new VerticalBelt()));
                 // otherwise, the cell is empty
                 // proper formatting is to use E to indicate an Empty Cell, but leaving this as a catch-all is better in my opinion
                 } else {
-                    currentRow.push(new Cell(rowIndex, columnIndex, this.size));
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, true));
                 }
 
                 loadIndex++;
@@ -79,7 +90,7 @@ export class Grid {
         }
     }
 
-    handleClick(x,y, component = "none") {
+    handleClick(x,y, component = null) {
         //I had to update the grid and cells so that the grid can now define the size of the cells
         //This is important because it means that I can have the decoding from screen/canvas coord -> row/col here, so that the cell only has to worry about it's actual logic
         
@@ -106,26 +117,28 @@ export class Grid {
 
         //We use our newly translated coordinates to identify the proper cell
         this.selectedCell = this.cells[selRow][selCol]
-        //Then we call the select function of that cell
-        if (this.selectedCell.canSelect) {
-            this.selectedCell.isSelected = true;
-            //console.log("selected a cell");
+        //If we cannot select a cell, then we exit the function
+        if (!this.selectedCell.canSelect) {
+            return;
         }
+        
+        this.selectedCell.isSelected = true;
+        //console.log("selected a cell");
 
         //Just reiterating (mainly for myself in case I forget): This is a temporary solution meant for testing
-        if (component == "block") {
-            this.selectedCell.isBlocked = true;
+        if (component instanceof Block) {
+            this.selectedCell.component = component;
         }
 
         //TEMPORARY
         this.propagateRPM();
     }
 
-    //Copied from ChatGPT, refactor later
+    //Copied from GPT -> Claude
+    //Refactor later
     propagateRPM() {
         let queue = [];
 
-        // Reset all non-motor gears
         for (let row of this.cells) {
             for (let cell of row) {
                 let comp = cell.component;
@@ -142,39 +155,77 @@ export class Grid {
 
         while (queue.length > 0) {
             let cell = queue.shift();
-            let gear = cell.component;
+            let comp = cell.component;
 
-            let neighbors = this.getNeighbors(cell.row, cell.col);
-
-            for (let [r, c] of neighbors) {
+            for (let [r, c] of this.getNeighbors(cell.row, cell.col)) {
                 let neighborCell = this.cells[r]?.[c];
                 if (!neighborCell) continue;
 
-                let neighborGear = neighborCell.component;
-                if (!neighborGear) continue;
+                let neighborComp = neighborCell.component;
+                if (!neighborComp) continue;
 
-                let newRPM = -gear.rpm * (gear.teeth / neighborGear.teeth);
+                if (neighborComp instanceof Block) continue;  // Blocks don't transmit RPM
 
-                // If RPM not assigned yet
-                if (neighborGear.rpm === null) {
-                    neighborGear.rpm = newRPM;
-                    queue.push(neighborCell);
+                let newRPM;
+
+                if (comp instanceof Belt || neighborComp instanceof Belt) {
+                    // Belts transmit RPM directly — no inversion, no teeth ratio
+                    newRPM = comp.rpm;
+                } else {
+                    // Gear-to-gear: invert direction and apply teeth ratio
+                    newRPM = -comp.rpm * (comp.teeth / neighborComp.teeth);
                 }
-                // Detect contradictions
-                else if (Math.abs(neighborGear.rpm - newRPM) > 0.01) {
-                    console.log("Invalid gear configuration detected");
+
+                if (neighborComp.rpm === null) {
+                    neighborComp.rpm = newRPM;
+                    //console.log(`  Assigned RPM ${newRPM} to (${r}, ${c}) — ${neighborComp.constructor.name}`);
+                    queue.push(neighborCell);
+                } else if (Math.abs(neighborComp.rpm - newRPM) > 0.01) {
+                    console.log(`  CONFLICT at (${r}, ${c}) — existing: ${neighborComp.rpm}, calculated: ${newRPM}`);
                 }
             }
         }
     }
 
-    //Copied from ChatGPT, refactor later
-    getNeighbors(row, col) {
-        return [
-            [row-1, col],
-            [row+1, col],
-            [row, col-1],
-            [row, col+1]
-        ];
+        getNeighbors(row, col) {
+        const comp = this.cells[row]?.[col]?.component;
+
+        //console.log(`getNeighbors called on (${row}, ${col}) — component: ${comp?.constructor.name}`);
+
+        if (comp instanceof HorizontalBelt) {
+            const neighbors = [[row, col - 1], [row, col + 1]];
+            //console.log(`  HorizontalBelt: returning only left/right`, neighbors);
+            return neighbors;
+        }
+
+        if (comp instanceof VerticalBelt) {
+            const neighbors = [[row - 1, col], [row + 1, col]];
+            //console.log(`  VerticalBelt: returning only up/down`, neighbors);
+            return neighbors;
+        }
+
+        const all = [[row - 1, col], [row + 1, col], [row, col - 1], [row, col + 1]];
+
+        const filtered = all.filter(([r, c]) => {
+            const neighborComp = this.cells[r]?.[c]?.component;
+            const name = neighborComp?.constructor.name ?? 'empty';
+
+            if (neighborComp instanceof HorizontalBelt) {
+                const allowed = c !== col;
+                //console.log(`  Neighbor (${r}, ${c}) is HorizontalBelt — allowed: ${allowed} (c !== col: ${c} !== ${col})`);
+                return allowed;
+            }
+            if (neighborComp instanceof VerticalBelt) {
+                const allowed = r !== row;
+                //console.log(`  Neighbor (${r}, ${c}) is VerticalBelt — allowed: ${allowed} (r !== row: ${r} !== ${row})`);
+                return allowed;
+            }
+
+            //console.log(`  Neighbor (${r}, ${c}) is ${name} — allowed: true`);
+            return true;
+        });
+
+        //console.log(`  Final neighbors:`, filtered);
+        return filtered;
     }
 }
