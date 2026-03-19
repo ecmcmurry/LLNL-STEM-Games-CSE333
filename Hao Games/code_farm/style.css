@@ -222,18 +222,21 @@ body {
 }
 
 /*terminal */
-.terminalBar {
-  width: min(980px, 96vw);
-  margin: 14px auto 0;
-  background: rgba(17, 24, 39, 0.92);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 14px;
-  padding: 12px;
+.terminal {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 700px;
+  background: rgba(138, 212, 119, 1);
+  padding: 10px;
+  z-index: 10;
 }
 
 .terminalLabel {
   font-size: 14px;
-  color: #9ca3af;
+  color: #1a1b1b;
   margin-bottom: 8px;
 }
 
@@ -241,15 +244,15 @@ body {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(0,0,0,0.25);
-  color: #e5e7eb;
+  border: 1px solid rgb(28, 75, 17);
+  background: rgb(170, 196, 164);
+  color: #ffffff;
   outline: none;
 }
 
 .terminalOutput {
   margin-top: 8px;
   min-height: 20px;
-  color: #9ca3af;
+  color: #ffffff;
   font-size: 14px;
 }
