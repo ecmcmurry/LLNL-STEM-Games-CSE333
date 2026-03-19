@@ -3,7 +3,7 @@ import { LEVELS } from '../data/levels.js';
 import { ELEMENT_TYPE, SUPPORT_TYPE, ELEMENT_PROPERTIES } from '../utils/constants.js';
 import {
   getCurrentLevelIndex, getStructure, getBudgetRemaining,
-  deductBudget, refundBudget, setStructure, setBuildScreenSnapshot,
+  deductBudget, refundBudget, setStructure, setBuildScreenSnapshot, setBuildCanvasTransform,
 } from '../state.js';
 import { saveStructure, loadStructure } from '../utils/storage.js';
 import {
@@ -330,6 +330,9 @@ export function render(container) {
       setBuildScreenSnapshot(snap);
       location.hash = '#simulate';
     };
+
+    // Save canvas position + cell size so the sim screen can re-draw the structure
+    setBuildCanvasTransform(canvasEl.getBoundingClientRect(), cellPx);
 
     if (bgImg.complete) {
       _doSnap();
