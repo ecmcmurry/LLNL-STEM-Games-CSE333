@@ -44,10 +44,18 @@ export class HorizontalBelt extends Belt {
     constructor() {
         super("H");
     }
+
+    clone() {
+        return new HorizontalBelt();
+    }
 }
 
 export class VerticalBelt extends Belt {
     constructor() {
         super("V");
+    }
+
+    clone() {
+        return new VerticalBelt();
     }
 }

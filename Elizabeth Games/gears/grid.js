@@ -126,8 +126,16 @@ export class Grid {
         //console.log("selected a cell");
 
         //Just reiterating (mainly for myself in case I forget): This is a temporary solution meant for testing
+        //If the component being placed is not null 
+        if (component != null) {
+            //create a clone of the component and place it in the selected cell
+            this.selectedCell.component = component.clone();
+        //otherwise
+        } else {
+            //set the contents of  the selected cell to nothing
+            this.selectedCell.component = null;
+        }
         
-        this.selectedCell.component = component;
 
         //TEMPORARY
         this.propagateRPM();

@@ -8,4 +8,8 @@ export class Block {
         ctx.strokeStyle = "rgb(0, 0, 0)";
         ctx.fillRect(x, y, this.size, this.size);
     }
+
+    clone() {
+        return new Block(this.size);
+    }
 }
