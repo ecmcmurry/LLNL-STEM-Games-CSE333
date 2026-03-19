@@ -8,8 +8,13 @@ export class Inventory extends Grid {
     constructor(levelString) {
         //This calls the constructor for Grid using the values passed into Inventory's construction
         super(levelString);
-        this.cells[0][0].isBlocked = true;
-        this.cells[0][0].canSelect = true;
+        for (let rowIndex = 0; rowIndex < this.rows; rowIndex++) {
+            //
+            for (let columnIndex = 0; columnIndex < this.cols; columnIndex++) {
+                //
+                this.cells[rowIndex][columnIndex].canSelect = true;
+            }
+        }
     }
 
     //The draw function is not needed, as the inventory should be drawn just like a grid
