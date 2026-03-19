@@ -19,6 +19,10 @@ const state = {
 
   // Snapshot of the full build screen captured just before transitioning to simulate
   buildScreenSnapshot: null, // HTMLCanvasElement
+
+  // Blueprint canvas position + cell size at the moment Simulate was pressed.
+  // Used by the sim screen to re-draw the structure over the cityscape.
+  buildCanvasTransform: null, // { rect: DOMRect, cellPx: number }
 };
 
 // [LEVEL-PROGRESS] Sets the active level index and resets build-phase state
@@ -77,4 +81,14 @@ export function setSimulationResult(result) {
 // [SIMULATION] Returns the last simulation result, or null if not yet run
 export function getSimulationResult() {
   return state.simulationResult;
+}
+
+// [SIMULATION] Saves the blueprint canvas position and cell size captured just before simulate
+export function setBuildCanvasTransform(rect, cellPx) {
+  state.buildCanvasTransform = { rect, cellPx };
+}
+
+// [SIMULATION] Returns the saved build canvas transform, or null
+export function getBuildCanvasTransform() {
+  return state.buildCanvasTransform;
 }

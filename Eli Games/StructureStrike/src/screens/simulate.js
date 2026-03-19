@@ -1,9 +1,10 @@
 import { el } from '../ui/components.js';
 import { LEVELS } from '../data/levels.js';
-import { getCurrentLevelIndex, getStructure, getBuildScreenSnapshot } from '../state.js';
+import { getCurrentLevelIndex, getStructure, getBuildScreenSnapshot, getBuildCanvasTransform } from '../state.js';
 import { mountNotificationContainer, unmountNotificationContainer } from '../ui/notifications.js';
 import { closeModal } from '../ui/modals.js';
 import { runGlassShatterAnimation } from '../canvas/glass-shatter.js';
+import { drawElement, drawNode, drawSupportSymbol, drawLoadArrow } from '../canvas/blueprint-canvas.js';
 
 // [SIMULATION] Simulation screen. Mounts a full-screen overlay on top of the
 // existing build screen (no flash), shatters the snapshot of the build screen
@@ -50,18 +51,50 @@ export function render(container) {
   worldCtx.scale(dpr, dpr);
   shatterCtx.scale(dpr, dpr);
 
-  // ── Draw world background ─────────────────────────────────────────────────
+  // ── Draw world background + structure ─────────────────────────────────────
   // Fill with a dark colour immediately so there's never a transparent gap.
   worldCtx.fillStyle = '#0d1424';
   worldCtx.fillRect(0, 0, vw, vh);
+  _drawStructureOnWorld(); // draw on dark bg immediately so it's visible from frame 1
+
   const cityImg = new Image();
   cityImg.src = '/cityscape.png';
-  cityImg.onload = () => worldCtx.drawImage(cityImg, 0, 0, vw, vh);
+  cityImg.onload = () => {
+    worldCtx.drawImage(cityImg, 0, 0, vw, vh);
+    _drawStructureOnWorld(); // redraw on top of cityscape
+  };
 
   // ── Draw snapshot onto shatter canvas (synchronous, no flash) ────────────
   const snapshot = getBuildScreenSnapshot();
   if (snapshot) {
     shatterCtx.drawImage(snapshot, 0, 0, vw, vh);
+  }
+
+  // ── Structure overlay on world canvas ────────────────────────────────────
+  // Draws elements, nodes, and support symbols over whatever is on worldCtx.
+  // Called once on dark bg (instant) and again after the cityscape image loads.
+  function _drawStructureOnWorld() {
+    const transform = getBuildCanvasTransform();
+    if (!transform) return;
+    const { rect, cellPx } = transform;
+    const nodeMap = Object.fromEntries(structure.nodes.map(n => [n.id, n]));
+
+    worldCtx.save();
+    worldCtx.translate(rect.left, rect.top);
+
+    for (const elem of structure.elements) {
+      const nodeA = nodeMap[elem.nodeAId];
+      const nodeB = nodeMap[elem.nodeBId];
+      if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
+    }
+
+    for (const node of structure.nodes) {
+      drawNode(worldCtx, node, cellPx, false, false);
+      if (node.isAnchor) drawSupportSymbol(worldCtx, node, cellPx);
+      if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+    }
+
+    worldCtx.restore();
   }
 
   // ── Run shatter immediately ───────────────────────────────────────────────

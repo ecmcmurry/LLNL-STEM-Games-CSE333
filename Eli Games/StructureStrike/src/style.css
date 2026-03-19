@@ -333,8 +333,8 @@ ul { list-style: none; }
 .hud-btn--back      { background: var(--hud-btn-bg); color: var(--text-secondary); }
 .hud-btn--animate   { background: var(--accent-cyan); color: #0a0e1a; font-weight: 700; border: none; }
 .hud-btn--animate:hover { filter: brightness(1.12); }
-.hud-btn--reset     { background: #2a0808; color: var(--accent-red); border: 1px solid var(--accent-red); }
-.hud-btn--reset:hover { background: #3d0f0f; }
+.hud-btn--reset     { background: var(--hud-btn-bg); color: var(--text-secondary); }
+.hud-btn--reset:hover { background: var(--hud-btn-hover); }
 .hud-btn--disabled  { opacity: 0.4; pointer-events: none; }
 
 @media (min-width: 768px) {
@@ -556,6 +556,81 @@ ul { list-style: none; }
 /* ─── Error fallback ──────────────────────────────────────────────────────── */
 .error-screen { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--accent-red); font-size: 1.1rem; }
 .error-screen a { color: var(--accent-cyan); margin-left: 8px; }
+
+/* ─── Mobile HUD layout (<768px) ─────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Left sidebar → top bar: title centred, budget below */
+  .hud-side--left {
+    bottom: auto;
+    right: 0;
+    width: 100%;
+    height: var(--hud-height-top);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--hud-bg);
+    border-bottom: 1px solid var(--hud-border-col);
+    padding: 6px 16px;
+  }
+  .hud-side--left .level-strip {
+    flex: none;
+    width: 100%;
+    justify-content: center;
+  }
+  .hud-side--left .level-strip__name {
+    font-size: 1rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Right sidebar → bottom bar: 2×2 grid */
+  .hud-side--right {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 110px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    padding: 6px;
+    align-items: stretch;
+    background: var(--hud-bg);
+    border-top: 1px solid var(--hud-border-col);
+  }
+
+  /* r1c1=History  r1c2=Simulate */
+  /* r2c1=Reset    r2c2=Undo      */
+  .hud-btn--museum   { grid-column: 1; grid-row: 1; }
+  .hud-btn--simulate { grid-column: 2; grid-row: 1; margin-left: 0; margin-top: 0; }
+  .hud-btn--reset    { grid-column: 1; grid-row: 2; }
+  .hud-btn--undo     { grid-column: 2; grid-row: 2; }
+  .hud-btn--delete   { display: none; }
+
+  .hud-side--right .hud-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+    margin-left: 0;
+  }
+
+  /* Canvas: sit between the two bars */
+  .build-canvas-wrap {
+    top: var(--hud-height-top);
+    bottom: 110px;
+  }
+
+  /* Notification stack: above bottom bar */
+  .notification-stack {
+    bottom: calc(110px + 12px);
+  }
+}
 
 /* ─── Scrollbar styling ───────────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 4px; height: 4px; }
