@@ -90,8 +90,8 @@ export function render(container) {
   // ── Canvas init ───────────────────────────────────────────────────────────
   let { ctx, cellPx, canvasW, canvasH } = initialiseBlueprintCanvas(
     canvasEl,
-    window.innerWidth,
-    window.innerHeight,
+    canvasWrap.clientWidth || window.innerWidth,
+    canvasWrap.clientHeight || window.innerHeight,
   );
 
   // [BUILD-CANVAS] Sizes the silver border div to surround the canvas, and
@@ -430,7 +430,7 @@ export function render(container) {
 
   // ── Resize handler ────────────────────────────────────────────────────────
   function handleResize() {
-    const reinit = initialiseBlueprintCanvas(canvasEl, window.innerWidth, window.innerHeight);
+    const reinit = initialiseBlueprintCanvas(canvasEl, canvasWrap.clientWidth || window.innerWidth, canvasWrap.clientHeight || window.innerHeight);
     ctx = reinit.ctx; cellPx = reinit.cellPx; canvasW = reinit.canvasW; canvasH = reinit.canvasH;
     updateCanvasFrame();
     renderCanvas();

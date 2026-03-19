@@ -1,32 +1,46 @@
 import { el } from '../ui/components.js';
 import { LEVELS } from '../data/levels.js';
-import { getCurrentLevelIndex, getStructure, getBuildScreenSnapshot, getBuildCanvasTransform } from '../state.js';
+import {
+  getCurrentLevelIndex, getStructure,
+  getBuildScreenSnapshot, getBuildCanvasTransform,
+  setSimulationResult,
+} from '../state.js';
 import { mountNotificationContainer, unmountNotificationContainer } from '../ui/notifications.js';
 import { closeModal } from '../ui/modals.js';
 import { runGlassShatterAnimation } from '../canvas/glass-shatter.js';
 import { drawElement, drawNode, drawLoadArrow } from '../canvas/blueprint-canvas.js';
-import { drawStructuralMember, drawPinJoint, drawConcreteSupport } from '../canvas/structural-visuals.js';
+import { drawStructuralMember, drawStructuralMemberAt, drawPinJoint, drawPinJointAt, drawConcreteSupport } from '../canvas/structural-visuals.js';
+import {
+  drawElementFailureBurst,
+  applySeismicShake,
+  drawWindEffect,
+  drawFloodOverlay,
+} from '../canvas/sim-renderer.js';
+import { runPlanckSimulation } from '../physics/sim-engine.js';
+import { DEFORMATION_SCALE, CELL_METERS } from '../utils/constants.js';
+import { gridToCanvas } from '../utils/math.js';
 
-// [SIMULATION] Simulation screen. Mounts a full-screen overlay on top of the
-// existing build screen (no flash), shatters the snapshot of the build screen
-// away to reveal the world background, then runs a build animation that
-// materialises the structure as realistic steel members over the cityscape.
-// Returns a cleanup function per the router contract.
+const WARMUP_SECS  = 1.5;
+const ACTIVE_SECS  = 4.0;
+const TOTAL_SECS   = WARMUP_SECS + ACTIVE_SECS;
+
+// [SIMULATION] Simulation screen. Shatters the build snapshot, runs a build
+// animation, executes the Planck physics simulation, then replays the result
+// as an animated sequence with deformation, stress colours, and force effects.
 export function render(container) {
-  // NOTE: intentionally do NOT clear the container yet — the build screen
-  // stays in the DOM as the visual backdrop during the shatter animation.
-  // We clear it only after the shatter completes.
-
   const levelIndex = getCurrentLevelIndex();
   const level      = LEVELS[levelIndex];
   const structure  = getStructure();
   if (!level || !structure) { container.innerHTML = ''; location.hash = '#build'; return () => {}; }
 
+  const nodes    = structure.nodes;
+  const elements = structure.elements;
+
   const vw  = window.innerWidth;
   const vh  = window.innerHeight;
   const dpr = window.devicePixelRatio ?? 1;
 
-  // ── Build overlay DOM ─────────────────────────────────────────────────────
+  // ── DOM ───────────────────────────────────────────────────────────────────
   const worldCanvasEl   = el('canvas', { class: 'sim-world-canvas' });
   const shatterCanvasEl = el('canvas', { class: 'sim-shatter-canvas' });
   const backBtn = el('button', {
@@ -35,12 +49,10 @@ export function render(container) {
     onClick: () => { location.hash = '#build'; },
   }, '← Rebuild');
 
-  // Overlay sits on top of the existing build screen (position:fixed in CSS)
   const overlay = el('div', { class: 'sim-overlay' }, worldCanvasEl, shatterCanvasEl, backBtn);
   container.appendChild(overlay);
   mountNotificationContainer(overlay);
 
-  // ── Canvas sizing ─────────────────────────────────────────────────────────
   for (const c of [worldCanvasEl, shatterCanvasEl]) {
     c.width        = vw * dpr;
     c.height       = vh * dpr;
@@ -53,181 +65,68 @@ export function render(container) {
   worldCtx.scale(dpr, dpr);
   shatterCtx.scale(dpr, dpr);
 
-  // ── Draw world background + blueprint structure (visible during shatter) ──
+  // ── Background capture ────────────────────────────────────────────────────
   worldCtx.fillStyle = '#0d1424';
   worldCtx.fillRect(0, 0, vw, vh);
-  _drawBlueprintStructure(); // show structure immediately on dark bg
+  _drawBlueprintStructure();
 
-  // Background-only snapshot for the build animation redraws
   let bgSnapshot = null;
-
   const cityImg = new Image();
   cityImg.src = '/cityscape.png';
   cityImg.onload = () => {
-    worldCtx.drawImage(cityImg, 0, 0, vw, vh);
-    // Capture city without structure so the animation can restore it each frame
+    // Draw with CSS "cover" behavior — scale to fill, preserve aspect ratio
+    const imgAR = cityImg.naturalWidth / cityImg.naturalHeight;
+    const canAR = vw / vh;
+    let sx = 0, sy = 0, sw = cityImg.naturalWidth, sh = cityImg.naturalHeight;
+    if (imgAR > canAR) {
+      // image wider than canvas — crop sides
+      sw = cityImg.naturalHeight * canAR;
+      sx = (cityImg.naturalWidth - sw) / 2;
+    } else {
+      // image taller than canvas — crop top/bottom
+      sh = cityImg.naturalWidth / canAR;
+      sy = (cityImg.naturalHeight - sh) / 2;
+    }
+    worldCtx.drawImage(cityImg, sx, sy, sw, sh, 0, 0, vw, vh);
     bgSnapshot = document.createElement('canvas');
     bgSnapshot.width  = worldCanvasEl.width;
     bgSnapshot.height = worldCanvasEl.height;
     bgSnapshot.getContext('2d').drawImage(worldCanvasEl, 0, 0);
-    _drawBlueprintStructure(); // redraw blueprint on top for shatter visibility
+    _drawBlueprintStructure();
   };
 
-  // ── Draw snapshot onto shatter canvas (synchronous, no flash) ────────────
   const snapshot = getBuildScreenSnapshot();
-  if (snapshot) {
-    shatterCtx.drawImage(snapshot, 0, 0, vw, vh);
-  }
+  if (snapshot) shatterCtx.drawImage(snapshot, 0, 0, vw, vh);
 
-  // ── Blueprint structure helper (shown during shatter) ─────────────────────
-  // Draws the full structure in blueprint style (colored lines + nodes).
+  // ── Blueprint overlay (visible during shatter) ────────────────────────────
   function _drawBlueprintStructure() {
     const transform = getBuildCanvasTransform();
     if (!transform) return;
     const { rect, cellPx } = transform;
-    const nodeMap = Object.fromEntries(structure.nodes.map(n => [n.id, n]));
-
+    const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
     worldCtx.save();
     worldCtx.translate(rect.left, rect.top);
-    for (const elem of structure.elements) {
-      const nodeA = nodeMap[elem.nodeAId];
-      const nodeB = nodeMap[elem.nodeBId];
-      if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
+    for (const elem of elements) {
+      const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+      if (nA && nB) drawElement(worldCtx, nA, nB, elem.type, cellPx);
     }
-    // Concrete bodies behind members
-    for (const node of structure.nodes) {
+    for (const node of nodes) {
       if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
       if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
     }
-    // Non-anchor nodes (blueprint style) + all pin joints on top
-    for (const node of structure.nodes) {
+    for (const node of nodes) {
       if (!node.isAnchor && !node.isLoadNode) drawNode(worldCtx, node, cellPx, false, false);
     }
-    for (const node of structure.nodes) {
+    for (const node of nodes) {
       if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
     }
     worldCtx.restore();
   }
 
-  // ── Build animation ───────────────────────────────────────────────────────
-  // After the shatter, each structural element animates in from node A→B
-  // with a realistic steel / cable material look, with a welding spark at tip.
-  let animRafId = null;
+  // ── Shatter → build animation → physics ──────────────────────────────────
+  let animRafId   = null;
+  let physicsRafId = null;
 
-  function _runBuildAnimation() {
-    const transform = getBuildCanvasTransform();
-    if (!transform || !structure.elements.length) {
-      // Nothing to animate — just show static structural view and unhide back btn
-      _drawFinalStructure();
-      backBtn.style.display = '';
-      return;
-    }
-
-    const { rect, cellPx } = transform;
-    const nodeMap    = Object.fromEntries(structure.nodes.map(n => [n.id, n]));
-    const ELEM_MS    = 260;  // ms to build each single element
-    const STAGGER_MS = 70;   // ms delay between each element starting
-    const start      = performance.now();
-
-    function frame(now) {
-      const elapsed = now - start;
-
-      // Restore clean cityscape background each frame
-      if (bgSnapshot) {
-        worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-      } else {
-        worldCtx.fillStyle = '#0d1424';
-        worldCtx.fillRect(0, 0, vw, vh);
-      }
-
-      worldCtx.save();
-      worldCtx.translate(rect.left, rect.top);
-
-      // Layer 1: full blueprint colored lines (always fully visible as base)
-      for (const elem of structure.elements) {
-        const nodeA = nodeMap[elem.nodeAId];
-        const nodeB = nodeMap[elem.nodeBId];
-        if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
-      }
-
-      // Layer 2: concrete support bodies + load arrows (behind members)
-      for (const node of structure.nodes) {
-        if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
-        if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
-      }
-
-      // Layer 3: structural members drawing over the blueprint lines
-      let allDone = true;
-      structure.elements.forEach((elem, i) => {
-        const elemStart = i * STAGGER_MS;
-        const progress  = Math.min(1, Math.max(0, (elapsed - elemStart) / ELEM_MS));
-        if (progress < 1) allDone = false;
-        if (progress <= 0) return;
-
-        const nodeA = nodeMap[elem.nodeAId];
-        const nodeB = nodeMap[elem.nodeBId];
-        if (nodeA && nodeB) {
-          drawStructuralMember(worldCtx, nodeA, nodeB, elem.type, cellPx, progress);
-        }
-      });
-
-      // Layer 4: all pin joints on top of everything — anchors included
-      for (const node of structure.nodes) {
-        if (node.isAnchor || !node.isLoadNode) {
-          drawPinJoint(worldCtx, node, cellPx);
-        }
-      }
-
-      worldCtx.restore();
-
-      if (!allDone) {
-        animRafId = requestAnimationFrame(frame);
-      } else {
-        backBtn.style.display = '';
-      }
-    }
-
-    animRafId = requestAnimationFrame(frame);
-  }
-
-  // Draw the fully-built structural style without animation (used when no elements)
-  function _drawFinalStructure() {
-    const transform = getBuildCanvasTransform();
-    if (!transform) return;
-    const { rect, cellPx } = transform;
-    const nodeMap = Object.fromEntries(structure.nodes.map(n => [n.id, n]));
-
-    if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-
-    worldCtx.save();
-    worldCtx.translate(rect.left, rect.top);
-
-    // Blueprint lines
-    for (const elem of structure.elements) {
-      const nodeA = nodeMap[elem.nodeAId];
-      const nodeB = nodeMap[elem.nodeBId];
-      if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
-    }
-    // Concrete bodies + load arrows (behind members)
-    for (const node of structure.nodes) {
-      if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
-      if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
-    }
-    // Structural members over blueprint lines
-    for (const elem of structure.elements) {
-      const nodeA = nodeMap[elem.nodeAId];
-      const nodeB = nodeMap[elem.nodeBId];
-      if (nodeA && nodeB) drawStructuralMember(worldCtx, nodeA, nodeB, elem.type, cellPx, 1);
-    }
-    // All pin joints on top of everything — anchors included
-    for (const node of structure.nodes) {
-      if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
-    }
-
-    worldCtx.restore();
-  }
-
-  // ── Run shatter immediately ───────────────────────────────────────────────
   let cancelShatter = runGlassShatterAnimation(
     shatterCtx, vw, vh,
     snapshot ?? shatterCanvasEl,
@@ -235,28 +134,264 @@ export function render(container) {
     _onShatterComplete,
   );
 
-  // [ANIMATION] Shatter done — clear old build DOM, hide shatter canvas,
-  // restore clean background, then start the structural build animation.
   function _onShatterComplete() {
     container.innerHTML = '';
     container.appendChild(overlay);
     shatterCanvasEl.style.display = 'none';
+    if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
+    else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+    _runBuildAnimation();
+  }
 
-    // Restore clean background (no blueprint structure) before building
-    if (bgSnapshot) {
-      worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-    } else {
-      worldCtx.fillStyle = '#0d1424';
-      worldCtx.fillRect(0, 0, vw, vh);
+  // ── Build animation ───────────────────────────────────────────────────────
+  function _runBuildAnimation() {
+    const transform = getBuildCanvasTransform();
+    if (!transform || !elements.length) {
+      _startPhysics();
+      return;
+    }
+    const { rect, cellPx } = transform;
+    const nodeMap    = Object.fromEntries(nodes.map(n => [n.id, n]));
+    const ELEM_MS    = 260;
+    const STAGGER_MS = 70;
+    const start      = performance.now();
+
+    function frame(now) {
+      const elapsed = now - start;
+
+      if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
+      else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+
+      worldCtx.save();
+      worldCtx.translate(rect.left, rect.top);
+
+      // Layer 1: blueprint lines
+      for (const elem of elements) {
+        const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+        if (nA && nB) drawElement(worldCtx, nA, nB, elem.type, cellPx);
+      }
+
+      // Layer 2: concrete support bodies + load arrows
+      for (const node of nodes) {
+        if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
+        if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+      }
+
+      // Layer 3: structural members animating in
+      let allDone = true;
+      elements.forEach((elem, i) => {
+        const progress = Math.min(1, Math.max(0, (elapsed - i * STAGGER_MS) / ELEM_MS));
+        if (progress < 1) allDone = false;
+        if (progress <= 0) return;
+        const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+        if (nA && nB) drawStructuralMember(worldCtx, nA, nB, elem.type, cellPx, progress);
+      });
+
+      // Layer 4: all pin joints on top
+      for (const node of nodes) {
+        if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
+      }
+
+      worldCtx.restore();
+
+      if (!allDone) {
+        animRafId = requestAnimationFrame(frame);
+      } else {
+        _startPhysics();
+      }
+    }
+    animRafId = requestAnimationFrame(frame);
+  }
+
+  // ── Physics: run synchronously then replay visually ───────────────────────
+  function _startPhysics() {
+    // Tiny delay so the final build frame paints before the (brief) blocking call
+    setTimeout(() => {
+      let simResult;
+      try {
+        simResult = runPlanckSimulation(nodes, elements, level);
+      } catch (err) {
+        console.error('[StructureStrike] Physics simulation failed:', err);
+        // Fallback: treat as collapsed so the player can see results
+        simResult = {
+          survived: false,
+          displacements: null,
+          elementStressRatios: {},
+          failedElementIds: new Set(),
+          failureSequence: [],
+          isMechanism: true,
+        };
+      }
+      setSimulationResult(simResult);
+      _runPhysicsPlayback(simResult);
+    }, 80);
+  }
+
+  function _runPhysicsPlayback(simResult) {
+    const transform = getBuildCanvasTransform();
+    if (!transform) { _finish(simResult); return; }
+    const { rect, cellPx } = transform;
+    const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+
+    // Spread failure waves evenly across the active threat window
+    const failureBursts = [];
+    simResult.failureSequence.forEach((wave, i) => {
+      const t = WARMUP_SECS +
+        (i + 0.5) * (ACTIVE_SECS / Math.max(simResult.failureSequence.length, 1));
+      for (const elemId of wave) {
+        const elem = elements.find(e => e.id === elemId);
+        if (!elem) continue;
+        failureBursts.push({
+          nodeA: nodeMap[elem.nodeAId],
+          nodeB: nodeMap[elem.nodeBId],
+          startTimeSec: t,
+        });
+      }
+    });
+
+    // Ballistic impact flash position (absolute canvas coords)
+    let impactEvent = null;
+    if (level.threat?.type === 'ballistic' && level.loadNodes?.length) {
+      const ln = level.loadNodes[0];
+      const node = nodes.find(n => n.col === ln.col && n.row === ln.row);
+      if (node) {
+        const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+        impactEvent = { x: rect.left + x, y: rect.top + y, startTimeSec: WARMUP_SECS };
+      }
     }
 
-    _runBuildAnimation();
+    const start = performance.now();
+
+    function frame(now) {
+      const timeSec      = Math.min((now - start) / 1000, TOTAL_SECS);
+      const activeTimeSec = Math.max(0, timeSec - WARMUP_SECS);
+      const deformRamp   = Math.min(1, activeTimeSec / 2.0);
+      const deformScale  = DEFORMATION_SCALE * deformRamp;
+
+      // Background
+      if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
+      else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+
+      // Full-screen force effects (no canvas offset needed)
+      if (level.threat?.type === 'wind' && activeTimeSec > 0) {
+        drawWindEffect(worldCtx, vw, vh, level.threat.windSpeedKmh, timeSec);
+      }
+      if (level.threat?.type === 'flood') {
+        const wrf = Math.min(1, Math.max(0, activeTimeSec / ACTIVE_SECS));
+        drawFloodOverlay(worldCtx, vw, vh, wrf);
+      }
+
+      // Structure block — translated to match build canvas position
+      worldCtx.save();
+      worldCtx.translate(rect.left, rect.top);
+
+      // Seismic shake applied only to the structure block
+      if (level.threat?.type === 'seismic' && activeTimeSec > 0) {
+        applySeismicShake(worldCtx, level.threat.peakAccelerationG, timeSec, level.threat.frequencyHz);
+      }
+
+      // Helper: get deformed canvas position for a node
+      const metresToPx = cellPx / CELL_METERS;
+      const deformedPos = (node, idx) => {
+        const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+        if (!simResult.displacements || idx === undefined) return { x, y };
+        return {
+          x: x +  simResult.displacements[3 * idx]     * metresToPx * deformScale,
+          y: y + -simResult.displacements[3 * idx + 1] * metresToPx * deformScale,
+        };
+      };
+
+      // Layer 1: blueprint element lines (undeformed, visual reference)
+      for (const elem of elements) {
+        const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+        if (nA && nB) drawElement(worldCtx, nA, nB, elem.type, cellPx);
+      }
+
+      // Layer 2: concrete bases + load arrows (anchored — no deformation)
+      for (const node of nodes) {
+        if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
+        if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+      }
+
+      // Layer 3: steel/cable members at deformed positions with stress tint
+      for (const elem of elements) {
+        const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+        if (!nA || !nB) continue;
+        const iA = nodes.indexOf(nA), iB = nodes.indexOf(nB);
+        const pA = deformedPos(nA, iA), pB = deformedPos(nB, iB);
+        const stress = simResult.elementStressRatios?.[elem.id] ?? 0;
+        drawStructuralMemberAt(worldCtx, pA.x, pA.y, pB.x, pB.y, elem.type, cellPx, stress);
+      }
+
+      // Layer 4: pin joints at deformed positions
+      for (const node of nodes) {
+        if (node.isAnchor || !node.isLoadNode) {
+          const idx = nodes.indexOf(node);
+          const p = deformedPos(node, idx);
+          drawPinJointAt(worldCtx, p.x, p.y, cellPx);
+        }
+      }
+
+      // Failure bursts
+      for (const burst of failureBursts) {
+        const t = (timeSec - burst.startTimeSec) / 0.6;
+        if (t >= 0 && t <= 1) {
+          drawElementFailureBurst(worldCtx, burst.nodeA, burst.nodeB, t, cellPx);
+        }
+      }
+
+      worldCtx.restore();
+
+      // Ballistic impact flash (absolute coords, outside translate)
+      if (impactEvent) {
+        const t = (timeSec - impactEvent.startTimeSec) / 0.8;
+        if (t >= 0 && t <= 1) _drawImpactFlash(worldCtx, impactEvent.x, impactEvent.y, t);
+      }
+
+      if (timeSec < TOTAL_SECS) {
+        physicsRafId = requestAnimationFrame(frame);
+      } else {
+        backBtn.style.display = '';
+        _finish(simResult);
+      }
+    }
+
+    physicsRafId = requestAnimationFrame(frame);
+  }
+
+  function _finish(_simResult) {
+    // Brief pause, then navigate to results (handles both pass and fail)
+    setTimeout(() => { location.hash = '#results'; }, 1200);
+  }
+
+  // ── Ballistic impact flash (inline — not in sim-renderer exports) ─────────
+  function _drawImpactFlash(ctx, x, y, progress) {
+    const radius = progress * 60;
+    const alpha  = (1 - progress) * 0.9;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#ff5252';
+    ctx.lineWidth   = 3 * (1 - progress);
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    const g = ctx.createRadialGradient(x, y, 0, x, y, radius * 0.5);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.3, '#ff9800');
+    g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.restore();
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────
   return () => {
-    if (cancelShatter) cancelShatter();
-    if (animRafId) cancelAnimationFrame(animRafId);
+    if (cancelShatter)  cancelShatter();
+    if (animRafId)      cancelAnimationFrame(animRafId);
+    if (physicsRafId)   cancelAnimationFrame(physicsRafId);
     overlay.remove();
     unmountNotificationContainer();
     closeModal();

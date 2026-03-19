@@ -95,6 +95,7 @@ export function createElementJoints(world, elements, bodies, nodes) {
     if (!nodeA || !nodeB) continue;
 
     const restLength = elementLengthMetres(nodeA, nodeB, CELL_METERS);
+    if (restLength < 1e-6) continue; // skip degenerate zero-length elements
     const isCable    = elem.type === 'cable';
 
     const joint = world.createJoint(planck.DistanceJoint({
@@ -137,8 +138,14 @@ export function stepWorld(world) {
 export function getJointForces(joints) {
   const forces = {};
   for (const [elemId, { joint }] of joints.entries()) {
-    const f = joint.getReactionForce(60);
-    forces[elemId] = Math.sqrt(f.x * f.x + f.y * f.y);
+    try {
+      const f = joint.getReactionForce(60);
+      forces[elemId] = (f && isFinite(f.x) && isFinite(f.y))
+        ? Math.sqrt(f.x * f.x + f.y * f.y)
+        : 0;
+    } catch (_) {
+      forces[elemId] = 0;
+    }
   }
   return forces;
 }

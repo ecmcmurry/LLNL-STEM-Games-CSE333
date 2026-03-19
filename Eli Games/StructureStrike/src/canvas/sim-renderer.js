@@ -6,7 +6,7 @@ import { drawWorldSceneBackground, drawWorldStructure } from './world-canvas.js'
 
 // [SIMULATION] Draws animated wind streaks blowing across the canvas.
 // timeSec drives the particle positions — call on every rAF frame.
-function drawWindEffect(ctx, w, h, windSpeedKmh, timeSec) {
+export function drawWindEffect(ctx, w, h, windSpeedKmh, timeSec) {
   const numStreaks = Math.floor(windSpeedKmh / 10);
   ctx.save();
   ctx.strokeStyle = '#90caf966';
@@ -32,7 +32,7 @@ function drawWindEffect(ctx, w, h, windSpeedKmh, timeSec) {
 
 // [SIMULATION] Shakes the canvas context to simulate ground motion during seismic events.
 // Returns the translation {dx, dy} applied so the caller can draw structure at offset.
-function applySeismicShake(ctx, peakAccelerationG, timeSec, frequencyHz) {
+export function applySeismicShake(ctx, peakAccelerationG, timeSec, frequencyHz) {
   const amplitude = peakAccelerationG * 12; // pixels
   const dx = amplitude * Math.sin(2 * Math.PI * frequencyHz * timeSec);
   const dy = amplitude * 0.3 * Math.sin(2 * Math.PI * frequencyHz * 1.3 * timeSec + 0.7);
@@ -42,7 +42,7 @@ function applySeismicShake(ctx, peakAccelerationG, timeSec, frequencyHz) {
 
 // [SIMULATION] Draws rising floodwater overlay.
 // waterRiseFraction: 0 = no water, 1 = full flood depth reached.
-function drawFloodOverlay(ctx, w, h, waterRiseFraction) {
+export function drawFloodOverlay(ctx, w, h, waterRiseFraction) {
   const waterTop = h * (0.95 - waterRiseFraction * 0.45);
 
   // Water body
