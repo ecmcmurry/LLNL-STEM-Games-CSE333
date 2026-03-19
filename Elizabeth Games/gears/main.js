@@ -2,6 +2,8 @@
 
 import { Grid } from "./grid.js";
 import { Inventory } from "./inventory.js";
+import { Block } from "./components/block.js";
+import { Gear, Motor, Output } from "./components/index.js";
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -10,7 +12,7 @@ const w = canvas.width;
 const h = canvas.height;
 
 //This is temporary until I work on the loading system
-let grid = new Grid("3,3,80,M10/10,B,E,G10,E,E,E,B,O10/10");
+let grid = new Grid("3,3,80,M10/10,B,E,G10,h,G10,E,B,O10/10");
 
 let inventory = new Inventory("1,5,80,B,E,E,E,E");
 
@@ -49,8 +51,8 @@ function handleClick(event) {
     //Again this is temporary until I have a better placing system
     //I just want to test if this idea works (the idea being placing blocks from inventory onto the grid, and having them inherit block logic)
     //This will need to be revamped once the components are actually introduced
-    if (selectedInventoryCell.isBlocked) {
-        grid.handleClick(x, y, "block");
+    if (selectedInventoryCell.component != null) {
+        grid.handleClick(x, y, selectedInventoryCell.component);
     } else {
         grid.handleClick(x, y);
     }
