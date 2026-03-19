@@ -20,26 +20,33 @@ export function render(container) {
 
   if (!level || !simResult) { location.hash = ''; return () => {}; }
 
-  // ── Compute stars ─────────────────────────────────────────────────────────
+  const survived    = simResult.survived ?? false;
   const totalBudget = level.budget;
   const budgetUsed  = totalBudget - getBudgetRemaining();
-  const stars       = computeStarRating(
+
+  // ── Stars (0 if collapsed) ────────────────────────────────────────────────
+  const stars = computeStarRating(
     level, structure.nodes, structure.elements, simResult, budgetUsed, totalBudget,
   );
 
-  // Persist progress
-  const progress = completeLevel(levelIndex, stars);
-  const nextLevel = LEVELS[levelIndex + 1];
-  const nextUnlocked = nextLevel && progress.unlockedLevels.includes(nextLevel.id);
+  // Only persist progress on a pass
+  const progress     = survived ? completeLevel(levelIndex, stars) : loadProgress();
+  const nextLevel    = LEVELS[levelIndex + 1];
+  const nextUnlocked = survived && nextLevel && progress.unlockedLevels.includes(nextLevel.id);
 
   // ── DOM ───────────────────────────────────────────────────────────────────
-  const starsStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+  const starsStr = survived
+    ? '★'.repeat(stars) + '☆'.repeat(3 - stars)
+    : '✕';
+
+  const titleText  = survived ? 'Structure Survived' : 'Structure Collapsed';
+  const titleColor = survived ? 'var(--accent-green)' : 'var(--accent-red)';
 
   const screen = el('div', { class: 'screen screen--results' },
     el('div', { class: 'results-card' },
       el('div', { class: 'results-card__header' },
-        el('h2', { class: 'results-title' }, 'Structure Survived'),
-        el('div', { class: 'results-stars' }, starsStr),
+        el('h2', { class: 'results-title', style: { color: titleColor } }, titleText),
+        el('div', { class: 'results-stars', style: { color: survived ? '' : 'var(--accent-red)' } }, starsStr),
       ),
       el('div', { class: 'results-breakdown' },
         el('div', { class: 'results-row' },
@@ -47,28 +54,32 @@ export function render(container) {
           el('span', {}, `${level.id + 1} — ${level.name}`),
         ),
         el('div', { class: 'results-row' },
-          el('span', {}, 'Threat survived'),
+          el('span', {}, survived ? 'Threat survived' : 'Failed against'),
           el('span', {}, level.threat.label),
         ),
-        el('div', { class: 'results-row' },
+        survived ? el('div', { class: 'results-row' },
           el('span', {}, 'Budget used'),
           el('span', {}, `${formatBudget(budgetUsed)} / ${formatBudget(totalBudget)}`),
-        ),
-        el('div', { class: 'results-row' },
+        ) : null,
+        survived ? el('div', { class: 'results-row' },
           el('span', {}, 'Efficiency'),
           el('span', { style: { color: budgetUsed / totalBudget < 0.6 ? '#4caf50' : '#ff9800' } },
             `${((1 - budgetUsed / totalBudget) * 100).toFixed(0)}% budget remaining`,
           ),
-        ),
+        ) : null,
+        !survived && simResult.failureSequence?.length ? el('div', { class: 'results-row' },
+          el('span', {}, 'Elements failed'),
+          el('span', { style: { color: 'var(--accent-red)' } },
+            simResult.failureSequence.reduce((n, w) => n + w.length, 0).toString(),
+          ),
+        ) : null,
       ),
 
-      // Elements count summary
       el('div', { class: 'results-elements' },
         el('span', { class: 'results-elements__label' }, 'Your structure'),
         el('span', {}, `${structure.nodes.length} nodes · ${structure.elements.length} elements`),
       ),
 
-      // Pattern notifications replay list (already shown during build, but nice to recap)
       level.realWorldRef
         ? el('div', { class: 'results-ref' },
             el('span', { class: 'results-ref__label' }, 'Engineering note: '),
@@ -79,7 +90,7 @@ export function render(container) {
 
       // CTA buttons
       el('div', { class: 'results-cta' },
-        nextLevel
+        survived && nextLevel
           ? el('button', {
               class: 'results-btn results-btn--next' + (nextUnlocked ? '' : ' results-btn--locked'),
               onClick: nextUnlocked ? () => _startNextLevel(nextLevel) : null,
@@ -87,7 +98,9 @@ export function render(container) {
             },
             nextUnlocked ? `Next: Level ${nextLevel.id + 1} →` : 'Locked',
           )
-          : el('div', { class: 'results-complete' }, 'All levels complete!'),
+          : survived
+            ? el('div', { class: 'results-complete' }, 'All levels complete!')
+            : null,
         el('button', {
           class: 'results-btn results-btn--retry',
           onClick: () => { location.hash = '#build'; },

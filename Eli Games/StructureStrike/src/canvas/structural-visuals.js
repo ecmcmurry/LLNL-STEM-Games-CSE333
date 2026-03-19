@@ -3,21 +3,17 @@ import { gridToCanvas } from '../utils/math.js';
 
 // ─── Pin joint node ───────────────────────────────────────────────────────────
 
-// [SIMULATION] Draws a mechanical pin-joint node: a metallic ring with a
-// recessed centre hole, like a real bolted connection plate.
-export function drawPinJoint(ctx, node, cellPx) {
-  const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+// [SIMULATION] Draws a mechanical pin-joint at given canvas pixel coords.
+export function drawPinJointAt(ctx, x, y, cellPx) {
   const r      = Math.max(5, cellPx * 0.16);
   const innerR = r * 0.36;
 
   ctx.save();
 
-  // Drop shadow
   ctx.shadowColor   = 'rgba(0,0,0,0.65)';
   ctx.shadowBlur    = 5;
   ctx.shadowOffsetY = 2;
 
-  // Outer plate — off-centre radial gradient gives a convex metal look
   const plate = ctx.createRadialGradient(x - r * 0.28, y - r * 0.28, r * 0.05, x, y, r);
   plate.addColorStop(0,    '#d0d0d0');
   plate.addColorStop(0.35, '#909090');
@@ -31,12 +27,10 @@ export function drawPinJoint(ctx, node, cellPx) {
 
   ctx.shadowColor = 'transparent';
 
-  // Outer edge
   ctx.strokeStyle = 'rgba(0,0,0,0.8)';
   ctx.lineWidth   = 0.7;
   ctx.stroke();
 
-  // Recessed pin hole — dark fill with a subtle inner shadow ring
   ctx.beginPath();
   ctx.arc(x, y, innerR + 1.2, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(0,0,0,0.45)';
@@ -47,13 +41,19 @@ export function drawPinJoint(ctx, node, cellPx) {
   ctx.fillStyle = '#0e0e0e';
   ctx.fill();
 
-  // Tiny specular highlight in the hole to keep it readable
   ctx.beginPath();
   ctx.arc(x - innerR * 0.3, y - innerR * 0.3, innerR * 0.38, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255,255,255,0.22)';
   ctx.fill();
 
   ctx.restore();
+}
+
+// [SIMULATION] Draws a mechanical pin-joint node: a metallic ring with a
+// recessed centre hole, like a real bolted connection plate.
+export function drawPinJoint(ctx, node, cellPx) {
+  const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+  drawPinJointAt(ctx, x, y, cellPx);
 }
 
 // ─── Concrete support symbol ──────────────────────────────────────────────────
@@ -216,6 +216,39 @@ const STEEL_HW_RATIO  = 0.11;  // beam / column / truss
 const CABLE_HW_RATIO  = 0.055; // cable
 
 // ─── Public ───────────────────────────────────────────────────────────────────
+
+// [SIMULATION] Draws a structural member at explicit canvas pixel coords (deformed physics positions).
+// stressRatio ≥ 0: tints the member yellow/orange/red at high values.
+export function drawStructuralMemberAt(ctx, ax, ay, bx, by, elementType, cellPx, stressRatio = 0) {
+  const dx  = bx - ax;
+  const dy  = by - ay;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  if (len < 1) return;
+
+  ctx.save();
+  ctx.translate(ax, ay);
+  ctx.rotate(Math.atan2(dy, dx));
+
+  if (elementType === ELEMENT_TYPE.CABLE) {
+    _drawCable(ctx, len, cellPx);
+  } else {
+    _drawSteelMember(ctx, len, cellPx);
+  }
+
+  // Stress colour tint overlay — fades in above 50% utilisation
+  if (stressRatio > 0.5) {
+    const hw = Math.max(4, cellPx * (elementType === ELEMENT_TYPE.CABLE ? CABLE_HW_RATIO : STEEL_HW_RATIO));
+    const t  = Math.min(1, (stressRatio - 0.5) * 2);
+    const a  = t * 0.55;
+    const col = stressRatio >= 1.0  ? `rgba(220,40,40,${a})`
+              : stressRatio >= 0.85 ? `rgba(220,120,30,${a})`
+              :                       `rgba(220,190,40,${a})`;
+    ctx.fillStyle = col;
+    ctx.fillRect(0, -hw, len, hw * 2);
+  }
+
+  ctx.restore();
+}
 
 // [SIMULATION] Draws one structural element with a realistic material look.
 // progress 0→1 reveals the element from nodeA toward nodeB (build animation).
