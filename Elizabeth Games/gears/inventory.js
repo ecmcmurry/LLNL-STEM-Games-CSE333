@@ -34,7 +34,7 @@ export class Inventory extends Grid {
         }
         //This currently uses the hardcoded offset introduced in main
         //TODO: Update to make it dynamic? Or just not a Magic Number
-        if (y > 400 + (offsetSize*this.rows) || y < (400 - offsetSize)) {
+        if (y > 600 + (offsetSize*this.rows) || y < (600 - offsetSize)) {
             //console.log("returning due to y");
             return;
         }
@@ -42,7 +42,7 @@ export class Inventory extends Grid {
         //This is currently hard-coded to use the line width of 5 that is used for drawing cells
         //TODO: Update to be more dynamic aka remove magic numbers
         let selCol = Math.floor((x-2.5) / offsetSize);
-        let selRow = Math.floor((y-402.5) / offsetSize);
+        let selRow = Math.floor((y-602.5) / offsetSize);
 
         //Checks if there is a cell that was previously selected before selecting a new cell
         if (this.selectedCell != null && this.selectedCell.isSelected == true) {
@@ -58,4 +58,11 @@ export class Inventory extends Grid {
             //console.log("selected a cell");
         };
     }
+
+    //Overrides these functions from grid since they mess things up
+    //I realize now that Inventory doesn't actually use a lot from Grid
+    //It overrides 3/4 functions, not counting the constructor
+    //TODO: Have Grid and Inventory extend a new parent class (not sure what the name would be though, perhaps change Grid into something like GameGrid?)
+    propagateRPM() {}
+    getNeighbors(row, col) {}
 }

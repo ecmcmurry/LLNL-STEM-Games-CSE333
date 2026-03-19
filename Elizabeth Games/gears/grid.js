@@ -186,7 +186,7 @@ export class Grid {
         }
     }
 
-        getNeighbors(row, col) {
+    getNeighbors(row, col) {
         const comp = this.cells[row]?.[col]?.component;
 
         //console.log(`getNeighbors called on (${row}, ${col}) — component: ${comp?.constructor.name}`);

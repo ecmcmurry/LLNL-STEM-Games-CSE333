@@ -16,9 +16,17 @@ export class Gear {
         ctx.textBaseline = "middle";
 
         ctx.fillText(
-            (this.rpm),
+            //Updated using Claude
+            (`${this.teeth}`),
             x + 80 / 2,
-            y + 80 / 2
+            y + (80 - 16) / 2
+        );
+
+        ctx.fillText(
+            //Updated using Claude
+            (`${this.rpm}`),
+            x + 80 / 2,
+            y + (80 + 16) / 2
         );
     }
 
