@@ -38,12 +38,16 @@ const terminalOutput = $("#terminalOutput");
 const inventoryBackdrop = $("#inventoryBackdrop");
 const inventoryA = $("#inventoryA");
 const inventoryB = $("#inventoryB");
+const inventoryC = $("#inventoryC");
+const inventoryD = $("#inventoryD");
 const closeInventoryBtn = $("#closeInventoryBtn");
 
 // store
 const storeBackdrop = $("#storeBackdrop");
 const buyA = $("#buyA");
 const buyB = $("#buyB");
+const buyC = $("#buyC");
+const buyD = $("#buyD");
 const closeStoreBtn = $("#closeStoreBtn");
 const storeMessage = $("#storeMessage");
 
@@ -55,7 +59,7 @@ const FLOWERS = {
   A: {
     name: "Flower A",
     seedCost: 5,
-    basePrice: 10,
+    price: 12,
     daysToGrow: 5,
     images: ["assets/flowerAB_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
     bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
@@ -63,11 +67,28 @@ const FLOWERS = {
   B: {
     name: "Flower B",
     seedCost: 7,
-    basePrice: 14,
+    price: 16,
     daysToGrow: 5,
     images: ["assets/flowerAB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
     bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
   },
+  C: {
+    name: "Flower C",
+    seedCost: 10,
+    price: 25,
+    daysToGrow: 5,
+    images: ["assets/flowerCD_1.jpg", "assets/flowerC_2.jpg", "assets/flowerC_3.jpg"],
+    bugImages: ["assets/flowerCD_bug1.jpg", "assets/flowerC_bug2.jpg", "assets/flowerC_bug3.jpg"],
+  },
+  D: {
+    name: "Flower D",
+    seedCost: 20,
+    price: 50,
+    daysToGrow: 5,
+    images: ["assets/flowerCD_1.jpg", "assets/flowerD_2.jpg", "assets/flowerD_3.jpg"],
+    bugImages: ["assets/flowerCD_bug1.jpg", "assets/flowerD_bug2.jpg", "assets/flowerD_bug3.jpg"],
+  },
+
 };
 
 // stores the bug fixing puzzles
@@ -134,6 +155,8 @@ let state = {
   inventory: {
     A: 0,
     B: 0,
+    C: 0,
+    D: 0,
   },
 
   plots: Array.from({ length: PLOT_COUNT }, () => ({
@@ -436,8 +459,16 @@ function onPlotClicked(i) {
     modalTitle.textContent = `Plot ${i + 1}`;
     modalDesc.textContent = `Choose a seed to plant.`;
 
-    plantA.textContent = `Plant Flower A (Remaining seeds: ${state.inventory.A}`;
-    plantB.textContent = `Plant Flower B (Remaining seeds: ${state.inventory.B}`;
+    // plantA.textContent = `Plant Flower A (Remaining seeds: ${state.inventory.A})`;
+    // plantB.textContent = `Plant Flower B (Remaining seeds: ${state.inventory.B})`;
+    plantChoices.innerHTML = "";
+    ["A", "B", "C", "D"].forEach((type) => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = `Plant ${FLOWERS[type].name} (Remaining seeds: ${state.inventory[type]})`;
+      btn.addEventListener("click", ()=> plantFlower(type));
+      plantChoices.appendChild(btn);
+    });
 
     plantChoices.classList.remove("hidden");
     harvestChoice.classList.add("hidden");
@@ -461,8 +492,8 @@ function onPlotClicked(i) {
 
   // stage 3: harvest
   modalTitle.textContent = `Plot ${i + 1} - ${flower.name}`;
-  const earn = flower.basePrice + 5;
-  modalDesc.textContent = `Ready to harvest! You will earn ${earn} coins (price ${flower.basePrice} + 5).`;
+  const earn = flower.price;
+  modalDesc.textContent = `Ready to harvest! You will earn ${earn} coins.`;
   plantChoices.classList.add("hidden");
   harvestChoice.classList.remove("hidden");
   codeBugArea.classList.add("hidden");
@@ -505,7 +536,7 @@ function harvest() {
   if (stage < 3) return;
 
   const flower = FLOWERS[plot.flowerType];
-  const earn = flower.basePrice + 5;
+  const earn = flower.price;
 
   state.coins += earn;
 
@@ -648,12 +679,14 @@ function init() {
     if (e.target === modalBackdrop) closeModalFn();
   });
 
-  plantA.addEventListener("click", () => plantFlower("A"));
-  plantB.addEventListener("click", () => plantFlower("B"));
+  // plantA.addEventListener("click", () => plantFlower("A"));
+  // plantB.addEventListener("click", () => plantFlower("B"));
   harvestBtn.addEventListener("click", harvest);
 
   buyA.addEventListener("click", () => buySeed("A"));
   buyB.addEventListener("click", () => buySeed("B"));
+  buyC.addEventListener("click", () => buySeed("C"));
+  buyD.addEventListener("click", () => buySeed("D"));
 
   closeInventoryBtn.addEventListener("click", closeInventory);
   closeStoreBtn.addEventListener("click", closeStore);
@@ -677,13 +710,13 @@ function init() {
 
 init();
 
-// window.exportPlotLayout = function () {
-//   const raw = localStorage.getItem("farm_plot_layout_v1");
-//   if (!raw) {
-//     console.log("No saved layout found yet. Use Edit Plots first.");
-//     return;
-//   }
-//   const layout = JSON.parse(raw);
-//   console.log("Copy this into createDefaultLayout():");
-//   console.log(JSON.stringify(layout, null, 2));
-// };
+window.exportPlotLayout = function () {
+  const raw = localStorage.getItem("farm_plot_layout_v1");
+  if (!raw) {
+    console.log("No saved layout found yet. Use Edit Plots first.");
+    return;
+  }
+  const layout = JSON.parse(raw);
+  console.log("Copy this into createDefaultLayout():");
+  console.log(JSON.stringify(layout, null, 2));
+};
