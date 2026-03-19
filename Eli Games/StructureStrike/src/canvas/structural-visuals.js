@@ -1,6 +1,61 @@
 import { ELEMENT_TYPE } from '../utils/constants.js';
 import { gridToCanvas } from '../utils/math.js';
 
+// ─── Pin joint node ───────────────────────────────────────────────────────────
+
+// [SIMULATION] Draws a mechanical pin-joint node: a metallic ring with a
+// recessed centre hole, like a real bolted connection plate.
+export function drawPinJoint(ctx, node, cellPx) {
+  const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
+  const r      = Math.max(5, cellPx * 0.16);
+  const innerR = r * 0.36;
+
+  ctx.save();
+
+  // Drop shadow
+  ctx.shadowColor   = 'rgba(0,0,0,0.65)';
+  ctx.shadowBlur    = 5;
+  ctx.shadowOffsetY = 2;
+
+  // Outer plate — off-centre radial gradient gives a convex metal look
+  const plate = ctx.createRadialGradient(x - r * 0.28, y - r * 0.28, r * 0.05, x, y, r);
+  plate.addColorStop(0,    '#d0d0d0');
+  plate.addColorStop(0.35, '#909090');
+  plate.addColorStop(0.75, '#484848');
+  plate.addColorStop(1,    '#1e1e1e');
+
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = plate;
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+
+  // Outer edge
+  ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+  ctx.lineWidth   = 0.7;
+  ctx.stroke();
+
+  // Recessed pin hole — dark fill with a subtle inner shadow ring
+  ctx.beginPath();
+  ctx.arc(x, y, innerR + 1.2, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(x, y, innerR, 0, Math.PI * 2);
+  ctx.fillStyle = '#0e0e0e';
+  ctx.fill();
+
+  // Tiny specular highlight in the hole to keep it readable
+  ctx.beginPath();
+  ctx.arc(x - innerR * 0.3, y - innerR * 0.3, innerR * 0.38, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fill();
+
+  ctx.restore();
+}
+
 // Half-widths as a fraction of cellPx
 const STEEL_HW_RATIO  = 0.11;  // beam / column / truss
 const CABLE_HW_RATIO  = 0.055; // cable

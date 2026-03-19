@@ -4,8 +4,8 @@ import { getCurrentLevelIndex, getStructure, getBuildScreenSnapshot, getBuildCan
 import { mountNotificationContainer, unmountNotificationContainer } from '../ui/notifications.js';
 import { closeModal } from '../ui/modals.js';
 import { runGlassShatterAnimation } from '../canvas/glass-shatter.js';
-import { drawNode, drawSupportSymbol, drawLoadArrow } from '../canvas/blueprint-canvas.js';
-import { drawStructuralMember } from '../canvas/structural-visuals.js';
+import { drawElement, drawNode, drawSupportSymbol, drawLoadArrow } from '../canvas/blueprint-canvas.js';
+import { drawStructuralMember, drawPinJoint } from '../canvas/structural-visuals.js';
 
 // [SIMULATION] Simulation screen. Mounts a full-screen overlay on top of the
 // existing build screen (no flash), shatters the snapshot of the build screen
@@ -80,7 +80,7 @@ export function render(container) {
   }
 
   // ── Blueprint structure helper (shown during shatter) ─────────────────────
-  // Draws the structure in blueprint style so it's visible below the shatter.
+  // Draws the full structure in blueprint style (colored lines + nodes).
   function _drawBlueprintStructure() {
     const transform = getBuildCanvasTransform();
     if (!transform) return;
@@ -89,6 +89,11 @@ export function render(container) {
 
     worldCtx.save();
     worldCtx.translate(rect.left, rect.top);
+    for (const elem of structure.elements) {
+      const nodeA = nodeMap[elem.nodeAId];
+      const nodeB = nodeMap[elem.nodeBId];
+      if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
+    }
     for (const node of structure.nodes) {
       drawNode(worldCtx, node, cellPx, false, false);
       if (node.isAnchor) drawSupportSymbol(worldCtx, node, cellPx);
@@ -131,7 +136,14 @@ export function render(container) {
       worldCtx.save();
       worldCtx.translate(rect.left, rect.top);
 
-      // Hardpoints + load arrows always visible (they never animate away)
+      // Layer 1: full blueprint colored lines (always fully visible as base)
+      for (const elem of structure.elements) {
+        const nodeA = nodeMap[elem.nodeAId];
+        const nodeB = nodeMap[elem.nodeBId];
+        if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
+      }
+
+      // Layer 2: hardpoints + load arrows
       for (const node of structure.nodes) {
         if (node.isAnchor) {
           drawNode(worldCtx, node, cellPx, false, false);
@@ -140,7 +152,7 @@ export function render(container) {
         if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
       }
 
-      // Build each element progressively
+      // Layer 3: structural members drawing over the blueprint lines
       let allDone = true;
       structure.elements.forEach((elem, i) => {
         const elemStart = i * STAGGER_MS;
@@ -155,10 +167,10 @@ export function render(container) {
         }
       });
 
-      // Free nodes drawn on top of elements (connection joints)
+      // Layer 4: pin joints on top of everything (connection nodes)
       for (const node of structure.nodes) {
         if (!node.isAnchor && !node.isLoadNode) {
-          drawNode(worldCtx, node, cellPx, false, false);
+          drawPinJoint(worldCtx, node, cellPx);
         }
       }
 
@@ -189,12 +201,22 @@ export function render(container) {
     for (const elem of structure.elements) {
       const nodeA = nodeMap[elem.nodeAId];
       const nodeB = nodeMap[elem.nodeBId];
+      if (nodeA && nodeB) drawElement(worldCtx, nodeA, nodeB, elem.type, cellPx);
+    }
+    for (const node of structure.nodes) {
+      if (node.isAnchor) {
+        drawNode(worldCtx, node, cellPx, false, false);
+        drawSupportSymbol(worldCtx, node, cellPx);
+      }
+      if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+    }
+    for (const elem of structure.elements) {
+      const nodeA = nodeMap[elem.nodeAId];
+      const nodeB = nodeMap[elem.nodeBId];
       if (nodeA && nodeB) drawStructuralMember(worldCtx, nodeA, nodeB, elem.type, cellPx, 1);
     }
     for (const node of structure.nodes) {
-      drawNode(worldCtx, node, cellPx, false, false);
-      if (node.isAnchor) drawSupportSymbol(worldCtx, node, cellPx);
-      if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
+      if (!node.isAnchor && !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
     }
 
     worldCtx.restore();
