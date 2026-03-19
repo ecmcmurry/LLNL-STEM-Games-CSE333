@@ -126,9 +126,8 @@ export class Grid {
         //console.log("selected a cell");
 
         //Just reiterating (mainly for myself in case I forget): This is a temporary solution meant for testing
-        if (component instanceof Block) {
-            this.selectedCell.component = component;
-        }
+        
+        this.selectedCell.component = component;
 
         //TEMPORARY
         this.propagateRPM();
