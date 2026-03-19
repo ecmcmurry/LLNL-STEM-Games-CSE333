@@ -12,9 +12,17 @@ const w = canvas.width;
 const h = canvas.height;
 
 //This is temporary until I work on the loading system
-let grid = new Grid("3,3,80,M10/10,B,E,G20,h,G20,E,B,O10/10");
+let grid = new Grid("5,5,80,,,,,,,,,,,,,,,,,,,,,,,,,,");
+//"3,3,80,M10/10,B,E,G20,h,G20,E,B,O10/10"
+//Test level that demonstrates all features
 
-let inventory = new Inventory("1,5,80,B,G10,E,E,E");
+//"3,3,80,,,,,,,,,,"
+//Empty 3 by 3 grid
+
+//"3,3,80,,,,,,,,,,"
+//Empty 5 by 5 grid
+
+let inventory = new Inventory("1,10,80,E,B,G5,G10,G15,G20,M10/10,O10/10,h,v");
 
 function draw() {
     ctx.clearRect(0, 0, w, h);
@@ -23,7 +31,7 @@ function draw() {
     //To offset the inventory vertically, we must first save the context as is, shift it for drawing the inventory, then restore it to what it was
     ctx.save()
     //TODO: Update to shift dynamically
-    ctx.translate(0,400);
+    ctx.translate(0, 600);
     inventory.draw(ctx);
     ctx.restore();
 }
