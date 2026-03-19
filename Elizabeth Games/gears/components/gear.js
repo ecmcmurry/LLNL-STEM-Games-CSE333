@@ -33,4 +33,8 @@ export class Gear {
     changeDirection() {
         this.rpm *= -1;
     }
+
+    clone() {
+        return new Gear(this.teeth);
+    }
 }

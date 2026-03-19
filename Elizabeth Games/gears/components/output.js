@@ -36,4 +36,8 @@ export class Output extends Gear {
             y + (80 + 16) / 2
         );
     }
+
+    clone() {
+        return new Output(this.teeth, this.targetRPM);
+    }
 }

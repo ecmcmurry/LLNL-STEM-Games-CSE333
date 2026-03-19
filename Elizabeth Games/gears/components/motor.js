@@ -7,4 +7,8 @@ export class Motor extends Gear {
         super(teeth);
         this.rpm = rpm;
     }
+
+    clone() {
+        return new Motor(this.teeth, this.rpm);
+    }
 }
