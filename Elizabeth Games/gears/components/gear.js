@@ -5,6 +5,7 @@ export class Gear {
     constructor(teeth) {
         this.teeth = teeth;
         this.rpm = null;
+        this.torque = null;
     }
 
     draw(ctx, x, y) {
@@ -27,6 +28,13 @@ export class Gear {
             (`${this.rpm}`),
             x + 80 / 2,
             y + (80 + 16) / 2
+        );
+        
+        ctx.fillText(
+            //Updated using Claude
+            (`${this.torque}`),
+            x + 80 / 2,
+            y + (80 + 48) / 2
         );
     }
 

@@ -3,12 +3,13 @@
 import { Gear } from "./gear.js";
 
 export class Motor extends Gear {
-    constructor(teeth, rpm) {
+    constructor(teeth, rpm, torque) {
         super(teeth);
         this.rpm = rpm;
+        this.torque = torque;
     }
 
     clone() {
-        return new Motor(this.teeth, this.rpm);
+        return new Motor(this.teeth, this.rpm, this.torque);
     }
 }
