@@ -26,6 +26,7 @@ export class Grid {
             //establishing some variables necessary for filling the grid
             let teeth = 0;
             let rpm = 0;
+            let torque = 0;
             //Adds a new cell to the current row for each column
             //The rowIndex and columnIndex information is passed into cells as they are created
             for (let columnIndex = 0; columnIndex < this.cols; columnIndex++) {
@@ -38,12 +39,13 @@ export class Grid {
                     currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Gear(teeth)));
                 // M for Motor
                 } else if (loadedValues[loadIndex][0] == "M") {
-                    //Motors are more complex than gears as they have both teeth and an rpm
-                    //We take our input chunk in the format "M10/20" and first turn it into a substring of "10/20", which is then split into chunks "10" and "20"
+                    //Motors are more complex than gears as they have teeth, rpm, and torque
+                    //We take our input chunk in the format "M10/20/20" and first turn it into a substring of "10/20/20", which is then split into chunks "10", "20", and "20"
                     let loadValueSubstrings = loadedValues[loadIndex].substring(1).split("/");
                     teeth = Number(loadValueSubstrings[0]);
                     rpm = Number(loadValueSubstrings[1]);
-                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Motor(teeth, rpm)));
+                    torque = Number(loadValueSubstrings[2]);
+                    currentRow.push(new Cell(rowIndex, columnIndex, this.size, false, new Motor(teeth, rpm, torque)));
                 // O for Output
                 } else if (loadedValues[loadIndex][0] == "O") {
                     //Outputs function the same way as Motors, at least in their construction
@@ -152,6 +154,7 @@ export class Grid {
 
                 if (comp && !(comp instanceof Motor)) {
                     comp.rpm = null;
+                    comp.torque = null;
                 }
 
                 if (comp instanceof Motor) {
@@ -174,17 +177,21 @@ export class Grid {
                 if (neighborComp instanceof Block) continue;  // Blocks don't transmit RPM
 
                 let newRPM;
+                let newTorque;
 
                 if (comp instanceof Belt || neighborComp instanceof Belt) {
                     // Belts transmit RPM directly — no inversion, no teeth ratio
                     newRPM = comp.rpm;
+                    newTorque = comp.torque;
                 } else {
                     // Gear-to-gear: invert direction and apply teeth ratio
                     newRPM = -comp.rpm * (comp.teeth / neighborComp.teeth);
+                    newTorque = comp.torque * (neighborComp.teeth / comp.teeth);
                 }
 
                 if (neighborComp.rpm === null) {
                     neighborComp.rpm = newRPM;
+                    neighborComp.torque = newTorque;
                     //console.log(`  Assigned RPM ${newRPM} to (${r}, ${c}) — ${neighborComp.constructor.name}`);
                     queue.push(neighborCell);
                 } else if (Math.abs(neighborComp.rpm - newRPM) > 0.01) {

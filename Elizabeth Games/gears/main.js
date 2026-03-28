@@ -22,7 +22,7 @@ let grid = new Grid("5,5,80,,,,,,,,,,,,,,,,,,,,,,,,,,");
 //"3,3,80,,,,,,,,,,"
 //Empty 5 by 5 grid
 
-let inventory = new Inventory("1,10,80,E,B,G5,G10,G15,G20,M10/10,O10/10,h,v");
+let inventory = new Inventory("1,10,80,E,B,G5,G10,G15,G20,M10/10/10,O10/10,h,v");
 
 function draw() {
     ctx.clearRect(0, 0, w, h);
@@ -31,7 +31,7 @@ function draw() {
     //To offset the inventory vertically, we must first save the context as is, shift it for drawing the inventory, then restore it to what it was
     ctx.save()
     //TODO: Update to shift dynamically
-    ctx.translate(0, 600);
+    ctx.translate(0, 500);
     inventory.draw(ctx);
     ctx.restore();
 }
