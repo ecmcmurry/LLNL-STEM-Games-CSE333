@@ -9,7 +9,7 @@
   <body>
       <div class="draggables">
         <p class="Tray">COMPONENTS</p>
-        <div class="slots" id="componentSlots">
+        <div class="slots" draggable = "true" id="componentSlots">
         </div>
       </div>
 
@@ -68,9 +68,12 @@
                   <p class="goalText">Circuit V: <span id="goalVoltage"></span>V   Current Goal I: <span id="goalValue"></span>A</p>
                   <div id="hearts"></div>
                 </div>
-
+                
                 <div class="circuitBoard" id="circuitBoard">
-                  <img src="assets/CircuitBoard_blank (1).png" class="circuitBoardImg" id="circuitBoardImg">
+                    <img src="assets/CircuitBoard_blank (1).png" class="circuitBoardImg" id="circuitBoardImg">
+                    <div class="boardOverlay">
+                        <div class ="dropZone" id="slot1"></div>
+                    </div>
                 </div>
 
                 <div class="timerDesign">

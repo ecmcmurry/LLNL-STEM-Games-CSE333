@@ -7,11 +7,12 @@ let timerInterval = null;
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('play-screen').style.display  = 'flex';
+    document.querySelector('.draggables').style.visibility = 'visible';
     currentLevel = 0;
     lives = 3;
     loadLevel();
     startTimer();
-    updateHearts();
+    //updateHearts();
 }
 
 //Home screen is prompted when clicked on
@@ -19,12 +20,14 @@ function homeScreen() {
     document.getElementById('howToPlay').style.display = 'none';
     document.getElementById('play-screen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'flex';
+    document.querySelector('.draggables').style.visibility = 'hidden';
 }
 
 //How to play screen is prompted when clicked on
 function howToPlay() {
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('howToPlay').style.display = 'flex';
+    document.querySelector('.draggables').style.visibility = 'hidden';
 }
 
 //Timer function for game
@@ -58,30 +61,28 @@ const levels = [
         goalCurrent: 3, 
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_blank (1).png',
-        accepts: { 'zone-0': 'resistor-3' }, 
+        Answer: 3, 
         components: [
-            {type: 'resistor-3', label: '3Ω', img: 'assets/horizontal-resistor.png'},
-            {type: 'resistor-5', label: '5Ω', img: 'assets/horizontal-resistor.png'},
-            {type: 'resistor-8', label: '8Ω', img: 'assets/horizontal-resistor.png'},
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]   
     }
 ];
 
 //base resistors with assets connected
 const componentImages = {
-    'resistor-2': 'assets/horizontal-resistor.png',
-    'resistor-3': 'assets/horizontal-resistor.png',
-    'resistor-4': 'assets/horizontal-resistor.png',
-    'resistor-5': 'assets/horizontal-resistor.png',
-    'resistor-6': 'assets/horizontal-resistor.png',
-    'resistor-8': 'assets/horizontal-resistor.png',
-    'resistor-9': 'assets/horizontal-resistor.png',
+    'resistor': 'assets/horizontal-resistor.png',
 };
 
-"function updateHearts()"
+function toggleHint(){
+    hintVisible = !hintVisible;
 
+}
 
-"function toggleHint()"
+function gameGrid() {
+    
+}
 
 function loadLevel() {
     //Loading the correct level and the correct level map with needed data from levels[]
@@ -92,16 +93,71 @@ function loadLevel() {
     document.getElementById('goalVoltage').innerText = level.voltage;
     document.getElementById('goalValue').innerText = level.goalCurrent;
 
+    const slots = document.getElementById('componentSlots');
+    slots.innerHTML = '';
+
+    const dropZone = document.getElementById('slot1');
+    dropZone.innerHTML = '';
+
+    level.components.forEach(component => {
+        const p = document.createElement('p');
+        p.classList.add('slotDesign');
+        p.draggable = true;
+        p.dataset.type = component.type;
+        p.dataset.value = component.value;
+        
+        const img = document.createElement('img');
+        img.src = component.img;
+        img.classList.add('component-img');
+        
+        const label = document.createElement('span');
+        label.classList.add('component-label');
+        label.innerText = component.label;
+        
+        p.appendChild(img);
+        p.appendChild(label);
+        slots.appendChild(p);
+    });
+    dragMethod();
 }
 
 
-// Drag and dropping actions 
-//function dragStart() 
-//function allowDrop()
-//function dragEnter()
-//function dragLeave()
-//function dropComponent()
+function dragMethod(){
+    //one for the class which has all components
+    let components = document.getElementsByClassName('slotDesign');
+    //one for the ID of each slot either on the board or in the component tray
+    let dropZone = document.getElementById('slot1');
+    let slots = document.getElementById('componentSlots');
+    let selectedComponent = null;
 
 
+    for(let component of components){
+        component.addEventListener('dragstart', function(e){
+            selectedComponent = e.target.closest('.slotDesign');
+        });
+    }
+    dropZone.addEventListener('dragover', function(e){
+            e.preventDefault();
+    });
+    dropZone.addEventListener('drop', function(e){
+        if (selectedComponent) {
+            const img = selectedComponent.querySelector('.component-img').cloneNode(true);
+            dropZone.innerHTML = '';
+            dropZone.appendChild(img);
+            //checkAnswer();
+            selectedComponent = null;
+        }
+    });
+    slots.addEventListener('dragover', function(e){
+        e.preventDefault();
+    });
+    slots.addEventListener('drop', function(e){
+        if (selectedComponent) {
+        slots.appendChild(selectedComponent);
+        selectedComponent = null;
+        }
+    });
+
+}
 
 //function checkWin()
