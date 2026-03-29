@@ -2,7 +2,7 @@ let hintVisible = false;
 //Timer function
 let timeLeft = 30;
 let timerInterval = null;
-
+let droppedValue = null;
 //onclick function when the game is started it will close the previous screen and activate the game screen
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
@@ -12,7 +12,7 @@ function startGame() {
     lives = 3;
     loadLevel();
     startTimer();
-    //updateHearts();
+    updateHearts();
 }
 
 //Home screen is prompted when clicked on
@@ -75,6 +75,39 @@ const componentImages = {
     'resistor': 'assets/horizontal-resistor.png',
 };
 
+//checking the value connected to the dropped resistor and checking if it is the correct answer for the level
+function checkAnswer(){
+    const level = levels[currentLevel];
+
+    if (droppedValue === level.Answer) {
+        alert('Correct! Moving to the next level.');
+    } else {
+        lives--;
+        updateHearts();
+        if (lives < 1) {
+            gameOver();
+        } 
+    }
+}
+
+function updateHearts(){
+    const heartsContainer = document.getElementById('hearts');
+    heartsContainer.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+        if (i < lives) {
+        const heart = document.createElement('img');
+        heart.src = 'assets/Heart.png';
+        heart.classList.add('heart');
+        heartsContainer.appendChild(heart);
+        } else {
+        const emptyHeart = document.createElement('img');
+        emptyHeart.src = 'assets/Empty-Heart.png';
+        emptyHeart.classList.add('heart');
+        heartsContainer.appendChild(emptyHeart);
+        }
+    }
+}
+
 function toggleHint(){
     hintVisible = !hintVisible;
 
@@ -121,7 +154,6 @@ function loadLevel() {
     dragMethod();
 }
 
-
 function dragMethod(){
     //one for the class which has all components
     let components = document.getElementsByClassName('slotDesign');
@@ -144,7 +176,8 @@ function dragMethod(){
             const img = selectedComponent.querySelector('.component-img').cloneNode(true);
             dropZone.innerHTML = '';
             dropZone.appendChild(img);
-            //checkAnswer();
+            droppedValue = parseInt(selectedComponent.dataset.value);
+            checkAnswer();
             selectedComponent = null;
         }
     });
