@@ -5,6 +5,7 @@
     font-family: 'Press Start 2P', monospace;
     image-rendering: pixelated;
 }
+
 /* Base colors for the game */
 :root {
     --silver:       #C8C8C8;
@@ -307,7 +308,6 @@ p {
 }
 
 .slotDesign img {
-    image-rendering: pixelated;
     display: block;
     object-fit: contain;
     border: 2px solid var(--gold);
@@ -326,7 +326,8 @@ p {
 }
 
 .slotDesign:hover{
-    transform: translate(-4px, -4px);
+    transform: translate(-2px, -2px);
+    box-shadow: var(--black);
     cursor: pointer;
 }
 
@@ -341,6 +342,7 @@ p {
     width:400px;
     height:100%;
     object-fit: fill;
+    position: absolute;
 }
 
 .rotated{
@@ -349,12 +351,6 @@ p {
 
 #comp-resistor img {
     transform: rotate(90deg);
-}
-.drop-zone.filled-correct .placed-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
 }
 
 #hearts {
@@ -398,3 +394,28 @@ p {
     transform: translateX(-50%);
 }
 
+.dropZone {
+    position: absolute;
+    width: 45px;
+    height: 33px;
+    border: 2px dashed var(--gold);
+    border-radius: 4px;
+    overflow: hidden;
+    top:131px;
+    left: 241.3px;
+}
+.dropZone .component-label {
+    display: none;
+}
+.dropZone .component-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.boardOverlay {
+    position: absolute;
+    width:400px;
+    height: 270px;
+    z-index: 2;
+}
