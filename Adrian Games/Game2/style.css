@@ -1,0 +1,400 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+}
+/* Base colors for the game */
+:root {
+    --silver:       #C8C8C8;
+    --silver-light: #E0E0E0;
+    --silver-dark:  #888888;
+    --silver-edge:  #666666;
+    --foam:         #34345e;
+    --foam-inner:   #0D0D1A;
+    --gold:         #FFD700;
+    --red:          #FF3B3B;
+    --yellow:       #FFD700;
+    --green:        #39FF14;
+    --white:        #FFFFFF;
+    --black:        #0A0A0A;
+}
+/* Background color for the game and basic formatting */
+body {
+    background-color: #ffc9af;
+    background-size: 20px 20px;
+    height: 100vh;
+    display: flex;
+    align-items: center;        
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+}
+/* Keeps briefcase aligned vertically */
+.briefcase-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 620px;
+    position: relative;   
+}
+/* top piece of briefcase*/
+.briefcase-lid {
+    width: 100%;
+    position: absolute;
+    bottom: 100%;         
+    left: 0;
+    background: linear-gradient(
+        180deg,
+        var(--silver-dark)  0%,
+        var(--silver)       20%,
+        var(--silver-light) 50%,
+        var(--silver)       80%,
+        var(--silver-dark)  100%
+    );
+    box-shadow:
+        0 0 0 4px var(--silver-dark),
+        0 0 0 8px var(--black),
+        8px 8px 0px var(--black);
+    clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        12px 100%,
+        0% calc(100% - 12px)
+    );
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 220px;
+}
+
+/* empty foam inside the lid */
+.lid-interior {
+    margin: 16px;
+    flex: 1;
+    background: var(--foam);
+    border: 4px solid var(--black);
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.8),
+        inset 0 0 0 3px #2A2A3E;
+}
+
+/* hinge design for the brief case design*/
+.hinge-row {
+    width: 90%;
+    height: 24px;
+    background: var(--silver-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    border-left: 4px solid var(--black);
+    border-right: 4px solid var(--black);
+    z-index: 2;
+    position: relative;
+}
+
+/*hinges in the middle design*/
+.hinge {
+    width: 28px;
+    height: 28px;
+    background: var(--silver);
+    border: 3px solid var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 0 0 2px var(--silver-light),
+        2px 2px 0px var(--black);
+}
+
+/*Screw design for briefcase*/
+.screw {
+    font-size: 0.6rem;
+    color: var(--silver-edge);
+    line-height: 1;
+}
+
+/*Basic hinge bar added*/
+.hinge-bar {
+    flex: 1;
+    height: 6px;
+    background: linear-gradient(
+        180deg,
+        var(--silver-light),
+        var(--silver-dark)
+    );
+    margin: 0 4px;
+    border-top: 2px solid var(--silver-light);
+    border-bottom: 2px solid var(--black);
+}
+
+/*Bottom shell that contains the game inside of it*/
+.briefcase-bottom {
+    width: 100%;
+    min-height: 220px;
+    background: linear-gradient(
+        180deg,
+        var(--silver-dark)  0%,
+        var(--silver)       20%,
+        var(--silver-light) 50%,
+        var(--silver)       80%,
+        var(--silver-dark)  100%
+    );
+
+    /* chunky 8-bit pixel border */
+    box-shadow:
+        0 0 0 4px var(--silver-dark),
+        0 0 0 8px var(--black),
+        8px 8px 0px var(--black);
+
+    clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        12px 100%,
+        0% calc(100% - 12px)
+    );
+}
+
+/*Latch row is aligned at the bottom of the suitcase */
+.latch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: var(--silver-dark);
+    border-bottom: 4px solid var(--black);
+}
+
+/* latch designs for each one*/
+.latch {
+    font-size: 0.5rem;
+    color: var(--silver-dark);
+    background: #333333;
+    padding: 4px 10px;
+    border: 2px solid var(--silver-edge);
+    box-shadow: 2px 2px 0px var(--black);
+}
+
+.latch-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--silver-edge);
+    margin: 0 12px;
+    border-top: 2px solid var(--black);
+}
+
+/*Foam interior inside the brief case which is the border of the game for the visual*/
+.briefcase-interior {
+    margin: 16px;
+    background: var(--foam);
+    border: 4px ;
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.8),
+        inset 0 0 0 3px #2A2A3E;
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/*screens through out the games traversal*/
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#play-screen {
+    display: none;
+}
+#howToPlay{
+    display: none;
+}
+
+/*Pixel designed card*/
+.pixel-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 36px 40px;
+    min-width: 95%;
+    background: var(--foam-inner);
+    box-shadow:
+        0 0 0 4px var(--white),
+        0 0 0 8px var(--white),
+        0 0 0 12px var(--black),
+        6px 6px 0px var(--white);
+
+}
+
+
+h1 {
+    font-size: 1.4rem;
+    color: var(--white);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.pixel-divider {
+    width: 100%;
+    height: 4px;
+}
+
+p {
+    font-size: 0.5rem;
+    color: var(--white);
+    text-align: center;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.pixel-btn {
+    width: 100%;
+    padding: 12px 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 0px;
+}
+.pixel-btn:hover {
+    transform: translate(-2px, -2px);
+    color: white;
+    border: 2px solid var(--gold);
+    background-color: #34345e;
+}
+
+.pixel-btn:active {
+    transform: translate(4px, 4px);
+}
+
+.timerDesign{
+    background-color: #563232;
+    border: solid 2px var(--silver-edge);
+    padding: 6px;
+}
+
+.timerText{
+    color:#FF3B3B;
+}
+
+.slotDesign{
+    border: solid 2px var(--gold);
+    background-color: var(--silver-edge);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 70px;
+}
+
+.slotDesign img {
+    image-rendering: pixelated;
+    display: block;
+    object-fit: contain;
+    border: 2px solid var(--gold);
+    padding: 4px;
+    background-color: #1a1a30;
+    box-shadow: 2px 2px 0px var(--gold);
+}
+
+.draggables{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+
+}
+
+.slotDesign:hover{
+    transform: translate(-4px, -4px);
+    cursor: pointer;
+}
+
+.circuitBoard{
+    background-color: var(--silver-dark);
+    width: 400px;
+    height: 270px;
+    position:relative;
+}
+
+.circuitBoardImg{
+    width:400px;
+    height:100%;
+    object-fit: fill;
+}
+
+.rotated{
+    transform: rotate(90deg);
+}
+
+#comp-resistor img {
+    transform: rotate(90deg);
+}
+.drop-zone.filled-correct .placed-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+#hearts {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 6px;
+}
+
+.heart {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+.aiGuide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.guideContainer {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.guideCharacter {
+    width: 80px;
+    height: auto;
+    image-rendering: pixelated;
+    transition: transform 0.1s;
+}
+
+.speechBubble {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
