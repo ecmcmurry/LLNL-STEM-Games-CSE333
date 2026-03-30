@@ -226,6 +226,9 @@ body {
 #resultScreen{
     display: none;
 }
+#levelScreen{
+    display: none;
+}
 
 /*Pixel designed card*/
 .pixel-card {
