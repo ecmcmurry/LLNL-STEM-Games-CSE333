@@ -6,6 +6,7 @@ let droppedValue = null;
 //onclick function when the game is started it will close the previous screen and activate the game screen
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'none';
     document.getElementById('play-screen').style.display  = 'flex';
     document.querySelector('.draggables').style.visibility = 'visible';
     currentLevel = 0;
@@ -19,6 +20,7 @@ function startGame() {
 function homeScreen() {
     document.getElementById('howToPlay').style.display = 'none';
     document.getElementById('play-screen').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'flex';
     document.querySelector('.draggables').style.visibility = 'hidden';
 }
@@ -26,8 +28,14 @@ function homeScreen() {
 //How to play screen is prompted when clicked on
 function howToPlay() {
     document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'none';
     document.getElementById('howToPlay').style.display = 'flex';
     document.querySelector('.draggables').style.visibility = 'hidden';
+}
+
+//result screen is prompted when the player 
+function resultScreen() {
+    document.getElementById('resultScreen').style.display = 'flex';
 }
 
 //Timer function for game
@@ -49,8 +57,26 @@ function startTimer() {
 //Game finished functions
 function gameOver(){
     clearInterval(timerInterval);
-    alert('Boom! Time is up!');
-    homeScreen();
+    document.getElementById('resultTitle').innerText = 'Game Over!';
+    document.getElementById('resultMessage').innerText = 'Better luck next time!';
+    document.getElementById('play-screen').style.display = 'none';
+    document.querySelector('.draggables').style.visibility = 'hidden';
+    resultScreen();
+}
+
+function nextLevel(){
+    currentLevel++;
+    if(currentLevel >= levels.length){
+        clearInterval(timerInterval);
+        document.getElementById('resultTitle').innerText = 'Congratulations!';
+        document.getElementById('resultMessage').innerText = 'You have completed all levels!';
+        document.getElementById('play-screen').style.display = 'none';
+        document.querySelector('.draggables').style.visibility = 'hidden';
+        resultScreen();
+    } else {
+        loadLevel();
+        startTimer();
+    }
 }
 
 //Various levels with certain objectives or changes needed
@@ -67,6 +93,19 @@ const levels = [
             {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]   
+    },
+    {
+        level: 2,
+        voltage: 12,
+        goalCurrent: 1.5,
+        hint: "Ohm's Law: I = V / R",
+        boardImg: 'assets/CircuitBoard_blank (2).png',
+        Answer: 8,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
     }
 ];
 
@@ -80,7 +119,7 @@ function checkAnswer(){
     const level = levels[currentLevel];
 
     if (droppedValue === level.Answer) {
-        alert('Correct! Moving to the next level.');
+            nextLevel();
     } else {
         lives--;
         updateHearts();
@@ -192,5 +231,10 @@ function dragMethod(){
     });
 
 }
-
-//function checkWin()
+function WinScreen(){
+    document.getElementById('resultTitle').innerText = 'Congratulations!';
+    document.getElementById('resultMessage').innerText = 'You have completed all levels!';
+    document.getElementById('play-screen').style.display = 'none';
+    document.querySelector('.draggables').style.visibility = 'hidden';
+    resultScreen();
+}
