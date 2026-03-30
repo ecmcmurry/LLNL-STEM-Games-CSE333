@@ -7,6 +7,7 @@ let droppedValue = null;
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('levelScreen').style.display = 'none';
     document.getElementById('play-screen').style.display  = 'flex';
     document.querySelector('.draggables').style.visibility = 'visible';
     currentLevel = 0;
@@ -21,6 +22,7 @@ function homeScreen() {
     document.getElementById('howToPlay').style.display = 'none';
     document.getElementById('play-screen').style.display = 'none';
     document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('levelScreen').style.display = 'none';
     document.getElementById('home-screen').style.display = 'flex';
     document.querySelector('.draggables').style.visibility = 'hidden';
 }
@@ -29,12 +31,16 @@ function homeScreen() {
 function howToPlay() {
     document.getElementById('home-screen').style.display = 'none';
     document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('levelScreen').style.display = 'none';
     document.getElementById('howToPlay').style.display = 'flex';
     document.querySelector('.draggables').style.visibility = 'hidden';
 }
 
 //result screen is prompted when the player 
 function resultScreen() {
+    document.getElementById('howToPlay').style.display = 'none';
+    document.getElementById('play-screen').style.display = 'none';
+    document.getElementById('home-screen').style.display = 'none';
     document.getElementById('resultScreen').style.display = 'flex';
 }
 
@@ -52,6 +58,9 @@ function startTimer() {
         }
  
     }, 1000);
+}
+function levelScreen(){
+    document.getElementById('levelScreen').style.display  = 'flex';
 }
 
 //Game finished functions
@@ -83,8 +92,8 @@ function nextLevel(){
 const levels = [
     { 
         level: 1, 
-        voltage: 9,
-        goalCurrent: 3, 
+        voltage: 12,
+        goal: 3, //current goal for level 1
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_blank (1).png',
         Answer: 3, 
@@ -96,17 +105,17 @@ const levels = [
     },
     {
         level: 2,
-        voltage: 12,
-        goalCurrent: 1.5,
-        hint: "Ohm's Law: I = V / R",
-        boardImg: 'assets/CircuitBoard_blank (2).png',
-        Answer: 8,
+        voltage: 9,
+        goal: 3, //current goal for level 2
+        hint: "Ohm's Law: R = V / I",
+        boardImg: 'assets/CircuitBoard_level2.png',
+        Answer: 3,
         components: [
             {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'battery', label: '3V', img: 'assets/horizontal-resistor.png', value: 12},
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
-    }
+    },
 ];
 
 //base resistors with assets connected
