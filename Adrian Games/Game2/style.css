@@ -223,6 +223,9 @@ body {
 #howToPlay{
     display: none;
 }
+#resultScreen{
+    display: none;
+}
 
 /*Pixel designed card*/
 .pixel-card {
