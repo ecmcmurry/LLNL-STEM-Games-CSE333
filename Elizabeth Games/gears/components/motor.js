@@ -7,6 +7,7 @@ export class Motor extends Gear {
         super(teeth);
         this.rpm = rpm;
         this.torque = torque;
+        this.angle = 0;
     }
 
     clone() {

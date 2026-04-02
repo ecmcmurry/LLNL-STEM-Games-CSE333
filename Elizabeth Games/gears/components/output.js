@@ -6,6 +6,7 @@ export class Output extends Gear {
     constructor(teeth, targetRPM) {
         super(teeth, 0);
         this.targetRPM = targetRPM;
+        this.angle = 0;
     }
 
     isSatisfied() {

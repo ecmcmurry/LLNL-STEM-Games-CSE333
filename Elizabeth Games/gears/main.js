@@ -24,6 +24,8 @@ let grid = new Grid("5,5,80,,,,,,,,,,,,,,,,,,,,,,,,,,");
 
 let inventory = new Inventory("1,10,80,E,B,G8,G12,G16,G20,M12/20/20,O12/20,h,v");
 
+grid.startAnimation(ctx);
+
 function draw() {
     ctx.clearRect(0, 0, w, h);
     grid.draw(ctx);

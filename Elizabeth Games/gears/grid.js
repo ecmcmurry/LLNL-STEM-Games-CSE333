@@ -5,6 +5,8 @@ import { Gear, Motor, Output } from "./components/index.js";
 import { Belt, HorizontalBelt, VerticalBelt } from './components/belt.js';
 import { Block } from "./components/block.js";
 
+const ANIMATION_SPEED = 2;
+
 export class Grid {
     constructor(levelString) {
         let loadedValues = levelString.split(",");
@@ -81,12 +83,65 @@ export class Grid {
         }
 
         this.selectedCell = null;
+
+        //generated using Claude, refactor later
+        this.lastTimestamp = null;
+        this.animate = this.animate.bind(this);
+    }
+    
+    //generated using Claude, refactor later
+    startAnimation(ctx) {
+        const loop = (timestamp) => {
+            if (this.lastTimestamp === null) {
+                this.lastTimestamp = timestamp;
+            }
+
+            const deltaSeconds = (timestamp - this.lastTimestamp) / 1000;
+            this.lastTimestamp = timestamp;
+
+            this.updateAngles(deltaSeconds);
+            this.draw(ctx);
+            requestAnimationFrame(loop);
+        };
+
+        requestAnimationFrame(loop);
+    }
+
+    //generated using Claude, refactor later
+    animate(timestamp) {
+        if (this.lastTimestamp === null) {
+            this.lastTimestamp = timestamp;
+        }
+
+        const deltaSeconds = (timestamp - this.lastTimestamp) / 1000;
+        this.lastTimestamp = timestamp;
+
+        this.updateAngles(deltaSeconds);
+        this.draw(ctx); // Your existing draw function
+        requestAnimationFrame(this.animate);
+    }
+
+    //generated using Claude, refactor later
+    updateAngles(deltaSeconds) {
+        for (let row of this.cells) {
+            for (let cell of row) {
+                let comp = cell.component;
+                if (comp && comp.rpm !== null) {
+                    // Convert RPM to radians per second, then scale by delta time
+                    comp.angle += (comp.rpm / 60) * (2 * Math.PI) * deltaSeconds * ANIMATION_SPEED;
+                }
+            }
+        }
     }
 
     draw(ctx) {
         //for each cell in the cell list, they call their own draw function
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
+                //rudimentary solution to clear the previous "frames" of the animation
+                let x = (this.cells[r][c].col * (this.cells[r][c].size + 5)) + (5/2);
+                let y = (this.cells[r][c].row * (this.cells[r][c].size + 5)) + (5/2);
+                ctx.clearRect(x, y, this.size, this.size);
                 this.cells[r][c].draw(ctx);
             }
         }

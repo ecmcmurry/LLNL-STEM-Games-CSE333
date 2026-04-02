@@ -6,11 +6,12 @@ export class Gear {
         this.teeth = teeth;
         this.rpm = null;
         this.torque = null;
+        this.angle = 0;
     }
 
     draw(ctx, x, y) {
 
-        this.drawGear(ctx, x+40, y+40, this.teeth, 20);
+        this.drawGear(ctx, x, y, this.teeth, 20, this.angle);
 
         //This TEMPORARY set of code displays the rpm as text in the center of the cell
         ctx.font = "16px Arial";
@@ -49,15 +50,20 @@ export class Gear {
     }
 
     //drawGear, drawSmallGear, and drawLargeGear all generated using Claude
-    drawGear(ctx, x, y, teeth, radius) {
+    drawGear(ctx, x, y, teeth, radius, angle) {
         if (teeth >= 14) {
-            this.drawLargeGear(ctx, x, y, teeth, radius);
+            this.drawLargeGear(ctx, x+40, y+40, teeth, radius, angle);
         } else {
-            this.drawSmallGear(ctx, x, y, teeth, radius);
+            this.drawSmallGear(ctx, x+40, y+40, teeth, radius, angle);
         }
     }
 
-    drawSmallGear(ctx, x, y, teeth, radius) {
+    drawSmallGear(ctx, x, y, teeth, radius, angle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
+
         const toothHeight = Math.max(5, radius * 0.15);
         const innerRadius = radius - toothHeight;
         const outerRadius = radius + toothHeight;
@@ -106,9 +112,15 @@ export class Gear {
         ctx.fill();
         ctx.stroke();
         //ctx.fillStyle = "#7f4f33";
+        ctx.restore();
     }
 
-    drawLargeGear(ctx, x, y, teeth, radius) {
+    drawLargeGear(ctx, x, y, teeth, radius, angle) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.translate(-x, -y);
+
         radius = radius*1.5;
         //const toothHeight = Math.max(8, radius * 0.15);
         const angleStep = (2 * Math.PI) / teeth;
@@ -154,6 +166,7 @@ export class Gear {
         ctx.fill();
         ctx.stroke();
         //ctx.fillStyle = "#7f4f33";
+        ctx.restore();
     }
 
 }
