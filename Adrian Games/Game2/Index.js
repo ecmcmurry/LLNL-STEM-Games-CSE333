@@ -3,6 +3,7 @@ let hintVisible = false;
 let timeLeft = 30;
 let timerInterval = null;
 let droppedValue = null;
+let categoryLevel = [];
 //onclick function when the game is started it will close the previous screen and activate the game screen
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
@@ -10,6 +11,7 @@ function startGame() {
     document.getElementById('levelScreen').style.display = 'none';
     document.getElementById('play-screen').style.display  = 'flex';
     document.querySelector('.draggables').style.visibility = 'visible';
+    categoryLevel = [...levels];
     currentLevel = 0;
     lives = 3;
     loadLevel();
@@ -59,7 +61,9 @@ function startTimer() {
  
     }, 1000);
 }
+
 function levelScreen(){
+    document.getElementById('home-screen').style.display = 'none';
     document.getElementById('levelScreen').style.display  = 'flex';
 }
 
@@ -75,7 +79,7 @@ function gameOver(){
 
 function nextLevel(){
     currentLevel++;
-    if(currentLevel >= levels.length){
+    if(currentLevel >= categoryLevel.length){
         clearInterval(timerInterval);
         document.getElementById('resultTitle').innerText = 'Congratulations!';
         document.getElementById('resultMessage').innerText = 'You have completed all levels!';
@@ -95,16 +99,16 @@ const levels = [
         category: 'ohmsLaw',
         level: 1, 
         voltage: 12,
-        goal: 3, 
+        goal: 4,
+        goalType: 'current', 
         dropZones: [
-            {top: '40%', left: '30%'},
-            {top: '40%', left: '50%'},
+            {top: '49%', left: '60.5%'},
         ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_blank (1).png',
         Answer: 3, 
         components: [
-            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '4Ω', img: 'assets/horizontal-resistor.png', value: 4},
             {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]   
@@ -113,10 +117,11 @@ const levels = [
     {
         category: 'ohmsLaw',
         level: 2,
-        voltage: 9,
-        goal: 3, 
+        voltage: 15,
+        goal: 3,
+        goalType: 'current', 
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '49%', left: '38.25%'},
         ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level2.png',
@@ -133,9 +138,11 @@ const levels = [
         category: 'ohmsLaw',
         level: 3,
         voltage: 15,
-        goal: 5,
+        goal: 3,
+        goalType: 'voltage',
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '60%', left: '38.26%'},
+            {top: '27.2%', left: '38.26%'},
         ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level3.png',
@@ -153,7 +160,8 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '60%', left: '38.26%'},
+            {top: '27.2%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level4.png',
@@ -171,7 +179,9 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '60%', left: '38.26%'},
+            {top: '38%', left: '38.26%'},
+            {top: '16%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level5.png',
@@ -189,7 +199,9 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '27.3%', left: '38.26%'},
+            {top: '38%', left: '60.26%'},
+            {top: '60%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level6.png',
@@ -207,7 +219,7 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '27.3%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level7.png',
@@ -225,7 +237,7 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '71%', left: '60.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level8.png',
@@ -243,7 +255,7 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '27.3%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level9.png',
@@ -261,10 +273,10 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '27.3%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
-        boardImg: 'assets/CircuitBoard_level.png',
+        boardImg: 'assets/CircuitBoard_level10.png',
         Answer: 5,
         components: [
             {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
@@ -279,7 +291,7 @@ const levels = [
         voltage: 15,
         goal: 5,
         dropZones: [
-            {top: '40%', left: '30%'},
+            {top: '49%', left: '38.26%'},
         ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level11.png',
@@ -333,7 +345,7 @@ function toggleHint(){
 
 function loadLevel() {
     //Loading the correct level and the correct level map with needed data from levels[]
-    const level = levels[currentLevel];
+    const level = categoryLevel[currentLevel];
     //Dunamically changing the board according to the level
     hintVisible = false;
     document.getElementById('circuitBoardImg').src = level.boardImg;
@@ -424,4 +436,19 @@ function WinScreen(){
     document.getElementById('play-screen').style.display = 'none';
     document.querySelector('.draggables').style.visibility = 'hidden';
     resultScreen();
+}
+
+function categorySelection(category){
+    categoryLevel = levels.filter(level => level.category === category);
+    currentLevel = 0;
+    lives = 3;
+    updateHearts();
+
+    document.getElementById('levelScreen').style.display = 'none';
+    document.getElementById('play-screen').style.display = 'flex';
+    document.querySelector('.draggables').style.visibility = 'visible';
+
+    loadLevel();
+    startTimer();
+
 }
