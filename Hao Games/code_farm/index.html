@@ -30,6 +30,21 @@
 
       <div class="dayText">Day: <span id="dayText">1</span></div>
 
+      <div class="progressBox">
+        <div class="progressHeader">
+          <span>Harvest Progress</span>
+          <span id="progressText">0 / 5</span>
+        </div>
+
+        <div class="bar">
+          <div id="barFill" class="barFill"></div>
+        </div>
+
+        <div id="unlockText" class="unlockText">
+          Next unlock: Daisy at 5 harvests!
+        </div>
+      </div>
+
       <div id="farmStage" class="farm-stage">
         <img id="farmImg" src="assets/farm.jpg" alt="Farm background" />
 
@@ -64,27 +79,39 @@
 
           <div class="inventoryGrid">
             <div class="inventoryFlower">
-              <img id="inventoryImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Flower A" />
-              <div>Flower A</div>
+              <img id="inventoryImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Tulip" />
+              <div>Tulip</div>
               <div>Seeds: <span id="inventoryA">0</span></div>
             </div>
 
             <div class="inventoryFlower">
-              <img id="inventoryImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Flower B" />
-              <div>Flower B</div>
+              <img id="inventoryImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Daisy" />
+              <div>Daisy</div>
               <div>Seeds: <span id="inventoryB">0</span></div>
             </div>
 
             <div class="inventoryFlower">
-              <img id="inventoryImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Flower C" />
-              <div>Flower C</div>
+              <img id="inventoryImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Crimson Rose" />
+              <div>Crimson Rose</div>
               <div>Seeds: <span id="inventoryC">0</span></div>
             </div>
 
             <div class="inventoryFlower">
-              <img id="inventoryImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Flower D" />
-              <div>Flower D</div>
+              <img id="inventoryImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Violet Star" />
+              <div>Violet Star</div>
               <div>Seeds: <span id="inventoryD">0</span></div>
+            </div>
+
+            <div class="inventoryFlower">
+              <img id="inventoryImageE" class="flowerImage" src="assets/flowerE_3.jpg" alt="Emberblossom" />
+              <div>Emberblossom</div>
+              <div>Seeds: <span id="inventoryE">0</span></div>
+            </div>
+
+            <div class="inventoryFlower">
+              <img id="inventoryImageF" class="flowerImage" src="assets/flowerF_3.jpg" alt="Moonflower" />
+              <div>Moonflower</div>
+              <div>Seeds: <span id="inventoryF">0</span></div>
             </div>
           </div>
 
@@ -108,27 +135,39 @@
           </div> -->
           <div class="storeGrid">
             <div class="storeFlower">
-              <img id="storeImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Flower A" />
-              <div>Flower A</div>
+              <img id="storeImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Tulip" />
+              <div>Tulip</div>
               <button id="buyA" class="btn">Buy (Cost 5)</button>
             </div>
 
             <div class="storeFlower">
-              <img id="storeImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Flower B" />
-              <div>Flower B</div>
+              <img id="storeImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Daisy" />
+              <div>Daisy</div>
               <button id="buyB" class="btn">Buy (Cost 7)</button>
             </div>
 
             <div class="storeFlower">
-              <img id="storeImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Flower C" />
-              <div>Flower C</div>
+              <img id="storeImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Crimson Rose" />
+              <div>Crimson Rose</div>
               <button id="buyC" class="btn">Buy (Cost 10)</button>
             </div>
 
             <div class="storeFlower">
-              <img id="storeImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Flower D" />
-              <div>Flower D</div>
-              <button id="buyD" class="btn">Buy (Cost 20)</button>
+              <img id="storeImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Violet Star" />
+              <div>Violet Star</div>
+              <button id="buyD" class="btn">Buy (Cost 10)</button>
+            </div>
+
+            <div class="storeFlower">
+              <img id="storeImageE" class="flowerImage" src="assets/flowerE_3.jpg" alt="Emberblossom" />
+              <div>Emberblossom</div>
+              <button id="buyE" class="btn">Buy (Cost 15)</button>
+            </div>
+
+            <div class="storeFlower">
+              <img id="storeImageF" class="flowerImage" src="assets/flowerF_3.jpg" alt="Moonflower" />
+              <div>Moonflower</div>
+              <button id="buyF" class="btn">Buy (Cost 20)</button>
             </div>
 
           </div>
@@ -148,16 +187,22 @@
 
           <div id="plantChoices" class="choices">
             <button id="plantA" class="btn">
-              Plant Flower A
+              Plant Tulip
             </button>
             <button id="plantB" class="btn">
-              Plant Flower B
+              Plant Daisy
             </button>
             <button id="plantC" class="btn">
-              Plant Flower C
+              Plant Crimson Rose
             </button>
             <button id="plantD" class="btn">
-              Plant Flower D
+              Plant Violet Star
+            </button>
+            <button id="plantE" class="btn">
+              Plant Emberblossom
+            </button>
+            <button id="plantF" class="btn">
+              Plant Moonflower
             </button>
           </div>
 
