@@ -90,7 +90,9 @@ function nextLevel(){
 
 //Various levels with certain objectives or changes needed
 const levels = [
-    { 
+
+    {
+        category: ohmsLaw,
         level: 1, 
         voltage: 12,
         goal: 3, //current goal for level 1
@@ -103,7 +105,9 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]   
     },
+
     {
+        category: ohmsLaw,
         level: 2,
         voltage: 9,
         goal: 3, //current goal for level 2
@@ -116,6 +120,136 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
+    
+    {
+        category: ohmsLaw,
+        level: 3,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level3.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+    resistorLevels = [
+    {
+        cateogry: resistor,
+        level: 4,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level4.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+
+    {
+        level: 5,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level5.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    }, 
+
+    {
+        level: 6,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level6.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+    ],
+
+    complexLevels = [
+    {
+        level: 7,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level7.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+
+    {
+        level: 8,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level8.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+    {
+        level: 9,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level9.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+    {
+        level: 10,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    },
+
+    {
+        level: 11,
+        voltage: 15,
+        goal: 5,
+        hint: "Ohm's Law: V = I * R",
+        boardImg: 'assets/CircuitBoard_level11.png',
+        Answer: 5,
+        components: [
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+            {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+        ]
+    }
+
+]
 ];
 
 //base resistors with assets connected
