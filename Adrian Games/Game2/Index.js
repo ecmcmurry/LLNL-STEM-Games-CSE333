@@ -95,7 +95,8 @@ const levels = [
         category: ohmsLaw,
         level: 1, 
         voltage: 12,
-        goal: 3, //current goal for level 1
+        goal: 3, 
+        slotOneLocation: 1, //location of the slot on the board for the first level
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_blank (1).png',
         Answer: 3, 
@@ -110,8 +111,8 @@ const levels = [
         category: ohmsLaw,
         level: 2,
         voltage: 9,
-        goal: 3, //current goal for level 2
-        hint: "Ohm's Law: R = V / I",
+        goal: 3, 
+        hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level2.png',
         Answer: 3,
         components: [
@@ -126,7 +127,7 @@ const levels = [
         level: 3,
         voltage: 15,
         goal: 5,
-        hint: "Ohm's Law: V = I * R",
+        hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level3.png',
         Answer: 5,
         components: [
@@ -135,9 +136,9 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
-    resistorLevels = [
+
     {
-        cateogry: resistor,
+        category: resistor,
         level: 4,
         voltage: 15,
         goal: 5,
@@ -152,6 +153,7 @@ const levels = [
     },
 
     {
+        category: resistor,
         level: 5,
         voltage: 15,
         goal: 5,
@@ -165,7 +167,8 @@ const levels = [
         ]
     }, 
 
-    {
+    {   
+        category: resistor,
         level: 6,
         voltage: 15,
         goal: 5,
@@ -178,10 +181,9 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
-    ],
 
-    complexLevels = [
     {
+        category: complexLevel,
         level: 7,
         voltage: 15,
         goal: 5,
@@ -196,6 +198,7 @@ const levels = [
     },
 
     {
+        category: complexLevel,
         level: 8,
         voltage: 15,
         goal: 5,
@@ -208,7 +211,9 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
+
     {
+        category: complexLevel,
         level: 9,
         voltage: 15,
         goal: 5,
@@ -221,7 +226,9 @@ const levels = [
             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
+
     {
+        category: complexLevel,
         level: 10,
         voltage: 15,
         goal: 5,
@@ -236,6 +243,7 @@ const levels = [
     },
 
     {
+        category: complexLevel,
         level: 11,
         voltage: 15,
         goal: 5,
@@ -249,7 +257,6 @@ const levels = [
         ]
     }
 
-]
 ];
 
 //base resistors with assets connected
