@@ -92,11 +92,14 @@ function nextLevel(){
 const levels = [
 
     {
-        category: ohmsLaw,
+        category: 'ohmsLaw',
         level: 1, 
         voltage: 12,
         goal: 3, 
-        slotOneLocation: 1, //location of the slot on the board for the first level
+        dropZones: [
+            {top: '40%', left: '30%'},
+            {top: '40%', left: '50%'},
+        ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_blank (1).png',
         Answer: 3, 
@@ -108,25 +111,32 @@ const levels = [
     },
 
     {
-        category: ohmsLaw,
+        category: 'ohmsLaw',
         level: 2,
         voltage: 9,
         goal: 3, 
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level2.png',
         Answer: 3,
         components: [
-            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-            {type: 'battery', label: '3V', img: 'assets/horizontal-resistor.png', value: 12},
-            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+            {type: 'battery', label: '8V', img: 'assets/Horizontal-Battery.png', value: 3},
+            {type: 'battery', label: '3V', img: 'assets/Horizontal-Battery.png', value: 12},
+            {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 8},//possibly turn into a divisible
+            {type: 'battery', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
     
     {
-        category: ohmsLaw,
+        category: 'ohmsLaw',
         level: 3,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: I = V / R",
         boardImg: 'assets/CircuitBoard_level3.png',
         Answer: 5,
@@ -138,10 +148,13 @@ const levels = [
     },
 
     {
-        category: resistor,
+        category: 'resistor',
         level: 4,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level4.png',
         Answer: 5,
@@ -153,10 +166,13 @@ const levels = [
     },
 
     {
-        category: resistor,
+        category: 'resistor',
         level: 5,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level5.png',
         Answer: 5,
@@ -168,10 +184,13 @@ const levels = [
     }, 
 
     {   
-        category: resistor,
+        category: 'resistor',
         level: 6,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level6.png',
         Answer: 5,
@@ -183,10 +202,13 @@ const levels = [
     },
 
     {
-        category: complexLevel,
+        category: 'complexLevel',
         level: 7,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level7.png',
         Answer: 5,
@@ -198,10 +220,13 @@ const levels = [
     },
 
     {
-        category: complexLevel,
+        category: 'complexLevel',
         level: 8,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level8.png',
         Answer: 5,
@@ -213,10 +238,13 @@ const levels = [
     },
 
     {
-        category: complexLevel,
+        category: 'complexLevel',
         level: 9,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level9.png',
         Answer: 5,
@@ -228,10 +256,13 @@ const levels = [
     },
 
     {
-        category: complexLevel,
+        category: 'complexLevel',
         level: 10,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level.png',
         Answer: 5,
@@ -243,10 +274,13 @@ const levels = [
     },
 
     {
-        category: complexLevel,
+        category: 'complexLevel',
         level: 11,
         voltage: 15,
         goal: 5,
+        dropZones: [
+            {top: '40%', left: '30%'},
+        ],
         hint: "Ohm's Law: V = I * R",
         boardImg: 'assets/CircuitBoard_level11.png',
         Answer: 5,
@@ -258,11 +292,6 @@ const levels = [
     }
 
 ];
-
-//base resistors with assets connected
-const componentImages = {
-    'resistor': 'assets/horizontal-resistor.png',
-};
 
 //checking the value connected to the dropped resistor and checking if it is the correct answer for the level
 function checkAnswer(){
@@ -302,10 +331,6 @@ function toggleHint(){
 
 }
 
-function gameGrid() {
-    
-}
-
 function loadLevel() {
     //Loading the correct level and the correct level map with needed data from levels[]
     const level = levels[currentLevel];
@@ -313,13 +338,22 @@ function loadLevel() {
     hintVisible = false;
     document.getElementById('circuitBoardImg').src = level.boardImg;
     document.getElementById('goalVoltage').innerText = level.voltage;
-    document.getElementById('goalValue').innerText = level.goalCurrent;
+    document.getElementById('goalValue').innerText = level.goal;
+
+    const overlay = document.querySelector('.boardOverlay'); 
+    overlay.innerHTML = '';
+
+    level.dropZones.forEach((zone, index) => {
+        const dropZone = document.createElement('div');
+        dropZone.classList.add('dropZone');
+        dropZone.id = `slot${index + 1}`;
+        dropZone.style.top = zone.top;
+        dropZone.style.left = zone.left;
+        overlay.appendChild(dropZone);
+    });
 
     const slots = document.getElementById('componentSlots');
     slots.innerHTML = '';
-
-    const dropZone = document.getElementById('slot1');
-    dropZone.innerHTML = '';
 
     level.components.forEach(component => {
         const p = document.createElement('p');
@@ -347,7 +381,7 @@ function dragMethod(){
     //one for the class which has all components
     let components = document.getElementsByClassName('slotDesign');
     //one for the ID of each slot either on the board or in the component tray
-    let dropZone = document.getElementById('slot1');
+    let dropZones = document.querySelectorAll('.dropZone');
     let slots = document.getElementById('componentSlots');
     let selectedComponent = null;
 
@@ -357,18 +391,21 @@ function dragMethod(){
             selectedComponent = e.target.closest('.slotDesign');
         });
     }
-    dropZone.addEventListener('dragover', function(e){
+    dropZones.forEach(dropZone => {
+        dropZone.addEventListener('dragover', function(e){
             e.preventDefault();
-    });
-    dropZone.addEventListener('drop', function(e){
-        if (selectedComponent) {
-            const img = selectedComponent.querySelector('.component-img').cloneNode(true);
-            dropZone.innerHTML = '';
-            dropZone.appendChild(img);
-            droppedValue = parseInt(selectedComponent.dataset.value);
-            checkAnswer();
-            selectedComponent = null;
-        }
+        });
+        dropZone.addEventListener('drop', function(e){
+            if (selectedComponent) {
+                const img = selectedComponent.querySelector('.component-img').cloneNode(true);
+                dropZone.innerHTML = '';
+                dropZone.appendChild(img);
+                droppedValue = parseInt(selectedComponent.dataset.value);
+                dropZone.dataset.value = droppedValue;
+                checkAnswer();
+                selectedComponent = null;
+            }
+        });
     });
     slots.addEventListener('dragover', function(e){
         e.preventDefault();
