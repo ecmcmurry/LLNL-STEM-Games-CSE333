@@ -23,21 +23,21 @@ export class Gear {
             //Updated using Claude
             (`${this.teeth}`),
             x + 80 / 2,
-            y + (80 - 16) / 2
+            y + (80 - 32) / 2
         );
 
         ctx.fillText(
             //Updated using Claude
             (`${this.rpm}`),
             x + 80 / 2,
-            y + (80 + 16) / 2
+            y + (80) / 2
         );
         
         ctx.fillText(
             //Updated using Claude
             (`${this.torque}`),
             x + 80 / 2,
-            y + (80 + 48) / 2
+            y + (80 + 64) / 2
         );
     }
 

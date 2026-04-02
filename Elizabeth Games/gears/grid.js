@@ -136,13 +136,27 @@ export class Grid {
 
     draw(ctx) {
         //for each cell in the cell list, they call their own draw function
+        //belts need a second pass to ensure they are drawn on top of all other elements
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 //rudimentary solution to clear the previous "frames" of the animation
-                let x = (this.cells[r][c].col * (this.cells[r][c].size + 5)) + (5/2);
-                let y = (this.cells[r][c].row * (this.cells[r][c].size + 5)) + (5/2);
+                let currentCell = this.cells[r][c];
+                let x = (currentCell.col * (currentCell.size + 5)) + (5/2);
+                let y = (currentCell.row * (currentCell.size + 5)) + (5/2);
                 ctx.clearRect(x, y, this.size, this.size);
-                this.cells[r][c].draw(ctx);
+                if (!(currentCell.component instanceof Belt)) {
+                    currentCell.draw(ctx);
+                }
+            }
+        }
+        //this second pass for belts doesn't need to clear anything, just drawing belts where necessary
+        //without this second loop, belts are drawn underneath certain gears
+        for (let r = 0; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                let currentCell = this.cells[r][c];
+                if ((currentCell.component instanceof Belt)) {
+                    currentCell.draw(ctx);
+                }
             }
         }
     }

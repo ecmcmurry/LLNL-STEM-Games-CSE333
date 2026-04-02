@@ -28,6 +28,9 @@ export class Belt {
                 x + 80 / 2,
                 y + 80 / 2
             );
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 5;
+            ctx.strokeRect(x-52, y+32, 184, 16);
         }
         if (this.isVertical) {
             ctx.fillText(
@@ -35,6 +38,9 @@ export class Belt {
                 x + 80 / 2,
                 y + 80 / 2
             );
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 5;
+            ctx.strokeRect(x+32, y-52, 16, 184);
         }
         
     }
