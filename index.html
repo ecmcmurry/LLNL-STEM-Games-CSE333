@@ -1,17 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="Styles/styles.css">
-  <title>STEM Games</title>
-</head>
-<body>
-  <h1>STEM Games</h1>
-  <nav>
-    <a href="science.html">S &mdash; Science</a>
-    <a href="technology.html">T &mdash; Technology</a>
-    <a href="engineering.html">E &mdash; Engineering</a>
-    <a href="math.html">M &mdash; Math</a>
-  </nav>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="Styles/styles.css" />
+    <title>STEM Games</title>
+  </head>
+  <body>
+    <div id="sidebar" class="sidebar">
+      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()"
+        >&times;</a
+      >
+      <a href="index.html">Home</a>
+      <a href="science.html">Science Games</a>
+      <a href="technology.html">Technology Games</a>
+      <a href="engineering.html">Engineering Games</a>
+      <a href="math.html">Math Games</a>
+      <a href="about.html">About</a>
+      <a href="chatbot.html">Chatbot</a>
+    </div>
+
+    <div class="top-bar">
+      <h1 id="logo" onclick="toggleSidebar()">
+        <span>&#9662;</span> STEM AI Games
+      </h1>
+
+      <div class="search-container">
+        <input
+          type="text"
+          class="search-bar"
+          placeholder="Search with Chatbot"
+        />
+      </div>
+    </div>
+    <nav id="main-nav">
+      <a href="science.html">S &mdash; Science</a>
+      <a href="technology.html">T &mdash; Technology</a>
+      <a href="engineering.html">E &mdash; Engineering</a>
+      <a href="math.html">M &mdash; Math</a>
+    </nav>
+
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar.style.left === "0px") {
+          sidebar.style.left = "-250px";
+        } else {
+          sidebar.style.left = "0px";
+        }
+      }
+
+      function transitionToPage(event, url) {
+        event.preventDefault(); // pauses jump to screen
+
+        // fills screen with button color
+        document.body.style.backgroundColor = "#0A192F";
+
+        // fades from homepage
+        document.getElementById("main-nav").style.opacity = "0";
+        document.querySelector(".top-bar").style.opacity = "0";
+
+        // redirects after 400 ms.
+        setTimeout(() => {
+          window.location.href = url;
+        }, 400);
+      }
+    </script>
+  </body>
 </html>
