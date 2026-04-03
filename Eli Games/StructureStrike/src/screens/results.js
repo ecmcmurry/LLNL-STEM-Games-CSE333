@@ -51,7 +51,7 @@ export function render(container) {
       el('div', { class: 'results-breakdown' },
         el('div', { class: 'results-row' },
           el('span', {}, 'Level'),
-          el('span', {}, `${level.id + 1} — ${level.name}`),
+          el('span', {}, `${level.id + 1}: ${level.name}`),
         ),
         el('div', { class: 'results-row' },
           el('span', {}, survived ? 'Threat survived' : 'Failed against'),
@@ -84,7 +84,7 @@ export function render(container) {
         ? el('div', { class: 'results-ref' },
             el('span', { class: 'results-ref__label' }, 'Engineering note: '),
             el('strong', {}, level.realWorldRef.name),
-            el('span', {}, ` — ${level.realWorldRef.note}`),
+            el('span', {}, `: ${level.realWorldRef.note}`),
           )
         : null,
 

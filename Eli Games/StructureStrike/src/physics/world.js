@@ -3,9 +3,9 @@ import { ELEMENT_PROPERTIES, CELL_METERS, GRID_ROWS, GRAVITY_MS2 } from '../util
 import { elementLengthMetres } from '../utils/math.js';
 
 // How much to multiply raw Planck node positions (metres) before handing to the renderer.
-// The renderer already applies DEFORMATION_SCALE (×80), so this sits on top of that.
-// Tune this if deformation looks too subtle or too dramatic.
-export const PLANCK_DISP_AMPLIFY = 30;
+// The renderer also applies DEFORMATION_SCALE (×80), so total = this × 80 × (cellPx/5).
+// Keep this low to prevent nodes drifting past their clamp and causing member crossing.
+export const PLANCK_DISP_AMPLIFY = 3;
 
 // Scale applied to all external forces before feeding into Planck.
 // Structural loads are hundreds of kN; Planck bodies have masses of ~10–100 kg.
@@ -34,8 +34,8 @@ export function createNodeBodies(world, nodes, elements) {
     const body = world.createBody({
       type: node.isAnchor ? 'static' : 'dynamic',
       position: pos,
-      linearDamping: 1.5,
-      angularDamping: 1.0,
+      linearDamping: 6.0,
+      angularDamping: 5.0,
     });
 
     // Tiny sensor fixture — needed by Planck but we don't want collision response
@@ -104,8 +104,11 @@ export function createElementJoints(world, elements, bodies, nodes) {
       localAnchorA: planck.Vec2(0, 0),
       localAnchorB: planck.Vec2(0, 0),
       length:        restLength,
-      frequencyHz:   isCable ? 1.5 : 3.0,
-      dampingRatio:  isCable ? 0.7 : 0.4,
+      // Rigid (frequencyHz=0) for structural members → distance constraint,
+      // no spring stretch, accurate force transmission.
+      // Cables stay soft so they visibly sag/snap under tension.
+      frequencyHz:   isCable ? 1.5 : 0,
+      dampingRatio:  isCable ? 0.7 : 0,
     }));
 
     joints.set(elem.id, { joint, restLength, isCable });
@@ -130,7 +133,7 @@ export function applyNodeForces(bodies, forceMap) {
 
 // [PHYSICS] Steps the world forward one 60 Hz frame.
 export function stepWorld(world) {
-  world.step(1 / 60, 8, 3);
+  world.step(1 / 60, 16, 8);
 }
 
 // [PHYSICS] Returns the reaction-force magnitude (Newtons, in Planck-scaled units)

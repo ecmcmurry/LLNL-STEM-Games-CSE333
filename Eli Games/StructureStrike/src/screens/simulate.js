@@ -12,10 +12,15 @@ import { drawElement, drawNode, drawLoadArrow } from '../canvas/blueprint-canvas
 import { drawStructuralMember, drawStructuralMemberAt, drawPinJoint, drawPinJointAt, drawConcreteSupport } from '../canvas/structural-visuals.js';
 import {
   drawElementFailureBurst,
+  drawDeadLoadParticles,
+  drawStressLines,
+  drawForceArrows,
   applySeismicShake,
   drawWindEffect,
   drawFloodOverlay,
+  drawThreatDirectionArrows,
 } from '../canvas/sim-renderer.js';
+import { drawWorldSceneBackground } from '../canvas/world-canvas.js';
 import { runPlanckSimulation } from '../physics/sim-engine.js';
 import { DEFORMATION_SCALE, CELL_METERS } from '../utils/constants.js';
 import { gridToCanvas } from '../utils/math.js';
@@ -23,6 +28,18 @@ import { gridToCanvas } from '../utils/math.js';
 const WARMUP_SECS  = 1.5;
 const ACTIVE_SECS  = 4.0;
 const TOTAL_SECS   = WARMUP_SECS + ACTIVE_SECS;
+
+// Underdamped spring settle: starts at 0, overshoots ~20%, then settles to 1.
+// Gives the structure a natural "load suddenly applied" feel for gravity levels.
+function _springSettle(t) {
+  if (t <= 0) return 0;
+  const omega = 4.5;
+  const zeta  = 0.40;
+  const wd    = omega * Math.sqrt(1 - zeta * zeta);
+  return Math.max(0, 1 - Math.exp(-zeta * omega * t) * (
+    Math.cos(wd * t) + (zeta / Math.sqrt(1 - zeta * zeta)) * Math.sin(wd * t)
+  ));
+}
 
 // [SIMULATION] Simulation screen. Shatters the build snapshot, runs a build
 // animation, executes the Planck physics simulation, then replays the result
@@ -70,31 +87,6 @@ export function render(container) {
   worldCtx.fillRect(0, 0, vw, vh);
   _drawBlueprintStructure();
 
-  let bgSnapshot = null;
-  const cityImg = new Image();
-  cityImg.src = '/cityscape.png';
-  cityImg.onload = () => {
-    // Draw with CSS "cover" behavior — scale to fill, preserve aspect ratio
-    const imgAR = cityImg.naturalWidth / cityImg.naturalHeight;
-    const canAR = vw / vh;
-    let sx = 0, sy = 0, sw = cityImg.naturalWidth, sh = cityImg.naturalHeight;
-    if (imgAR > canAR) {
-      // image wider than canvas — crop sides
-      sw = cityImg.naturalHeight * canAR;
-      sx = (cityImg.naturalWidth - sw) / 2;
-    } else {
-      // image taller than canvas — crop top/bottom
-      sh = cityImg.naturalWidth / canAR;
-      sy = (cityImg.naturalHeight - sh) / 2;
-    }
-    worldCtx.drawImage(cityImg, sx, sy, sw, sh, 0, 0, vw, vh);
-    bgSnapshot = document.createElement('canvas');
-    bgSnapshot.width  = worldCanvasEl.width;
-    bgSnapshot.height = worldCanvasEl.height;
-    bgSnapshot.getContext('2d').drawImage(worldCanvasEl, 0, 0);
-    _drawBlueprintStructure();
-  };
-
   const snapshot = getBuildScreenSnapshot();
   if (snapshot) shatterCtx.drawImage(snapshot, 0, 0, vw, vh);
 
@@ -138,8 +130,8 @@ export function render(container) {
     container.innerHTML = '';
     container.appendChild(overlay);
     shatterCanvasEl.style.display = 'none';
-    if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-    else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+    worldCtx.fillStyle = '#0d1424';
+    worldCtx.fillRect(0, 0, vw, vh);
     _runBuildAnimation();
   }
 
@@ -159,8 +151,8 @@ export function render(container) {
     function frame(now) {
       const elapsed = now - start;
 
-      if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-      else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+      const bg_xform = { rectLeft: rect.left, rectTop: rect.top, cellPx };
+      drawWorldSceneBackground(worldCtx, level.scene, vw, vh, 0, bg_xform, elapsed / 1000);
 
       worldCtx.save();
       worldCtx.translate(rect.left, rect.top);
@@ -193,6 +185,9 @@ export function render(container) {
       }
 
       worldCtx.restore();
+
+      // Threat direction arrows — drawn over the full canvas, outside canvas offset
+      drawThreatDirectionArrows(worldCtx, vw, vh, level.threat, elapsed / 1000);
 
       if (!allDone) {
         animRafId = requestAnimationFrame(frame);
@@ -232,6 +227,7 @@ export function render(container) {
     if (!transform) { _finish(simResult); return; }
     const { rect, cellPx } = transform;
     const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
+    const isGravity = level.threat?.type === 'gravity';
 
     // Spread failure waves evenly across the active threat window
     const failureBursts = [];
@@ -263,18 +259,26 @@ export function render(container) {
     const start = performance.now();
 
     function frame(now) {
-      const timeSec      = Math.min((now - start) / 1000, TOTAL_SECS);
+      const timeSec       = Math.min((now - start) / 1000, TOTAL_SECS);
       const activeTimeSec = Math.max(0, timeSec - WARMUP_SECS);
-      const deformRamp   = Math.min(1, activeTimeSec / 2.0);
-      const deformScale  = DEFORMATION_SCALE * deformRamp;
+      // Gravity: spring-bounce settle + decaying micro-vibration for a live feel.
+      // Other threats: simple linear ramp.
+      const deformRamp  = isGravity
+        ? _springSettle(activeTimeSec * 1.2)
+        : Math.min(1, activeTimeSec / 2.0);
+      const microVibe   = isGravity
+        ? Math.exp(-activeTimeSec * 0.9) * 0.18 * Math.sin(activeTimeSec * 16)
+        : 0;
+      const deformScale = DEFORMATION_SCALE * (deformRamp + microVibe);
 
       // Background
-      if (bgSnapshot) worldCtx.drawImage(bgSnapshot, 0, 0, vw, vh);
-      else { worldCtx.fillStyle = '#0d1424'; worldCtx.fillRect(0, 0, vw, vh); }
+      const wrf = level.threat?.type === 'flood' ? Math.min(1, activeTimeSec / ACTIVE_SECS) : 0;
+      const bg_xform = { rectLeft: rect.left, rectTop: rect.top, cellPx };
+      drawWorldSceneBackground(worldCtx, level.scene, vw, vh, wrf, bg_xform, timeSec);
 
       // Full-screen force effects (no canvas offset needed)
       if (level.threat?.type === 'wind' && activeTimeSec > 0) {
-        drawWindEffect(worldCtx, vw, vh, level.threat.windSpeedKmh, timeSec);
+        drawWindEffect(worldCtx, vw, vh, level.threat.windSpeedKmh, level.threat.windAngleDeg ?? 180, timeSec);
       }
       if (level.threat?.type === 'flood') {
         const wrf = Math.min(1, Math.max(0, activeTimeSec / ACTIVE_SECS));
@@ -290,22 +294,31 @@ export function render(container) {
         applySeismicShake(worldCtx, level.threat.peakAccelerationG, timeSec, level.threat.frequencyHz);
       }
 
-      // Helper: get deformed canvas position for a node
-      const metresToPx = cellPx / CELL_METERS;
+      // Helper: get deformed canvas position for a node.
+      // Deformation is clamped so no node can visually fly more than MAX_PX pixels
+      // from its rest position — prevents explosion visuals if physics diverges.
+      const metresToPx  = cellPx / CELL_METERS;
+      // Gravity gets a generous clamp so the sag is actually visible.
+      // Other threats keep a tight clamp to prevent member crossing from seismic/wind blowup.
+      const MAX_DEFORM  = isGravity ? cellPx * 1.5 : cellPx * 0.35;
+      const clamp = (v) => Math.max(-MAX_DEFORM, Math.min(MAX_DEFORM, v));
       const deformedPos = (node, idx) => {
         const { x, y } = gridToCanvas(node.col, node.row, cellPx, { col: 0, row: 0 });
         if (!simResult.displacements || idx === undefined) return { x, y };
         return {
-          x: x +  simResult.displacements[3 * idx]     * metresToPx * deformScale,
-          y: y + -simResult.displacements[3 * idx + 1] * metresToPx * deformScale,
+          x: x + clamp( simResult.displacements[3 * idx]     * metresToPx * deformScale),
+          y: y + clamp(-simResult.displacements[3 * idx + 1] * metresToPx * deformScale),
         };
       };
 
-      // Layer 1: blueprint element lines (undeformed, visual reference)
+      // Layer 1: blueprint element lines (undeformed ghost reference).
+      // Fade out as deformation ramps up so the stressed/deformed view reads clearly.
+      worldCtx.globalAlpha = Math.max(0.10, 1 - deformRamp * 0.88);
       for (const elem of elements) {
         const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
         if (nA && nB) drawElement(worldCtx, nA, nB, elem.type, cellPx);
       }
+      worldCtx.globalAlpha = 1;
 
       // Layer 2: concrete bases + load arrows (anchored — no deformation)
       for (const node of nodes) {
@@ -323,6 +336,26 @@ export function render(container) {
         drawStructuralMemberAt(worldCtx, pA.x, pA.y, pB.x, pB.y, elem.type, cellPx, stress);
       }
 
+      // Stress vibration lines — radiating wavy lines at every stressed member midpoint
+      if (activeTimeSec > 0) {
+        const stressPoints = [];
+        for (const elem of elements) {
+          const stress = simResult.elementStressRatios?.[elem.id] ?? 0;
+          if (stress < 0.4) continue;
+          const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
+          if (!nA || !nB) continue;
+          const pA = deformedPos(nA, nodes.indexOf(nA));
+          const pB = deformedPos(nB, nodes.indexOf(nB));
+          stressPoints.push({
+            x: (pA.x + pB.x) / 2,
+            y: (pA.y + pB.y) / 2,
+            angle: Math.atan2(pB.y - pA.y, pB.x - pA.x),
+            stressRatio: stress,
+          });
+        }
+        drawStressLines(worldCtx, stressPoints, timeSec);
+      }
+
       // Layer 4: pin joints at deformed positions
       for (const node of nodes) {
         if (node.isAnchor || !node.isLoadNode) {
@@ -330,6 +363,39 @@ export function render(container) {
           const p = deformedPos(node, idx);
           drawPinJointAt(worldCtx, p.x, p.y, cellPx);
         }
+      }
+
+      // Bold force arrows at deformed load node positions during active phase
+      if (activeTimeSec > 0) {
+        const arrowData = nodes
+          .filter(n => n.isLoadNode && n.load)
+          .map(n => ({ ...deformedPos(n, nodes.indexOf(n)), ...n.load }));
+        drawForceArrows(worldCtx, arrowData, cellPx, timeSec);
+      }
+
+      // Gravity: expanding thud rings on load nodes when the weight first drops
+      if (isGravity && activeTimeSec > 0 && activeTimeSec < 0.55) {
+        const progress = activeTimeSec / 0.55;
+        worldCtx.save();
+        for (const node of nodes) {
+          if (!node.isLoadNode || !node.load?.fy) continue;
+          const p = deformedPos(node, nodes.indexOf(node));
+          worldCtx.globalAlpha = (1 - progress) * 0.75;
+          worldCtx.strokeStyle = '#ef5350';
+          worldCtx.lineWidth   = 2.5;
+          worldCtx.beginPath();
+          worldCtx.arc(p.x, p.y, progress * cellPx * 2.2, 0, Math.PI * 2);
+          worldCtx.stroke();
+        }
+        worldCtx.restore();
+      }
+
+      // Gravity: weight particles raining toward load nodes
+      if (isGravity && activeTimeSec > 0) {
+        const loadPositions = nodes
+          .filter(n => n.isLoadNode && n.load?.fy < 0)
+          .map(n => deformedPos(n, nodes.indexOf(n)));
+        drawDeadLoadParticles(worldCtx, loadPositions, cellPx, activeTimeSec);
       }
 
       // Failure bursts
@@ -347,6 +413,9 @@ export function render(container) {
         const t = (timeSec - impactEvent.startTimeSec) / 0.8;
         if (t >= 0 && t <= 1) _drawImpactFlash(worldCtx, impactEvent.x, impactEvent.y, t);
       }
+
+      // Threat direction arrows — drawn after restore() so they're full-canvas, unaffected by translate/shake
+      drawThreatDirectionArrows(worldCtx, vw, vh, level.threat, timeSec);
 
       if (timeSec < TOTAL_SECS) {
         physicsRafId = requestAnimationFrame(frame);

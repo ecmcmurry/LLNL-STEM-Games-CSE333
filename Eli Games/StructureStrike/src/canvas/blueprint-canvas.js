@@ -147,7 +147,7 @@ export function drawElementLegend(ctx, cellPx) {
   ctx.restore();
 
   // ── KEY label ─────────────────────────────────────────────────────────────
-  const fontSize = Math.max(11, Math.round(cellPx * 0.3));
+  const fontSize = Math.max(13, Math.round(cellPx * 0.38));
   ctx.font         = `${fontSize}px EngineerHand, Jost, sans-serif`;
   ctx.textBaseline = 'middle';
   const cy         = legendY + stripH * 0.5;
@@ -162,7 +162,7 @@ export function drawElementLegend(ctx, cellPx) {
     name: p.displayName,
   }));
 
-  const sqSize = Math.max(8, Math.round(cellPx * 0.22));
+  const sqSize = Math.max(10, Math.round(cellPx * 0.27));
   const gap    = Math.round(cellPx * 0.18);
   const startX = cellPx * 2.2;
   const spacing = (gridW - startX - cellPx * 0.5) / items.length;
@@ -470,6 +470,171 @@ export function drawDeformedElement(ctx, nodeA, nodeB, nodeAIndex, nodeBIndex, e
   ctx.lineTo(bx + dxB, by + dyB);
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ─── Requirements post-it note ───────────────────────────────────────────────
+
+// [BUILD-CANVAS] Draws a sticky-note card in the top-left corner of the canvas
+// listing the level's minimum structural requirements so the player always knows
+// what they need to build before running the simulation.
+export function drawRequirementsPostIt(ctx, level, cellPx) {
+  const req = level.requirements;
+  if (!req) return;
+
+  const fs   = Math.max(9, Math.min(13, cellPx * 0.30)); // body font size
+  const PAD  = fs * 1.0;
+  const noteW = Math.max(150, cellPx * 3.6);
+
+  // Word-wrap a string to fit inside the note width
+  function wrapText(text, maxChars) {
+    const words  = text.split(' ');
+    const result = [];
+    let   line   = '';
+    for (const word of words) {
+      if (line.length + word.length + 1 > maxChars) {
+        if (line) result.push(line.trimEnd());
+        line = word + ' ';
+      } else {
+        line += word + ' ';
+      }
+    }
+    if (line.trim()) result.push(line.trimEnd());
+    return result;
+  }
+
+  const charsPerLine = Math.floor((noteW - PAD * 2) / (fs * 0.58));
+
+  // Build bullet list
+  const bullets = [
+    `Place ≥ ${req.minElements} elements`,
+    'Connect every load\nnode to a support',
+    'Each load node needs\nenough capacity',
+  ];
+
+  // Flatten bullets + optional hint (separated by a rule)
+  const rows = []; // { text, bold, rule }
+  for (const b of bullets) {
+    const sub = b.split('\n');
+    rows.push({ text: sub[0], bullet: true });
+    for (let i = 1; i < sub.length; i++) rows.push({ text: sub[i], bullet: false, indent: true });
+  }
+
+  if (req.hint) {
+    rows.push({ rule: true });
+    for (const line of wrapText(req.hint, charsPerLine)) {
+      rows.push({ text: line, italic: true });
+    }
+  }
+
+  const headerH = fs * 2.0;
+  const lineH   = fs * 1.55;
+  const noteH   = headerH + PAD * 0.6 + rows.length * lineH + PAD * 0.8;
+
+  // Place in top-left with a small margin
+  const noteX = cellPx * 0.22;
+  const noteY = cellPx * 0.22;
+
+  ctx.save();
+
+  // Tilt slightly for sticky-note feel
+  ctx.translate(noteX + noteW / 2, noteY + noteH / 2);
+  ctx.rotate(-0.025);
+  ctx.translate(-(noteX + noteW / 2), -(noteY + noteH / 2));
+
+  // Drop shadow
+  ctx.shadowColor   = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur    = 8;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 5;
+
+  // Paper body — warm yellow
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(noteX, noteY, noteW, noteH);
+
+  // Clear shadow before drawing text/details
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur  = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Header strip — darker amber
+  ctx.fillStyle = '#fbbf24';
+  ctx.fillRect(noteX, noteY, noteW, headerH);
+
+  // Subtle horizontal ruled lines on the body (like real notepaper)
+  ctx.strokeStyle = 'rgba(180,140,40,0.25)';
+  ctx.lineWidth   = 0.7;
+  for (let ry = noteY + headerH + lineH; ry < noteY + noteH - 4; ry += lineH) {
+    ctx.beginPath();
+    ctx.moveTo(noteX + PAD * 0.5, ry);
+    ctx.lineTo(noteX + noteW - PAD * 0.5, ry);
+    ctx.stroke();
+  }
+
+  // Header label
+  ctx.fillStyle    = '#78350f';
+  ctx.font         = `bold ${fs + 1}px sans-serif`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('REQUIREMENTS', noteX + noteW / 2, noteY + headerH / 2);
+
+  // Bullet rows
+  ctx.textAlign    = 'left';
+  ctx.textBaseline = 'top';
+  let ry = noteY + headerH + PAD * 0.6;
+
+  for (const row of rows) {
+    if (row.rule) {
+      ctx.strokeStyle = 'rgba(120,90,20,0.35)';
+      ctx.lineWidth   = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(noteX + PAD, ry + lineH * 0.45);
+      ctx.lineTo(noteX + noteW - PAD, ry + lineH * 0.45);
+      ctx.stroke();
+      ry += lineH;
+      continue;
+    }
+
+    const indent = row.indent ? PAD * 1.2 : 0;
+    ctx.fillStyle = '#1c1c1c';
+    ctx.font      = row.italic
+      ? `italic ${fs - 1}px sans-serif`
+      : row.bullet
+        ? `bold ${fs}px sans-serif`
+        : `${fs}px sans-serif`;
+
+    const prefix = row.bullet ? '• ' : row.indent ? '' : '';
+    ctx.fillText(prefix + row.text, noteX + PAD + indent, ry);
+    ry += lineH;
+  }
+
+  // Folded bottom-right corner (page-curl effect)
+  const fold = Math.max(10, cellPx * 0.28);
+  ctx.fillStyle = '#fde68a';
+  ctx.beginPath();
+  ctx.moveTo(noteX + noteW - fold, noteY + noteH);
+  ctx.lineTo(noteX + noteW,        noteY + noteH - fold);
+  ctx.lineTo(noteX + noteW,        noteY + noteH);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth   = 0.8;
+  ctx.stroke();
+  // Shadow under fold
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
+  ctx.beginPath();
+  ctx.moveTo(noteX + noteW - fold, noteY + noteH);
+  ctx.lineTo(noteX + noteW,        noteY + noteH - fold);
+  ctx.lineTo(noteX + noteW - fold * 0.3, noteY + noteH - fold * 0.3);
+  ctx.closePath();
+  ctx.fill();
+
+  // Thin border around the whole note
+  ctx.strokeStyle = 'rgba(180,140,40,0.5)';
+  ctx.lineWidth   = 0.8;
+  ctx.strokeRect(noteX, noteY, noteW, noteH);
+
   ctx.restore();
 }
 

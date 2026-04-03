@@ -51,7 +51,7 @@ export function showFailureDebriefModal(parentEl, simulationResult, structure, l
   if (simulationResult.isMechanism) {
     contentEl.appendChild(
       el('p', { class: 'modal__body' },
-        'Your structure is a mechanism — it has no path to carry load to the supports. ' +
+        'Your structure is a mechanism with no path to carry load to the supports. ' +
         'Make sure every part of the structure is connected to an anchor node.',
       ),
     );
@@ -96,7 +96,7 @@ export function showFailureDebriefModal(parentEl, simulationResult, structure, l
       el('div', { class: 'modal__ref' },
         el('span', { class: 'modal__ref-label' }, 'Learn from history: '),
         el('strong', {}, level.realWorldRef.name),
-        el('span', {}, ` — ${level.realWorldRef.note}`),
+        el('span', {}, `: ${level.realWorldRef.note}`),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import { el } from '../ui/components.js';
 import { LEVELS } from '../data/levels.js';
-import { loadProgress } from '../utils/storage.js';
+import { loadProgress, saveProgress } from '../utils/storage.js';
 import { setCurrentLevel } from '../state.js';
 
 // [LEVEL-PROGRESS] Renders the home/level-select screen.
@@ -14,6 +14,15 @@ export function render(container) {
     el('header', { class: 'home-header' },
       el('h1', { class: 'home-title' }, 'StructureStrike'),
       el('p',  { class: 'home-subtitle' }, 'Build structures. Survive the forces.'),
+      el('button', {
+        class: 'home-beta-btn',
+        onClick: () => {
+          const p = loadProgress();
+          p.unlockedLevels = LEVELS.map(l => l.id);
+          saveProgress(p);
+          render(container);
+        },
+      }, 'Unlock All (Beta)'),
     ),
     el('main', { class: 'home-levels' },
       el('h2', { class: 'home-levels__heading' }, 'Select Level'),

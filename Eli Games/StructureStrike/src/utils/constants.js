@@ -30,7 +30,7 @@ export const ELEMENT_PROPERTIES = Object.freeze({
     E: 200e9,            // Young's modulus – structural steel (Pa)
     A: 0.0076,           // Cross-section area – W310×60 I-section (m²)
     I: 1.29e-4,          // Second moment of area (m⁴)
-    yieldStress: 250e6,  // Yield stress (Pa)
+    yieldStress: 7e6,    // Game-scaled yield (~53 kN) — single element fails under a 60 kN node load
     tensionOnly: false,
     displayName: 'Steel Beam',
     description: 'Resists bending and axial load. Best for horizontal spans.',
@@ -44,7 +44,7 @@ export const ELEMENT_PROPERTIES = Object.freeze({
     E: 200e9,
     A: 0.0127,           // W200×100 I-section
     I: 2.13e-4,
-    yieldStress: 250e6,
+    yieldStress: 4e6,    // Game-scaled yield (~51 kN)
     tensionOnly: false,
     displayName: 'Steel Column',
     description: 'Handles vertical compression and buckling. Best for upright supports.',
@@ -58,7 +58,7 @@ export const ELEMENT_PROPERTIES = Object.freeze({
     E: 200e9,
     A: 0.003,
     I: 1e-7,             // Near-zero: simulates pin-joint (axial-only)
-    yieldStress: 350e6,  // High-strength steel
+    yieldStress: 18e6,   // Game-scaled yield (~54 kN) — lightest member, needs triangulation
     tensionOnly: false,
     displayName: 'Truss Member',
     description: 'Axial-only. Efficient when used in triangulated networks.',
@@ -72,7 +72,7 @@ export const ELEMENT_PROPERTIES = Object.freeze({
     E: 160e9,            // High-strength wire rope
     A: 0.002,
     I: 0,                // No bending stiffness
-    yieldStress: 1500e6, // Wire rope ultimate
+    yieldStress: 25e6,   // Game-scaled yield (~50 kN) — tension only, good for cables
     tensionOnly: true,
     displayName: 'Cable',
     description: 'Tension-only. Snaps slack under compression. Cheapest per metre.',

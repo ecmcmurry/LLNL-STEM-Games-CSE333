@@ -39,6 +39,90 @@ export function updateBudgetDisplay(remaining) {
   requestAnimationFrame(() => budgetValueEl.classList.add('budget__value--pulse'));
 }
 
+// ─── Requirements post-it ─────────────────────────────────────────────────────
+
+// [BUILD-PHASE] Renders a sticky-note card listing the level's minimum structural
+// requirements. Placed below the budget in the left sidebar (desktop) and below
+// the budget row in the mobile top bar.
+export function createRequirementsPostIt(level) {
+  const req = level.requirements;
+  if (!req) return el('div');
+
+  const items = [
+    `Place ≥ ${req.minElements} elements`,
+    'Connect load nodes to anchors',
+  ];
+
+  const children = [
+    el('div', { class: 'postit__header' }, 'REQUIREMENTS'),
+    el('ul',  { class: 'postit__list' },
+      ...items.map(text => el('li', {}, text)),
+    ),
+  ];
+
+  if (req.hint) {
+    children.push(el('div', { class: 'postit__divider' }));
+    children.push(el('p',   { class: 'postit__hint' }, req.hint));
+  }
+
+  return el('div', { class: 'requirements-postit' }, ...children);
+}
+
+// ─── History photo post-it ────────────────────────────────────────────────────
+
+// [BUILD-PHASE] Renders a sticky-note card with a black-and-white historical
+// photo of the real-world structure referenced by this level.
+// Clicking the post-it opens a lightbox; clicking the lightbox closes it.
+export function createHistoryPostIt(level) {
+  const ref = level.realWorldRef;
+  if (!ref || !ref.photo) return el('div');
+
+  const captionText = ref.photoCaption || ref.name;
+
+  const postit = el('div', { class: 'history-postit' },
+    el('div', { class: 'postit__header' }, 'REFERENCE'),
+    el('div', { class: 'history-postit__frame' },
+      el('img', { class: 'history-postit__photo', src: ref.photo, alt: ref.name, loading: 'lazy' }),
+    ),
+    el('div', { class: 'history-postit__caption' }, captionText),
+    el('div', { class: 'history-postit__expand-hint' }, 'click to enlarge'),
+  );
+
+  postit.addEventListener('click', () => _openHistoryLightbox(ref.photo, ref.name, captionText));
+
+  return postit;
+}
+
+function _openHistoryLightbox(src, alt, caption) {
+  if (document.querySelector('.history-lightbox')) return; // already open
+
+  const backdrop = el('div', { class: 'history-lightbox' });
+
+  const inner = el('div', { class: 'history-lightbox__postit' },
+    el('div', { class: 'postit__header' }, 'REFERENCE'),
+    el('div', { class: 'history-lightbox__frame' },
+      el('img', { class: 'history-lightbox__photo', src, alt }),
+    ),
+    el('div', { class: 'history-postit__caption' }, caption),
+  );
+
+  backdrop.appendChild(inner);
+  document.body.appendChild(backdrop);
+
+  // Animate in
+  requestAnimationFrame(() => backdrop.classList.add('history-lightbox--visible'));
+
+  const close = () => {
+    backdrop.classList.remove('history-lightbox--visible');
+    backdrop.addEventListener('transitionend', () => backdrop.remove(), { once: true });
+  };
+
+  backdrop.addEventListener('click', close);
+  // Also close on Escape
+  const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+}
+
 // ─── Element type toolbar ─────────────────────────────────────────────────────
 
 // [BUILD-PHASE] Creates the element toolbar that lets the player choose which
@@ -72,6 +156,14 @@ export function createElementToolbar(initialType, onTypeChange) {
 }
 
 // ─── Action buttons ───────────────────────────────────────────────────────────
+
+// [BUILD-PHASE] Creates the Back button that returns the player to level select.
+export function createBackButton(onBack) {
+  return el('button', { class: 'hud-btn hud-btn--back', onClick: onBack },
+    el('span', { class: 'hud-btn__icon' }, '←'),
+    el('span', {}, 'Back'),
+  );
+}
 
 // [BUILD-PHASE] Creates the Reset button that wipes the canvas and refunds all budget.
 export function createResetButton(onReset) {
