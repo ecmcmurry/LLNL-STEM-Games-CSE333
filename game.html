@@ -2,16 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game</title>
     <link rel="stylesheet" href="Styles/gamePage.css" />
     <script src="game.js" defer></script>
   </head>
   <body>
-    <a class="back" href="index.html">&larr; Back</a>
-    <h1 id="game-title"></h1>
-    <div id="gameContainer">
-      <iframe id="game-frame" src="" frameborder="0" tabindex="0"></iframe>
+    <div class="top">
+      <a class="back" href="javascript:history.back()">&larr; Back</a>
+      <h1 id="game-title"></h1>
     </div>
-    <p>Made by <span id="gameAuthor"></span></p>
+    <div class="gameAlign">
+      <div id="gameContainer">
+        <iframe id="game-frame" src="" frameborder="0" tabindex="0"></iframe>
+      </div>
+      <p>Made by <span id="gameAuthor"></span></p>
+    </div>
   </body>
 </html>
