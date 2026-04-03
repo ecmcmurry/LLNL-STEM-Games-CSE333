@@ -1,3 +1,9 @@
+html {
+    margin: 0;
+    padding: 0;
+    background-color: #0a0f1e; 
+}
+
 body { 
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
     display: flex; 
@@ -9,15 +15,16 @@ body {
     box-sizing: border-box;
     background-color: #f4f6f9; 
     color: #2c3e50;
-    transition: background-color 0.4s ease; /* fills background color */
+    transition: background-color 0.4s ease; 
 }
 
 .top-bar, #main-nav {
-    transition: opacity 0.3s ease; /* to help fade out be smoother*/
+    transition: opacity 0.3s ease; 
 }
 
 h1 { 
     margin-bottom: 32px; 
+    color:#c29e27;
 }
 
 .top-bar {
