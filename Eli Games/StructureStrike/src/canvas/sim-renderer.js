@@ -4,29 +4,183 @@ import { drawWorldSceneBackground, drawWorldStructure } from './world-canvas.js'
 
 // ─── Force effect renderers ───────────────────────────────────────────────────
 
-// [SIMULATION] Draws animated wind streaks blowing across the canvas.
-// timeSec drives the particle positions — call on every rAF frame.
-export function drawWindEffect(ctx, w, h, windSpeedKmh, timeSec) {
-  const numStreaks = Math.floor(windSpeedKmh / 10);
+// [SIMULATION] Draws animated squiggly wind streaks crossing the full canvas.
+// windAngleDeg: math-convention degrees (180 = blowing left, i.e. enters from right).
+// Every streak spawns off the upwind edge and exits off the downwind edge.
+export function drawWindEffect(ctx, w, h, windSpeedKmh, windAngleDeg, timeSec) {
+  const COUNT  = 45;
+  const rad    = (windAngleDeg * Math.PI) / 180;
+  const wx     = Math.cos(rad); // unit vector wind blows TO (−1 for 180°)
+  const wy     = Math.sin(rad);
+  // Perpendicular to wind direction (for squiggle displacement)
+  const px     = -wy;
+  const py     =  wx;
+
+  // Base travel distance for one full crossing (upwind edge → downwind edge)
+  const travel = Math.abs(wx) >= Math.abs(wy) ? w : h;
+
+  // Speed: how many full-screen widths per second
+  const speedFactor = windSpeedKmh * 0.003; // ~0.36 screens/s at 120 km/h base
+
   ctx.save();
-  ctx.strokeStyle = '#90caf966';
-  ctx.lineWidth = 1.2;
+  ctx.lineCap  = 'round';
+  ctx.lineJoin = 'round';
 
-  for (let i = 0; i < numStreaks; i++) {
-    const seed  = (i * 137.5) % 1;
-    const y     = seed * h;
-    const speed = (windSpeedKmh / 3.6) * 0.06; // scaled for canvas px/s
-    const x     = ((timeSec * speed * (0.8 + seed * 0.4) + seed * w) % (w * 1.2)) - w * 0.1;
-    const len   = 20 + seed * 40;
+  for (let i = 0; i < COUNT; i++) {
+    const r1 = _fract(i * 0.6180339887); // golden-ratio spread
+    const r2 = _fract(i * 0.3835180070);
+    const r3 = _fract(i * 0.2346108960);
 
-    ctx.globalAlpha = 0.3 + seed * 0.4;
+    // Per-streak variation
+    const speedVar  = 0.65 + r2 * 0.70;           // 0.65–1.35× speed
+    const len       = 120 + r1 * 220;              // streak length in px (large)
+    const lw        = 2.5 + r3 * 3.5;             // lineWidth 2.5–6
+    const alpha     = 0.50 + r2 * 0.40;
+    const amp       = 8 + r1 * 14;                // squiggle amplitude px
+    const freq      = 2.5 + r3 * 2.0;             // wave cycles per streak
+    const phaseOff  = r3 * Math.PI * 2;           // each streak has its own wave phase
+
+    // Stagger start time so streaks are spread across the canvas at t=0
+    const startOffset = r1 * (travel + len);      // px offset along travel axis
+
+    // Head position along the travel axis (wx/wy direction)
+    // Moves from (travel + len) down to −len, then wraps
+    const totalDist = travel + len;
+    const dist = (startOffset + timeSec * speedVar * speedFactor * travel) % totalDist;
+    const travelPos = totalDist - dist; // head starts at far edge, moves to near edge
+
+    // Perpendicular lane (where in the other dimension this streak lives)
+    const lanePos = r2 * (Math.abs(wx) >= Math.abs(wy) ? h : w);
+
+    // Head world position
+    let hx, hy;
+    if (Math.abs(wx) >= Math.abs(wy)) {
+      // Horizontal wind
+      hx = wx < 0 ? travelPos - len          // entered from right, head moves left
+                  : w - travelPos + len;
+      hy = lanePos;
+    } else {
+      // Vertical wind
+      hx = lanePos;
+      hy = wy < 0 ? travelPos - len
+                  : h - travelPos + len;
+    }
+
+    // Draw squiggly polyline from tail to head using sine displacement
+    const SEGS = 18;
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = 'rgba(200, 230, 255, 1)';
+    ctx.lineWidth   = lw;
     ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + len, y + (seed - 0.5) * 4);
+
+    for (let s = 0; s <= SEGS; s++) {
+      const t   = s / SEGS;
+      // Point along the straight path from tail→head
+      const ax  = hx - wx * len * (1 - t);
+      const ay  = hy - wy * len * (1 - t);
+      // Sine displacement perpendicular to wind direction
+      // Also animate with timeSec so the squiggle "flows"
+      const wave = amp * Math.sin(t * Math.PI * 2 * freq + phaseOff + timeSec * 6 * speedVar);
+      const bx  = ax + px * wave;
+      const by  = ay + py * wave;
+      if (s === 0) ctx.moveTo(bx, by);
+      else         ctx.lineTo(bx, by);
+    }
     ctx.stroke();
   }
 
   ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function _fract(x) { return x - Math.floor(x); }
+
+// [SIMULATION] Draws threat-direction arrows on the canvas edge so players
+// can see where the load is coming from (wind direction, quake side, etc.).
+// timeSec drives a pulse animation; pass 0 for a static non-animated version.
+export function drawThreatDirectionArrows(ctx, w, h, threat, timeSec) {
+  if (!threat?.type) return;
+  const pulse = 0.65 + 0.35 * Math.sin(timeSec * 2.5);
+
+  switch (threat.type) {
+    case 'wind': {
+      const rad = (threat.windAngleDeg * Math.PI) / 180;
+      const wx  = Math.cos(rad);
+      const wy  = Math.sin(rad);
+      _edgeArrows(ctx, w, h, wx, wy, '#64b5f6', pulse, 'WIND');
+      break;
+    }
+    case 'gravity':
+      _edgeArrows(ctx, w, h, 0, 1, '#ef5350', pulse, 'DEAD LOAD');
+      break;
+    case 'seismic': {
+      // Arrows alternate sides with the shake frequency
+      const dir = Math.sin(timeSec * (threat.frequencyHz ?? 1) * Math.PI * 2) >= 0 ? 1 : -1;
+      _edgeArrows(ctx, w, h, dir, 0, '#ff9800', pulse, 'SEISMIC');
+      break;
+    }
+    case 'flood':
+      // Flood pressure pushes from the left in level 4
+      _edgeArrows(ctx, w, h, 1, 0, '#42a5f5', pulse, 'FLOOD PRESSURE');
+      break;
+    case 'ballistic':
+      _edgeArrows(ctx, w, h, 0, 1, '#f44336', pulse, 'IMPACT');
+      break;
+  }
+}
+
+// Draws a row of arrowheads on the edge the threat enters from,
+// pointing in the direction (wx, wy) the threat travels.
+function _edgeArrows(ctx, w, h, wx, wy, color, pulse, label) {
+  const PAD     = 20;
+  const SIZE    = 20;
+  const SPACING = 72;
+
+  ctx.save();
+  ctx.fillStyle   = color;
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.80 * pulse;
+
+  const angle = Math.atan2(wy, wx); // direction arrowhead points
+
+  if (Math.abs(wx) >= Math.abs(wy)) {
+    // Horizontal threat — arrows on left or right edge
+    const edgeX = wx < 0 ? w - PAD : PAD; // upwind edge
+    const count = Math.max(3, Math.floor(h / SPACING));
+    for (let i = 0; i < count; i++) {
+      _arrowhead(ctx, edgeX, (h / (count + 1)) * (i + 1), angle, SIZE);
+    }
+    ctx.font         = 'bold 11px monospace';
+    ctx.textAlign    = wx < 0 ? 'right' : 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(label, wx < 0 ? w - PAD - SIZE - 6 : PAD + SIZE + 6, 8);
+  } else {
+    // Vertical threat — arrows on top or bottom edge
+    const edgeY = wy < 0 ? h - PAD : PAD;
+    const count = Math.max(3, Math.floor(w / SPACING));
+    for (let i = 0; i < count; i++) {
+      _arrowhead(ctx, (w / (count + 1)) * (i + 1), edgeY, angle, SIZE);
+    }
+    ctx.font         = 'bold 11px monospace';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = wy > 0 ? 'top' : 'bottom';
+    ctx.fillText(label, w / 2, wy > 0 ? PAD - 2 : h - PAD + 2);
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function _arrowhead(ctx, x, y, angle, size) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.moveTo(size * 0.85, 0);
+  ctx.lineTo(-size * 0.45, -size * 0.45);
+  ctx.lineTo(-size * 0.45,  size * 0.45);
+  ctx.closePath();
+  ctx.fill();
   ctx.restore();
 }
 
@@ -86,6 +240,167 @@ function drawBallisticImpact(ctx, impactX, impactY, flashProgress) {
 
   ctx.globalAlpha = 1;
   ctx.restore();
+}
+
+// ─── Dead load weight particles ──────────────────────────────────────────────
+
+// [SIMULATION] Draws animated weight particles raining down onto each gravity load node.
+// positions: array of {x, y} canvas coords (may be deformed positions).
+export function drawDeadLoadParticles(ctx, positions, cellPx, activeTimeSec) {
+  if (activeTimeSec <= 0) return;
+  const fadeIn = Math.min(1, activeTimeSec / 0.4);
+
+  for (const { x, y } of positions) {
+    const COUNT = 16;
+    for (let i = 0; i < COUNT; i++) {
+      const r1 = _fract(i * 0.6180339887);
+      const r2 = _fract(i * 0.3835180070);
+      const r3 = _fract(i * 0.2346108960);
+
+      const period = 0.6 + r2 * 0.7;
+      const t = ((activeTimeSec + r1 * period) % period) / period;
+
+      const dropH = cellPx * 2.4;
+      const px    = x + (r2 - 0.5) * cellPx * 0.7;
+      const py    = y - dropH * (1 - t);
+
+      const fade = t < 0.15 ? t / 0.15 : 1 - Math.max(0, (t - 0.65) / 0.35);
+      const size = 3 + r3 * 4;
+
+      ctx.save();
+      ctx.globalAlpha = fadeIn * fade * 0.88;
+      ctx.shadowColor = '#ff5252';
+      ctx.shadowBlur  = 6;
+      ctx.fillStyle   = r3 > 0.5 ? '#ff7043' : '#ef5350';
+      ctx.beginPath();
+      ctx.arc(px, py, size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
+// ─── Stress vibration lines ───────────────────────────────────────────────────
+
+// [SIMULATION] Draws animated wavy lines radiating outward from stressed member midpoints.
+// stressPoints: [{x, y, angle, stressRatio}] in canvas coords.
+// Gives a visual "vibrating under load" feel at joints near yield.
+export function drawStressLines(ctx, stressPoints, timeSec) {
+  for (const { x, y, angle, stressRatio } of stressPoints) {
+    if (stressRatio < 0.4) continue;
+    const t = Math.min(1, (stressRatio - 0.4) / 0.6); // 0→1 as stress 40%→100%
+
+    const baseLen  = 8 + t * 26;
+    const waveAmp  = 2.5 + t * 6;
+    const waveFreq = 7 + t * 14;          // vibrates faster when more stressed
+    const pulse    = 0.5 + 0.5 * Math.abs(Math.sin(timeSec * (3 + t * 9)));
+    const alpha    = (0.2 + t * 0.7) * pulse;
+    const lw       = 1.2 + t * 1.4;
+    const color    = stressRatio >= 1.0  ? '#ff1744'
+                   : stressRatio >= 0.85 ? '#ff5722'
+                   : stressRatio >= 0.65 ? '#ff9800'
+                   :                       '#ffd600';
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = lw;
+    ctx.globalAlpha = alpha;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.shadowColor = color;
+    ctx.shadowBlur  = 3 + t * 10;
+
+    // 6 radiating directions: perpendicular + diagonal to member
+    const DIRS = [
+      angle + Math.PI * 0.5,
+      angle - Math.PI * 0.5,
+      angle + Math.PI * 0.25,
+      angle - Math.PI * 0.25,
+      angle + Math.PI * 0.75,
+      angle - Math.PI * 0.75,
+    ];
+
+    for (let d = 0; d < DIRS.length; d++) {
+      const a    = DIRS[d];
+      const len  = baseLen * (0.6 + 0.4 * Math.sin(timeSec * 5.5 + d * 1.2));
+      const perp = a + Math.PI / 2;
+      const SEGS = 6;
+
+      ctx.beginPath();
+      for (let s = 0; s <= SEGS; s++) {
+        const frac = s / SEGS;
+        const wave = waveAmp * Math.sin(frac * Math.PI * 2.8 + timeSec * waveFreq + d * 0.8);
+        const px = x + Math.cos(a) * len * frac + Math.cos(perp) * wave;
+        const py = y + Math.sin(a) * len * frac + Math.sin(perp) * wave;
+        if (s === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ─── Simulation force arrows ──────────────────────────────────────────────────
+
+// [SIMULATION] Draws bold pulsing force arrows at deformed load node positions.
+// arrowData: [{x, y, fx, fy}] — x,y in canvas coords, fx/fy in FEM force convention (fy- = down).
+export function drawForceArrows(ctx, arrowData, cellPx, timeSec) {
+  const pulse = 0.72 + 0.28 * Math.sin(timeSec * Math.PI * 2.2);
+
+  for (const { x, y, fx, fy } of arrowData) {
+    const mag = Math.sqrt((fx ?? 0) ** 2 + (fy ?? 0) ** 2);
+    if (mag < 1e-6) continue;
+
+    // FEM→canvas: flip Y (fy negative = downward in canvas = +Y)
+    const cdx = (fx ?? 0) / mag;
+    const cdy = -(fy ?? 0) / mag;
+
+    const arrowLen = cellPx * 1.6 * pulse;
+    const headLen  = cellPx * 0.55;
+    const headW    = cellPx * 0.30;
+    const stemW    = Math.max(4, cellPx * 0.14);
+
+    // Arrow tip lands on the node; tail extends opposite the force direction
+    const tailX = x - cdx * arrowLen;
+    const tailY = y - cdy * arrowLen;
+    const tipX  = x;
+    const tipY  = y;
+
+    const perp = Math.atan2(cdy, cdx) + Math.PI / 2;
+
+    ctx.save();
+    ctx.globalAlpha = 0.92 * pulse;
+    ctx.shadowColor = '#ef5350';
+    ctx.shadowBlur  = 20;
+
+    // Stem
+    ctx.strokeStyle = '#ef5350';
+    ctx.lineWidth   = stemW;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(tailX, tailY);
+    ctx.lineTo(tipX - cdx * headLen * 0.6, tipY - cdy * headLen * 0.6);
+    ctx.stroke();
+
+    // Arrowhead
+    ctx.fillStyle = '#ef5350';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(
+      tipX - cdx * headLen + Math.cos(perp) * headW,
+      tipY - cdy * headLen + Math.sin(perp) * headW,
+    );
+    ctx.lineTo(
+      tipX - cdx * headLen - Math.cos(perp) * headW,
+      tipY - cdy * headLen - Math.sin(perp) * headW,
+    );
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
 }
 
 // ─── Failed element burst ─────────────────────────────────────────────────────

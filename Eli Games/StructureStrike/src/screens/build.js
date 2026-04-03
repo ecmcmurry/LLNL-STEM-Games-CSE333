@@ -11,6 +11,7 @@ import {
   drawSupportSymbol, drawLoadArrow, drawSnapPreview, drawConnectionPreview,
   drawElementLegend,
 } from '../canvas/blueprint-canvas.js';
+import { drawThreatDirectionArrows } from '../canvas/sim-renderer.js';
 import {
   findNodeAtCanvasPoint, findElementAtCanvasPoint,
   snapToGrid, placePlayerNode, connectNodes, removeElement, undoLastElement,
@@ -21,6 +22,9 @@ import {
   createUndoButton, createDeleteButton, createRunSimulationButton, createResetButton,
   setSimulateButtonEnabled, createLevelInfoStrip, createCostPreviewTooltip,
   updateCostPreviewTooltip, hideCostPreviewTooltip,
+  createRequirementsPostIt,
+  createHistoryPostIt,
+  createBackButton,
 } from '../ui/hud.js';
 import {
   mountNotificationContainer, unmountNotificationContainer,
@@ -117,6 +121,7 @@ export function render(container) {
   // ── HUD widgets ───────────────────────────────────────────────────────────
   const levelStrip  = createLevelInfoStrip(level);
   const budgetEl    = createBudgetDisplay(level.budget);
+  const backBtn     = createBackButton(() => { location.hash = ''; });
   const museumBtn   = el('button', { class: 'hud-btn hud-btn--museum', onClick: () => showMuseumModal(screen, level) }, 'History');
   const undoBtn     = createUndoButton(handleUndo);
   const resetBtn    = createResetButton(handleReset);
@@ -125,8 +130,10 @@ export function render(container) {
 
   const selectedElementType = ELEMENT_TYPE.BEAM;
 
-  hudLeftEl.append(levelStrip, budgetEl);
-  hudRightEl.append(museumBtn, undoBtn, resetBtn, simBtn);
+  const requirementsPostIt = createRequirementsPostIt(level);
+  const historyPostIt      = createHistoryPostIt(level);
+  hudLeftEl.append(levelStrip, budgetEl, requirementsPostIt, historyPostIt);
+  hudRightEl.append(backBtn, museumBtn, undoBtn, resetBtn, simBtn);
   canvasWrap.appendChild(costTooltip);
 
   mountNotificationContainer(screen);
@@ -426,6 +433,9 @@ export function render(container) {
         }
       }
     }
+
+    // Threat direction indicator — static preview so player knows what to design against
+    drawThreatDirectionArrows(ctx, canvasW, canvasH, level.threat, 0);
   }
 
   // ── Resize handler ────────────────────────────────────────────────────────
@@ -446,6 +456,7 @@ export function render(container) {
     canvasEl.removeEventListener('mouseup',    handlePointerUp);
     canvasEl.removeEventListener('touchend',   handlePointerUp);
     window.removeEventListener('resize', handleResize);
+
     unmountNotificationContainer();
     closeModal();
   };

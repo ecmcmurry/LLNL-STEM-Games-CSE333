@@ -18,8 +18,8 @@ export const LEVELS = [
     tagline: 'Hold up what gravity demands.',
     description:
       'A factory roof platform must be supported against its own weight. ' +
-      'No lateral forces — just gravity. Learn how load paths work.',
-    budget: 200_000,
+      'No lateral forces, just gravity. Learn how load paths work.',
+    budget: 600_000,
     scene: 'warehouse',
     threat: {
       type: 'gravity',
@@ -29,6 +29,8 @@ export const LEVELS = [
     realWorldRef: {
       name: 'Pratt Truss Railway Bridges',
       note: 'First built in 1844, Pratt trusses carry dead load across railroad spans worldwide.',
+      photo: '/history-photos/pratt-truss.jpg',
+      photoCaption: 'Alexandra Railway Bridge, Rockhampton, 1899',
     },
     // Grid positions for pre-placed anchor supports (player cannot remove)
     anchorNodes: [
@@ -42,9 +44,12 @@ export const LEVELS = [
       { col: 12, row: 3, load: { fx: 0, fy: -60_000 } },
     ],
     winCondition: {
-      type: 'max_deflection',
-      description: 'Platform deflection must stay under 30 mm.',
-      maxDeflectionMm: 30,
+      type: 'no_collapse',
+      description: 'No structural element may yield. Build a load path that distributes the weight.',
+    },
+    requirements: {
+      minElements: 7,
+      hint: 'You need at least a triangulated truss. One beam won\'t cut it.',
     },
   },
 
@@ -56,8 +61,8 @@ export const LEVELS = [
     tagline: 'Stand tall. The storm is coming.',
     description:
       'A coastal observation tower must resist 120 km/h sustained wind. ' +
-      'Lateral loads put your columns in bending — diagonals and bracing are your friend.',
-    budget: 400_000,
+      'Lateral loads put your columns in bending. Diagonals and bracing are your friend.',
+    budget: 900_000,
     scene: 'coastal',
     threat: {
       type: 'wind',
@@ -69,6 +74,8 @@ export const LEVELS = [
     realWorldRef: {
       name: 'Tacoma Narrows Bridge',
       note: 'The 1940 collapse taught engineers that aerodynamic instability, not static wind, is the real threat.',
+      photo: '/history-photos/tacoma-narrows.jpg',
+      photoCaption: 'Tacoma Narrows Bridge, Washington, 1940',
     },
     anchorNodes: [
       { col: 9,  row: 13, supportType: SUPPORT_TYPE.FIXED, label: 'Foundation L' },
@@ -80,9 +87,12 @@ export const LEVELS = [
       { col: 10, row: 8, load: { fx: -20_000, fy: 0 } },
     ],
     winCondition: {
-      type: 'max_deflection',
-      description: 'Tower crown drift must stay under 60 mm.',
-      maxDeflectionMm: 60,
+      type: 'no_collapse',
+      description: 'No structural element may yield under wind and gravity combined.',
+    },
+    requirements: {
+      minElements: 9,
+      hint: 'A squat box won\'t resist lateral wind. Build tall with diagonal bracing.',
     },
   },
 
@@ -94,8 +104,8 @@ export const LEVELS = [
     tagline: 'The ground moves. Your structure must not fail.',
     description:
       'A 6.2-magnitude urban seismic event shakes the ground horizontally. ' +
-      'Stiffness is not enough — ductility, redundancy, and base flexibility matter.',
-    budget: 750_000,
+      'Stiffness is not enough. Ductility, redundancy, and base flexibility matter.',
+    budget: 1_500_000,
     scene: 'urban',
     threat: {
       type: 'seismic',
@@ -109,6 +119,8 @@ export const LEVELS = [
       name: 'Base-isolated Japanese buildings',
       note:
         "Japan's isolated structures ride above the shaking on rubber bearings, dramatically reducing transmitted force.",
+      photo: '/history-photos/japanese-seismic.jpg',
+      photoCaption: 'Seismic base isolators beneath Utah State Capitol, 2008',
     },
     anchorNodes: [
       { col: 5,  row: 13, supportType: SUPPORT_TYPE.FIXED, label: 'Foundation A' },
@@ -127,6 +139,10 @@ export const LEVELS = [
       type: 'no_collapse',
       description: 'Structure must survive the full seismic sequence without progressive collapse.',
     },
+    requirements: {
+      minElements: 12,
+      hint: 'Seismic loads demand redundant lateral frames at every floor.',
+    },
   },
 
   // ─── Level 4 ──────────────────────────────────────────────────────────────
@@ -138,19 +154,21 @@ export const LEVELS = [
     description:
       'A harbor floodgate must hold back 4 m of floodwater. Hydrostatic pressure ' +
       'increases with depth, loading the lower sections hardest.',
-    budget: 1_200_000,
+    budget: 2_000_000,
     scene: 'harbor',
     threat: {
       type: 'flood',
       label: 'Hydrostatic Pressure',
-      description: '4 m floodwater head — pressure increases linearly with depth.',
+      description: '4 m floodwater head, pressure increases linearly with depth.',
       floodDepthM: 4,
       waterDensity: 1000, // kg/m³
     },
     realWorldRef: {
       name: 'Thames Barrier, London',
       note:
-        'The Thames Barrier uses rotating gate sections to resist tidal surges — each gate handles enormous hydrostatic loads.',
+        'The Thames Barrier uses rotating gate sections to resist tidal surges. Each gate handles enormous hydrostatic loads.',
+      photo: '/history-photos/thames-barrier.jpg',
+      photoCaption: 'Thames Barrier sector gates closing, London',
     },
     anchorNodes: [
       { col: 3,  row: 13, supportType: SUPPORT_TYPE.FIXED, label: 'Left Bank' },
@@ -165,9 +183,12 @@ export const LEVELS = [
       { col: 10, row: 7,  load: { fx: 30_000, fy: 0 } }, // top (lowest pressure)
     ],
     winCondition: {
-      type: 'max_deflection',
-      description: 'Gate mid-span deflection must stay under 50 mm.',
-      maxDeflectionMm: 50,
+      type: 'no_collapse',
+      description: 'No structural element may yield under hydrostatic flood pressure.',
+    },
+    requirements: {
+      minElements: 10,
+      hint: 'Deep water pressure needs dense horizontal and diagonal bracing.',
     },
   },
 
@@ -179,20 +200,22 @@ export const LEVELS = [
     tagline: "Redundancy is not a luxury. It's your only chance.",
     description:
       'A high-value asset inside must survive a direct ballistic impact at the roof. ' +
-      'Design for progressive collapse prevention — one element will fail. ' +
+      'Design for progressive collapse prevention. One element will fail. ' +
       'The rest must hold.',
-    budget: 2_000_000,
+    budget: 4_000_000,
     scene: 'bunker',
     threat: {
       type: 'ballistic',
       label: 'Ballistic Impact',
       description: 'Single high-energy impact at the roof centre node.',
-      impactForceKN: 2_500, // 2500 kN impulse
+      impactForceKN: 300, // 300 kN impulse — survivable with redundant load paths
     },
     realWorldRef: {
       name: 'Ronan Point collapse, 1968',
       note:
-        'A single gas explosion removed a load-bearing wall and triggered progressive floor collapse — the event that established redundancy codes.',
+        'A single gas explosion removed a load-bearing wall and triggered progressive floor collapse. This event established redundancy codes.',
+      photo: '/history-photos/ronan-point.jpg',
+      photoCaption: 'Ronan Point, Newham, London, May 1968',
     },
     anchorNodes: [
       { col: 4,  row: 13, supportType: SUPPORT_TYPE.FIXED, label: 'Foundation NW' },
@@ -200,16 +223,20 @@ export const LEVELS = [
       { col: 16, row: 13, supportType: SUPPORT_TYPE.FIXED, label: 'Foundation NE' },
     ],
     loadNodes: [
-      { col: 10, row: 2, load: { fx: 0, fy: -2_500_000 } }, // impact point
-      { col: 6,  row: 7, load: { fx: 0, fy: -100_000 } },   // interior floors
-      { col: 10, row: 7, load: { fx: 0, fy: -100_000 } },
-      { col: 14, row: 7, load: { fx: 0, fy: -100_000 } },
+      { col: 10, row: 2, load: { fx: 0, fy: -300_000 } }, // impact point
+      { col: 6,  row: 7, load: { fx: 0, fy: -50_000 } },  // interior floors
+      { col: 10, row: 7, load: { fx: 0, fy: -50_000 } },
+      { col: 14, row: 7, load: { fx: 0, fy: -50_000 } },
     ],
     winCondition: {
       type: 'protected_node',
-      description: 'The asset at the base must not be crushed — base nodes must not fail.',
+      description: 'The asset at the base must not be crushed. Base nodes must not fail.',
       protectedCols: [7, 10, 13],
       protectedRow: 13,
+    },
+    requirements: {
+      minElements: 14,
+      hint: 'One impact removes a member. Redundant load paths are your only defence.',
     },
   },
 ];

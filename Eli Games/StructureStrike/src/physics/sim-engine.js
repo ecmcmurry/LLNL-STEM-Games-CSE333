@@ -1,4 +1,4 @@
-import { ELEMENT_PROPERTIES } from '../utils/constants.js';
+import { ELEMENT_PROPERTIES, CELL_METERS } from '../utils/constants.js';
 import {
   createPhysicsWorld, createNodeBodies, createElementJoints,
   applyNodeForces, stepWorld, getJointForces,
@@ -95,8 +95,14 @@ export function runPlanckSimulation(nodes, elements, level) {
     }
   }
 
+  const allLoadNodesConnected = _checkLoadNodeConnectivity(nodes, elements);
+  const meetsRequirements     = _checkStructuralRequirements(level, elements);
+  const hasLocalCapacity      = _checkLocalCapacity(level, nodes, elements);
   const survived =
     !isMechanism &&
+    allLoadNodesConnected &&
+    meetsRequirements &&
+    hasLocalCapacity &&
     failureSequence.length === 0 &&
     _checkWinCondition(level, nodes, displacements);
 
@@ -123,6 +129,98 @@ function _detectCollapse(bodies, nodes) {
     if (Math.sqrt(vel.x ** 2 + vel.y ** 2) > 200) return true;
   }
   return false;
+}
+
+// [SIMULATION] BFS: every load node must have a path through elements to an anchor.
+// Returns false if any load node is structurally disconnected from all anchors.
+function _checkLoadNodeConnectivity(nodes, elements) {
+  // Build adjacency map: nodeId → Set<nodeId>
+  const adj = new Map();
+  for (const node of nodes) adj.set(node.id, new Set());
+  for (const elem of elements) {
+    adj.get(elem.nodeAId)?.add(elem.nodeBId);
+    adj.get(elem.nodeBId)?.add(elem.nodeAId);
+  }
+
+  const anchorIds = new Set(nodes.filter(n => n.isAnchor).map(n => n.id));
+  const loadNodes = nodes.filter(n => !n.isAnchor && n.isLoadNode);
+
+  for (const loadNode of loadNodes) {
+    // BFS from this load node
+    const visited = new Set([loadNode.id]);
+    const queue   = [loadNode.id];
+    let reachesAnchor = false;
+    while (queue.length > 0) {
+      const cur = queue.shift();
+      if (anchorIds.has(cur)) { reachesAnchor = true; break; }
+      for (const neighbor of (adj.get(cur) ?? [])) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+    if (!reachesAnchor) return false;
+  }
+  return true;
+}
+
+// [SIMULATION] Checks per-level structural requirements (min element count).
+// Prevents trivially-minimal solutions — e.g. a single beam passing a level.
+function _checkStructuralRequirements(level, elements) {
+  const minElements = level.requirements?.minElements ?? 0;
+  return elements.length >= minElements;
+}
+
+// [SIMULATION] Analytic capacity check: for each load node, the elements directly
+// connected to it must have enough combined yield capacity (projected onto the load
+// direction) to carry the applied load. This catches under-braced designs that the
+// Planck sim can't reliably detect.
+//
+// The projection: an element of yield force F from load node to (dcol, drow) away
+// contributes  F * |drow|/len  to vertical capacity and  F * |dcol|/len  to lateral.
+// This is the "lower-bound theorem" — if enough capacity exists in each direction, the
+// load can be equilibrated without any element exceeding yield.
+function _checkLocalCapacity(level, nodes, elements) {
+  const nodeMap = new Map(nodes.map(n => [n.id, n]));
+
+  for (const ln of level.loadNodes) {
+    const loadNode = nodes.find(n => n.col === ln.col && n.row === ln.row && n.isLoadNode);
+    if (!loadNode) continue;
+
+    const demandFx = Math.abs(ln.load?.fx ?? 0); // N
+    const demandFy = Math.abs(ln.load?.fy ?? 0); // N
+
+    const connected = elements.filter(
+      e => e.nodeAId === loadNode.id || e.nodeBId === loadNode.id,
+    );
+
+    let capFx = 0;
+    let capFy = 0;
+
+    for (const elem of connected) {
+      const otherId = elem.nodeAId === loadNode.id ? elem.nodeBId : elem.nodeAId;
+      const other   = nodeMap.get(otherId);
+      if (!other) continue;
+
+      // Grid-space direction vector (col right, row down; convert row to Y-up)
+      const dx  = (other.col - loadNode.col) * CELL_METERS; // metres, +right
+      const dy  = (loadNode.row - other.row) * CELL_METERS; // metres, +up
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 1e-6) continue;
+
+      const props   = ELEMENT_PROPERTIES[elem.type];
+      const yieldF  = props.A * props.yieldStress; // N, actual
+
+      capFx += yieldF * Math.abs(dx) / len;
+      capFy += yieldF * Math.abs(dy) / len;
+    }
+
+    if (demandFy > 0 && capFy < demandFy) return false;
+    if (demandFx > 0 && capFx < demandFx) return false;
+  }
+
+  return true;
 }
 
 // [SIMULATION] Evaluates whether the structure passes the level's win condition.
@@ -177,7 +275,10 @@ export function computeStarRating(level, nodes, elements, simulationResult, budg
   const maxUtil          = Math.max(0, ...Object.values(elementStressRatios ?? {}));
   const budgetEfficiency = 1 - budgetUsed / totalBudget;
 
-  if (!anyFailure && maxUtil < 0.7 && budgetEfficiency > 0.3) return 3;
+  // 3 stars: no failures, well under yield, used ≥30% of budget (shows real structure)
+  // and elements ≥ 1.5× the level minimum (can't eke by with the bare minimum)
+  const elemBonus = elements.length >= ((level.requirements?.minElements ?? 0) * 1.5);
+  if (!anyFailure && maxUtil < 0.75 && budgetEfficiency > 0.2 && elemBonus) return 3;
   if (!anyFailure && maxUtil < 0.9) return 2;
   return 1;
 }
