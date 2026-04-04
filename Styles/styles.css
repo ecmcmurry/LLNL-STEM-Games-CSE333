@@ -5,40 +5,272 @@ html {
 }
 
 body { 
-    font-family: sans-serif; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
     height: 100vh;
     margin: 0; 
-    background: linear-gradient(to bottom, #1a3a6b, #0a1628);
+    box-sizing: border-box;
+    background-color: #f4f6f9; 
+    color: #2c3e50;
+    transition: background-color 0.4s ease; 
+}
+
+.top-bar, #main-nav {
+    transition: opacity 0.3s ease; 
 }
 
 h1 { 
     margin-bottom: 32px; 
     color:#c29e27;
 }
+
+.top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    box-sizing: border-box;
+}
+
+#logo {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #1a252f;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#logo span {
+    font-size: 1.8rem;
+    color: #0055cc;
+    transition: transform 0.3s ease;
+}
+
+#logo:hover {
+    opacity: 0.8;
+}
+
+#logo:hover span {
+    transform: translateY(2px); 
+}
+
+.search-bar {
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 1px solid #d1d8e0;
+    font-size: 1rem;
+    outline: none;
+    width: 250px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    border-color: #0055cc;
+    box-shadow: 0 4px 12px rgba(0, 85, 204, 0.2);
+    width: 260px; 
+}
+
 nav { 
     display: flex; 
     flex-direction: column; 
-    gap: 12px; 
+    gap: 16px; 
 }
+
+/* Unified Deep Blue for all STEM buttons */
 nav a {
     display: block;
     font-size: 2rem;
     font-weight: bold;
     text-decoration: none;
-    color: #c29e27;
-    background: #b1b1b1;
-    padding: 12px 40px;
-    border-radius: 4px;
+    color: #fff;
+    background: linear-gradient(135deg, #0A192F, #112240); 
+    padding: 15px 45px;
+    border-radius: 8px; 
     text-align: left;
     letter-spacing: 2px;
-    border: #c29e27 4px solid;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease; 
 }
+
 nav a:hover { 
-    background: #1a3a6b;
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    transform: translateY(-1px);
- }
+    background: linear-gradient(135deg, #0055cc, #0077ff); 
+    box-shadow: 0 10px 20px rgba(0, 85, 204, 0.3); 
+    transform: translateY(-3px);
+}
+
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: -250px; 
+    background-color: #0A192F; 
+    overflow-x: hidden;
+    transition: left 0.3s ease;
+    padding-top: 60px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #e6f1ff;
+    display: block;
+    transition: 0.2s;
+    font-weight: normal;
+}
+
+.sidebar a:hover {
+    background-color: #112240;
+    color: #ffffff;
+    padding-left: 30px; 
+}
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 36px;
+    padding: 0;
+    margin: 0;
+}
+
+#category-view {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 80px;
+    color: #ffffff;
+    animation: floatUp 0.6s ease forwards;
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#category-title {
+    font-size: 3.5rem;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+#games-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+    max-width: 1000px;
+}
+
+/* Updated to support links and stacked text properly */
+.game-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px 40px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    text-align: center;
+    min-width: 200px;
+}
+
+.game-card:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.game-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.game-author {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#back-btn {
+    position: absolute;
+    top: 100px;
+    left: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: background 0.2s ease;
+}
+
+#back-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+    }
+    
+    #logo {
+        font-size: 2rem;
+    }
+    
+    .search-bar {
+        width: 100%;
+        max-width: 350px;
+        box-sizing: border-box;
+    }
+
+    .search-bar:focus {
+        width: 100%; 
+    }
+
+    #back-btn {
+        top: 150px;
+        left: 20px;
+    }
+
+    #category-view {
+        margin-top: 150px;
+    }
+
+    #category-title {
+        font-size: 2.5rem;
+        margin-top: 40px;
+    }
+
+    .game-card {
+        padding: 30px 40px;
+    }
+}
