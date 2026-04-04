@@ -420,16 +420,19 @@ function updateHearts(){
     }
 }
 
-function toggleHint() {
-    const hintElement = document.getElementById('hintText');
-    const level = levels[currentLevel]; 
-    
-    if (hintElement.innerText === "") {
-        hintElement.innerText = level.hint;
-        hintElement.style.display = "block";
+function toggleHint(){
+    const level = categoryLevel[currentLevel];
+    const hintText = document.getElementById('hintText');
+    const speechBubble = document.getElementById('speechBubble');
+
+    if(!hintVisible){
+        speechBubble.style.display = 'block';
+        hintText.innerText = level.hint;  
+        hintVisible = true;
     } else {
-        hintElement.innerText = "";
-        hintElement.style.display = "none";
+        speechBubble.style.display = 'none';
+        hintText.innerText = '';
+        hintVisible = false;
     }
 }
 
