@@ -371,12 +371,7 @@ p {
     height: 24px;
     object-fit: contain;
 }
-.aiGuide {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
+
 
 .guideContainer {
     position: relative;
@@ -440,4 +435,47 @@ p {
     padding: 0;
     white-space: nowrap;  
     font-size: clamp(0.2rem, 0.5vw, 0.5rem);  
+}
+.aiGuide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.guideLabel {
+    color: var(--gold);
+    font-size: 0.6rem;
+    margin: 0;
+}
+
+.speechBubble {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 8px;
+    width: 180px;
+    display: none;       
+}
+
+
+.speechBubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--gold);
+}
+
+#hintText {
+    margin: 0;
+    font-size: 0.6rem;
+    color: #333;
+    text-align: center;
 }
