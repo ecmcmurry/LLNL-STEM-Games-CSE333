@@ -10,6 +10,9 @@ const resetBtn = $("#resetBtn");
 
 const coinsText = $("#coinsText");
 const dayText = $("#dayText");
+const progressText = $("#progressText");
+const barFill = $("#barFill");
+const unlockText = $("#unlockText");
 
 const farmStage = $("#farmStage");
 const farmImg = $("#farmImg");
@@ -22,6 +25,10 @@ const plantChoices = $("#plantChoices");
 const harvestChoice = $("#harvestChoice");
 const plantA = $("#plantA");
 const plantB = $("#plantB");
+const plantC = $("#plantC");
+const plantD = $("#plantD");
+const plantE = $("#plantE");
+const plantF = $("#plantF");
 const harvestBtn = $("#harvestBtn");
 const closeModal = $("#closeModal");
 
@@ -38,12 +45,20 @@ const terminalOutput = $("#terminalOutput");
 const inventoryBackdrop = $("#inventoryBackdrop");
 const inventoryA = $("#inventoryA");
 const inventoryB = $("#inventoryB");
+const inventoryC = $("#inventoryC");
+const inventoryD = $("#inventoryD");
+const inventoryE = $("#inventoryE");
+const inventoryF = $("#inventoryF");
 const closeInventoryBtn = $("#closeInventoryBtn");
 
 // store
 const storeBackdrop = $("#storeBackdrop");
 const buyA = $("#buyA");
 const buyB = $("#buyB");
+const buyC = $("#buyC");
+const buyD = $("#buyD");
+const buyE = $("#buyE");
+const buyF = $("#buyF");
 const closeStoreBtn = $("#closeStoreBtn");
 const storeMessage = $("#storeMessage");
 
@@ -53,21 +68,68 @@ const PLOT_COUNT = 9;
 // flower data (two types of flowers for testing)
 const FLOWERS = {
   A: {
-    name: "Flower A",
+    name: "Tulip",
     seedCost: 5,
-    basePrice: 10,
+    price: 10,
     daysToGrow: 5,
+    mid: 2,
     images: ["assets/flowerAB_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
     bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
   },
   B: {
-    name: "Flower B",
+    name: "Daisy",
     seedCost: 7,
-    basePrice: 14,
-    daysToGrow: 5,
+    price: 13,
+    daysToGrow: 7,
+    mid: 3,
     images: ["assets/flowerAB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
     bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
   },
+  C: {
+    name: "Crimson Rose",
+    seedCost: 10,
+    price: 17,
+    daysToGrow: 9,
+    mid: 4,
+    images: ["assets/flowerC_1.jpg", "assets/flowerC_2.jpg", "assets/flowerC_3.jpg"],
+    bugImages: ["assets/flowerC_bug1.jpg", "assets/flowerC_bug2.jpg", "assets/flowerC_bug3.jpg"],
+  },
+  D: {
+    name: "Violet Star",
+    seedCost: 10,
+    price: 18,
+    daysToGrow: 5,
+    mid: 2,
+    images: ["assets/flowerD_1.jpg", "assets/flowerD_2.jpg", "assets/flowerD_3.jpg"],
+    bugImages: ["assets/flowerD_bug1.jpg", "assets/flowerD_bug2.jpg", "assets/flowerD_bug3.jpg"],
+  },
+  E: {
+    name: "Emberblossom",
+    seedCost: 15,
+    price: 24,
+    daysToGrow: 7,
+    mid: 3,
+    images: ["assets/flowerE_1.jpg", "assets/flowerE_2.jpg", "assets/flowerE_3.jpg"],
+    bugImages: ["assets/flowerE_bug1.jpg", "assets/flowerE_bug2.jpg", "assets/flowerE_bug3.jpg"],
+  },
+  F: {
+    name: "Emberblossom",
+    seedCost: 20,
+    price: 30,
+    daysToGrow: 9,
+    mid: 4,
+    images: ["assets/flowerF_1.jpg", "assets/flowerF_2.jpg", "assets/flowerF_3.jpg"],
+    bugImages: ["assets/flowerF_bug1.jpg", "assets/flowerF_bug2.jpg", "assets/flowerF_bug3.jpg"],
+  },
+};
+
+const UNLOCK_REQ = {
+  A: 0,
+  B: 5,
+  C: 10,
+  D: 20,
+  E: 30,
+  F: 40,
 };
 
 // stores the bug fixing puzzles
@@ -130,10 +192,15 @@ const PLOTS_KEY = "farm_plot_layout_v1";
 let state = {
   day: 1,
   coins: 50,
+  harCount: 0,
 
   inventory: {
     A: 0,
     B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+    F: 0,
   },
 
   plots: Array.from({ length: PLOT_COUNT }, () => ({
@@ -160,7 +227,13 @@ function loadState() {
   if (!raw) return;
   try {
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object") state = parsed;
+    if (parsed && typeof parsed === "object") {
+      state = parsed;
+      
+      if (typeof state.harCount !== "number") {
+        state.harCount = 0;
+      }
+    }
   } catch {
   }
 }
@@ -187,9 +260,45 @@ function updateTopUI() {
   dayText.textContent = String(state.day);
 }
 
+function updateProgressUI() {
+  const next = nextUnlock();
+
+  if (!next) {
+    progressText.textContent = "All unlocked!";
+    barFill.style.width = "100%";
+    unlockText.textContent = "All flower seeds have been unlocked!";
+    return;
+  }
+
+  const previousNeeded = (() => {
+    const order = ["A", "B", "C", "D", "E", "F"];
+    const idx = order.indexOf(next.type);
+    if (idx <= 0) return 0;
+    return UNLOCK_REQ[order[idx-1]];
+  })();
+
+  const current = state.harCount;
+  const target = next.needed;
+  const progress = current - previousNeeded;
+  const totalNeeded = target - previousNeeded;
+
+  const percent = Math.max(
+    0,
+    Math.min(100, (progress / totalNeeded) * 100)
+  );
+
+  progressText.textContent = `${current} / ${target}`;
+  barFill.style.width = percent + "%";
+  unlockText.textContent = `Next unlock: ${next.name} at ${target} harvests`;
+}
+
 function updateInventoryUI() {
   inventoryA.textContent = state.inventory.A;
   inventoryB.textContent = state.inventory.B;
+  inventoryC.textContent = state.inventory.C;
+  inventoryD.textContent = state.inventory.D;
+  inventoryE.textContent = state.inventory.E;
+  inventoryF.textContent = state.inventory.F;
 }
 
 function openInventory() {
@@ -203,6 +312,7 @@ function closeInventory() {
 
 function openStore() {
   storeMessage.textContent = "";
+  updateStore();
   storeBackdrop.classList.remove("hidden");
 }
 
@@ -212,6 +322,11 @@ function closeStore() {
 
 function buySeed(type) {
   const flower = FLOWERS[type];
+
+  if (!isUnlocked(type)) {
+    storeMessage.textContent = `${flower.name} is locked.`;
+    return;
+  }
 
   if (state.coins < flower.seedCost) {
     storeMessage.textContent = 'Not enough coins!';
@@ -223,6 +338,7 @@ function buySeed(type) {
   saveState();
   updateTopUI();
   updateInventoryUI();
+  updateStore();
   storeMessage.textContent = `${flower.name} seed purchased!`;
 }
 
@@ -282,8 +398,10 @@ function getStage(plot) {
   if (!plot.planted) return 0;
   const effectiveDay = plot.bugged ? plot.bugStartDay : state.day;
   const age = effectiveDay - plot.plantedDay;
-  if (age < 3) return 1;
-  if (age < 5) return 2;
+  const flower = FLOWERS[plot.flowerType];
+  // note: add different cases for different flowers
+  if (age < flower.mid) return 1;
+  if (age < flower.daysToGrow) return 2;
   return 3;
 }
 
@@ -296,6 +414,52 @@ function getCropImage(plot) {
     return f.bugImages[index];
   } else {
     return f.images[index];
+  }
+}
+
+function isUnlocked(type) {
+  return state.harCount >= UNLOCK_REQ[type];
+}
+
+function nextUnlock() {
+  const order = ["A", "B", "C", "D", "E", "F"];
+
+  for (const type of order) {
+    const needed = UNLOCK_REQ[type];
+    if (state.harCount < needed) {
+      return {
+        type,
+        needed,
+        name: FLOWERS[type].name,
+      };
+    }
+  }
+
+  return null;
+}
+
+function updateStore() {
+  const buybtn = {
+    A:buyA,
+    B:buyB,
+    C:buyC,
+    D:buyD,
+    E:buyE,
+    F:buyF,
+  };
+  
+  for (const type in buybtn) {
+    const btn = buybtn[type];
+    const flower = FLOWERS[type];
+    const unlocked = isUnlocked(type);
+
+    if (unlocked) {
+      btn.disabled = false;
+      btn.textContent = `Buy (Cost ${flower.seedCost})`;
+    } else {
+      btn.disabled = true;
+      btn.textContent = `Locked!`;
+    }
   }
 }
 
@@ -436,8 +600,12 @@ function onPlotClicked(i) {
     modalTitle.textContent = `Plot ${i + 1}`;
     modalDesc.textContent = `Choose a seed to plant.`;
 
-    plantA.textContent = `Plant Flower A (Remaining seeds: ${state.inventory.A}`;
-    plantB.textContent = `Plant Flower B (Remaining seeds: ${state.inventory.B}`;
+    plantA.textContent = `Plant Tulip (Remaining seeds: ${state.inventory.A})`;
+    plantB.textContent = `Plant Daisy (Remaining seeds: ${state.inventory.B})`;
+    plantC.textContent = `Plant Crimson Rose (Remaining seeds: ${state.inventory.C})`;
+    plantD.textContent = `Plant Violet Star (Remaining seeds: ${state.inventory.D})`;
+    plantE.textContent = `Plant Emberblossom (Remaining seeds: ${state.inventory.E})`;
+    plantF.textContent = `Plant Moonflower (Remaining seeds: ${state.inventory.F})`;
 
     plantChoices.classList.remove("hidden");
     harvestChoice.classList.add("hidden");
@@ -461,8 +629,8 @@ function onPlotClicked(i) {
 
   // stage 3: harvest
   modalTitle.textContent = `Plot ${i + 1} - ${flower.name}`;
-  const earn = flower.basePrice + 5;
-  modalDesc.textContent = `Ready to harvest! You will earn ${earn} coins (price ${flower.basePrice} + 5).`;
+  const earn = flower.price;
+  modalDesc.textContent = `Ready to harvest! You will earn ${earn} coins.`;
   plantChoices.classList.add("hidden");
   harvestChoice.classList.remove("hidden");
   codeBugArea.classList.add("hidden");
@@ -505,9 +673,10 @@ function harvest() {
   if (stage < 3) return;
 
   const flower = FLOWERS[plot.flowerType];
-  const earn = flower.basePrice + 5;
+  const earn = flower.price;
 
   state.coins += earn;
+  state.harCount += 1;
 
   // clear plot
   plot.planted = false;
@@ -520,6 +689,7 @@ function harvest() {
 
   saveState();
   updateTopUI();
+  updateProgressUI();
   refreshCropsOnly();
   closeModalFn();
 }
@@ -555,20 +725,20 @@ function toggleEditMode() {
   editBtn.textContent = isEditMode ? "Done Editing" : "Edit Plots";
 }
 
-function pxToPercent(xPx, yPx, wPx, hPx) {
-  const rect = farmStage.getBoundingClientRect();
-  return {
-    x: (xPx / rect.width) * 100,
-    y: (yPx / rect.height) * 100,
-    w: (wPx / rect.width) * 100,
-    h: (hPx / rect.height) * 100,
-  };
-}
+// function pxToPercent(xPx, yPx, wPx, hPx) {
+//   const rect = farmStage.getBoundingClientRect();
+//   return {
+//     x: (xPx / rect.width) * 100,
+//     y: (yPx / rect.height) * 100,
+//     w: (wPx / rect.width) * 100,
+//     h: (hPx / rect.height) * 100,
+//   };
+// }
 
 // check if n in range of (a,b), return the max
-function clamp(n, a, b) {
-  return Math.max(a, Math.min(b, n));
-}
+// function clamp(n, a, b) {
+//   return Math.max(a, Math.min(b, n));
+// }
 
 // function attachDragResize() {
 // }
@@ -591,6 +761,7 @@ function init() {
 
   updateTopUI();
   updateInventoryUI();
+  updateProgressUI();
 
   // Wait for image to load so stage has correct size
   farmImg.addEventListener("load", () => {
@@ -650,10 +821,18 @@ function init() {
 
   plantA.addEventListener("click", () => plantFlower("A"));
   plantB.addEventListener("click", () => plantFlower("B"));
+  plantC.addEventListener("click", () => plantFlower("C"));
+  plantD.addEventListener("click", () => plantFlower("D"));
+  plantE.addEventListener("click", () => plantFlower("E"));
+  plantF.addEventListener("click", () => plantFlower("F"));
   harvestBtn.addEventListener("click", harvest);
 
   buyA.addEventListener("click", () => buySeed("A"));
   buyB.addEventListener("click", () => buySeed("B"));
+  buyC.addEventListener("click", () => buySeed("C"));
+  buyD.addEventListener("click", () => buySeed("D"));
+  buyE.addEventListener("click", () => buySeed("E"));
+  buyF.addEventListener("click", () => buySeed("F"));
 
   closeInventoryBtn.addEventListener("click", closeInventory);
   closeStoreBtn.addEventListener("click", closeStore);
@@ -677,13 +856,13 @@ function init() {
 
 init();
 
-// window.exportPlotLayout = function () {
-//   const raw = localStorage.getItem("farm_plot_layout_v1");
-//   if (!raw) {
-//     console.log("No saved layout found yet. Use Edit Plots first.");
-//     return;
-//   }
-//   const layout = JSON.parse(raw);
-//   console.log("Copy this into createDefaultLayout():");
-//   console.log(JSON.stringify(layout, null, 2));
-// };
+window.exportPlotLayout = function () {
+  const raw = localStorage.getItem("farm_plot_layout_v1");
+  if (!raw) {
+    console.log("No saved layout found yet. Use Edit Plots first.");
+    return;
+  }
+  const layout = JSON.parse(raw);
+  console.log("Copy this into createDefaultLayout():");
+  console.log(JSON.stringify(layout, null, 2));
+};
