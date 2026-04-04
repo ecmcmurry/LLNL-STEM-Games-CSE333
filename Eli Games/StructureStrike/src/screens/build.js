@@ -324,13 +324,20 @@ export function render(container) {
     const snapCtx = snap.getContext('2d');
     snapCtx.scale(dpr, dpr);
 
-    // Draw the background image (now fills full screen)
+    // Draw the background image (now fills full screen).
+    // Use a relative path so it resolves correctly whether running via dev server
+    // or served from dist/ inside an iframe on the platform.
     const isLandscape = canvasWrap.classList.contains('build-canvas-wrap--landscape');
-    const bgSrc = isLandscape ? '/background-horizontal.png' : '/background-vertical.png';
+    const bgSrc = isLandscape ? './background-horizontal.png' : './background-vertical.png';
     const bgImg = new Image();
     bgImg.src = bgSrc;
     const _doSnap = () => {
-      snapCtx.drawImage(bgImg, 0, 0, vw, vh);
+      // Guard: only draw the bg image if it loaded successfully.
+      // drawImage on a broken/errored image throws, which would silently
+      // prevent location.hash = '#simulate' from ever running.
+      if (bgImg.complete && bgImg.naturalWidth > 0) {
+        snapCtx.drawImage(bgImg, 0, 0, vw, vh);
+      }
       // Blueprint canvas on top
       const canvasRect = canvasEl.getBoundingClientRect();
       snapCtx.drawImage(canvasEl, canvasRect.left, canvasRect.top, canvasRect.width, canvasRect.height);
