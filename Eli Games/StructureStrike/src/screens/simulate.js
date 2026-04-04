@@ -8,7 +8,7 @@ import {
 import { mountNotificationContainer, unmountNotificationContainer } from '../ui/notifications.js';
 import { closeModal } from '../ui/modals.js';
 import { runGlassShatterAnimation } from '../canvas/glass-shatter.js';
-import { drawElement, drawNode, drawLoadArrow } from '../canvas/blueprint-canvas.js';
+import { drawElement, drawLoadArrow } from '../canvas/blueprint-canvas.js';
 import { drawStructuralMember, drawStructuralMemberAt, drawPinJoint, drawPinJointAt, drawConcreteSupport } from '../canvas/structural-visuals.js';
 import {
   drawElementFailureBurst,
@@ -82,41 +82,30 @@ export function render(container) {
   worldCtx.scale(dpr, dpr);
   shatterCtx.scale(dpr, dpr);
 
-  // ── Background capture ────────────────────────────────────────────────────
+  // ── Background + shatter snapshot ────────────────────────────────────────
+  // World canvas stays plain dark — nothing bleeds through shatter gaps
   worldCtx.fillStyle = '#0d1424';
   worldCtx.fillRect(0, 0, vw, vh);
-  _drawBlueprintStructure();
 
   const snapshot = getBuildScreenSnapshot();
   if (snapshot) shatterCtx.drawImage(snapshot, 0, 0, vw, vh);
 
-  // ── Blueprint overlay (visible during shatter) ────────────────────────────
-  function _drawBlueprintStructure() {
-    const transform = getBuildCanvasTransform();
-    if (!transform) return;
-    const { rect, cellPx } = transform;
-    const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n]));
-    worldCtx.save();
-    worldCtx.translate(rect.left, rect.top);
-    for (const elem of elements) {
-      const nA = nodeMap[elem.nodeAId], nB = nodeMap[elem.nodeBId];
-      if (nA && nB) drawElement(worldCtx, nA, nB, elem.type, cellPx);
-    }
-    for (const node of nodes) {
-      if (node.isAnchor) drawConcreteSupport(worldCtx, node, cellPx);
-      if (node.isLoadNode && node.load) drawLoadArrow(worldCtx, node, node.load, cellPx);
-    }
-    for (const node of nodes) {
-      if (!node.isAnchor && !node.isLoadNode) drawNode(worldCtx, node, cellPx, false, false);
-    }
-    for (const node of nodes) {
-      if (node.isAnchor || !node.isLoadNode) drawPinJoint(worldCtx, node, cellPx);
-    }
-    worldCtx.restore();
-  }
+  // Fade overlay sits ABOVE the shatter canvas so it covers everything:
+  // shards, blueprint, the whole build screen.  It starts transparent so the
+  // shatter plays visibly for a moment, then darkens over it — the blueprint
+  // fades away with the screen rather than lingering behind.
+  const fadeEl = document.createElement('div');
+  fadeEl.style.cssText = 'position:absolute;inset:0;background:#0d1424;opacity:0;pointer-events:none;';
+  overlay.appendChild(fadeEl); // appended last → on top of shatterCanvasEl
+
+  // Let shatter play for ~350 ms before the fade starts covering it
+  const _fadeInTimer = setTimeout(() => {
+    fadeEl.style.transition = 'opacity 1600ms ease-in';
+    fadeEl.style.opacity    = '1';
+  }, 350);
 
   // ── Shatter → build animation → physics ──────────────────────────────────
-  let animRafId   = null;
+  let animRafId    = null;
   let physicsRafId = null;
 
   let cancelShatter = runGlassShatterAnimation(
@@ -127,12 +116,25 @@ export function render(container) {
   );
 
   function _onShatterComplete() {
+    clearTimeout(_fadeInTimer);
     container.innerHTML = '';
     container.appendChild(overlay);
     shatterCanvasEl.style.display = 'none';
+
+    // Snap overlay to fully opaque (transition may still be in-flight)
+    fadeEl.style.transition = 'none';
+    fadeEl.style.opacity    = '1';
+
     worldCtx.fillStyle = '#0d1424';
     worldCtx.fillRect(0, 0, vw, vh);
     _runBuildAnimation();
+
+    // Fade out to reveal the simulation environment building in beneath
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fadeEl.style.transition = 'opacity 700ms ease-out';
+      fadeEl.style.opacity    = '0';
+      setTimeout(() => fadeEl.remove(), 750);
+    }));
   }
 
   // ── Build animation ───────────────────────────────────────────────────────
