@@ -76,9 +76,9 @@
                     <h1>SELECT CATEGORY</h1>
                     <div class="pixel-divider"></div>
                     <div class="btn-group">
-                        <button class="pixel-btn" onclick="">OHM'S LAW</button>
-                        <button class="pixel-btn" onclick="">RESISTORS</button>
-                        <button class="pixel-btn" onclick="">COMPLEX CIRCUITS</button>
+                        <button class="pixel-btn" onclick="categorySelection('ohmsLaw')">OHM'S LAW</button>
+                        <button class="pixel-btn" onclick="categorySelection('resistor')">RESISTORS</button>
+                        <button class="pixel-btn" onclick="categorySelection('complexLevel')">COMPLEX CIRCUITS</button>
                     </div>
                     <button class="pixel-btn" onclick="homeScreen()">BACK</button>
                 </div>
@@ -88,14 +88,14 @@
               <div id="formattingGame">
 
                 <div class="goalDisplay">
-                  <p class="goalText">Circuit V: <span id="goalVoltage"></span>V   Current Goal I: <span id="goalValue"></span>A</p>
+                  <p class="goalText" id = "goalText"></p>
                   <div id="hearts"></div>
                 </div>
                 
                 <div class="circuitBoard" id="circuitBoard">
                     <img src="assets/CircuitBoard_blank (1).png" class="circuitBoardImg" id="circuitBoardImg">
                     <div class="boardOverlay">
-                        <div class ="dropZone" id="slot1"></div>
+                        
                     </div>
                 </div>
 
@@ -115,12 +115,13 @@
           </div>
         </div>
         <div class="aiGuide">
-          <p>AI Guide</p>  
-          <div class="guideContainer" onclick="toggleHint()">
-              <img src="assets/AI-Guide.png" alt="AI Guide" class="guideCharacter" id="guideImg">
-              <p id="hintText"></p>
-              </div>
-          </div>
+            <p class="guideLabel">AI Guide</p>
+            <div class="guideContainer" onclick="toggleHint()">
+                <img src="assets/AI-Guide.png" alt="AI Guide" class="guideCharacter" id="guideImg">
+                <div class="speechBubble" id="speechBubble">
+                    <p id="hintText"></p>
+                </div>
+            </div>
         </div>
       </div>
   </body>
