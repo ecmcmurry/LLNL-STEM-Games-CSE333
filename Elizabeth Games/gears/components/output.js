@@ -1,0 +1,39 @@
+//Output is going to extend Gear
+
+import { Gear } from "./gear.js";
+
+export class Output extends Gear {
+    constructor(teeth, targetRPM) {
+        super(teeth, 0);
+        this.targetRPM = targetRPM;
+        this.angle = 0;
+    }
+
+    isSatisfied() {
+        if (this.rpm != null && this.rpm == this.targetRPM) {
+            return true;
+        }
+    }
+
+    draw(ctx, x, y) {
+
+        super.draw(ctx, x, y);
+
+        //This TEMPORARY set of code displays the rpm as text in the center of the cell
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            //Updated using Claude
+            (`${this.targetRPM}`),
+            x + (80) / 2,
+            y + (80 + 32) / 2
+        );
+    }
+
+    clone() {
+        return new Output(this.teeth, this.targetRPM);
+    }
+}
