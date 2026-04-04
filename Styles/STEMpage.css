@@ -48,7 +48,7 @@ h1 {
     animation-delay: 0.2s;
 }
 
-.game { 
+.game {
     background: rgba(255, 255, 255, 0.1);
     padding: 20px;
     border-radius: 12px;
@@ -59,6 +59,8 @@ h1 {
     transition: transform 0.2s ease, background 0.2s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
+    cursor: pointer;
 }
 
 .game:hover { 
@@ -75,14 +77,35 @@ h1 {
     margin-bottom: 10px;
 }
 
+.game a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+}
+
 .game img {
     width: 100%;
-    aspect-ratio: 16/9; 
-    object-fit: cover; 
+    aspect-ratio: 16/9;
+    object-fit: cover;
     border-radius: 8px;
     margin-bottom: 15px;
-    background-color: rgba(0, 0, 0, 0.2); 
+    background-color: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-img-placeholder {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: rgba(0, 0, 0, 0.25);
+    border: 1px dashed rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.8rem;
+    font-style: italic;
 }
 
 .game p { 
