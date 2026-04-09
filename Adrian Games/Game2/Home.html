@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Circuit Game</title>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="Index.js" defer></script>
@@ -63,7 +64,7 @@
             <div class="screen" id="resultScreen">
                 <div class="pixel-card">
                     <h1 id="resultTitle"></h1>
-                    <p id="resultMessage"></p>
+                    <div id="resultMessage"></div>
                     <div class="btn-group">
                         <button class="pixel-btn" onclick="homeScreen()">HOME</button>
                         <button class="pixel-btn" onclick="startGame()">RETRY</button>
@@ -94,7 +95,7 @@
                 
                 <div class="circuitBoard" id="circuitBoard">
                     <img src="assets/CircuitBoard_blank (1).png" class="circuitBoardImg" id="circuitBoardImg">
-                    <div class="boardOverlay">
+                    <div class="boardOverlay" id="boardOverlay">
                         
                     </div>
                 </div>
