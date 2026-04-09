@@ -4,6 +4,13 @@ let timeLeft = 30;
 let timerInterval = null;
 let droppedValue = null;
 let categoryLevel = [];
+let categoryStats = {
+    ohmsLaw: { correct: 0, incorrect: 0 },
+    resistor: { correct: 0, incorrect: 0 },
+    complexLevel: { correct: 0, incorrect: 0 }
+};
+let currentLevel = 0;
+let lives = 3; 
 //onclick function when the game is started it will close the previous screen and activate the game screen
 function startGame() {
     document.getElementById('home-screen').style.display = 'none';
@@ -11,6 +18,11 @@ function startGame() {
     document.getElementById('levelScreen').style.display = 'none';
     document.getElementById('play-screen').style.display  = 'flex';
     document.querySelector('.draggables').style.visibility = 'visible';
+    categoryStats = {
+        ohmsLaw: { correct: 0, incorrect: 0 },
+        resistor: { correct: 0, incorrect: 0 },
+        complexLevel: { correct: 0, incorrect: 0 }
+    };
     categoryLevel = [...levels];
     currentLevel = 0;
     lives = 3;
@@ -71,7 +83,7 @@ function levelScreen(){
 function gameOver(){
     clearInterval(timerInterval);
     document.getElementById('resultTitle').innerText = 'Game Over!';
-    document.getElementById('resultMessage').innerText = 'Better luck next time!';
+    showStats();  // 👈 replaces the static message
     document.getElementById('play-screen').style.display = 'none';
     document.querySelector('.draggables').style.visibility = 'hidden';
     resultScreen();
@@ -81,11 +93,7 @@ function nextLevel(){
     currentLevel++;
     if(currentLevel >= categoryLevel.length){
         clearInterval(timerInterval);
-        document.getElementById('resultTitle').innerText = 'Congratulations!';
-        document.getElementById('resultMessage').innerText = 'You have completed all levels!';
-        document.getElementById('play-screen').style.display = 'none';
-        document.querySelector('.draggables').style.visibility = 'hidden';
-        resultScreen();
+        WinScreen();
     } else {
         loadLevel();
         startTimer();
@@ -106,7 +114,7 @@ const levels = [
             {top: '49%', left: '60.5%'},
         ],
         hint: "Ohm's Law: I = V / R",
-        boardImg: 'assets/CircuitBoard_blank (1).png',
+        boardImg: 'assets/CircuitBoard_blank1.1.png',
         Answer: 3, 
         components: [
             {type: 'resistor', label: '4Ω', img: 'assets/horizontal-resistor.png', value: 4},
@@ -126,14 +134,14 @@ const levels = [
         dropZones: [
             {top: '49%', left: '38.25%'},
         ],
-        hint: "Ohm's Law: I = V / R",
+        hint: "Ohm's Law: V = I × R",
         boardImg: 'assets/CircuitBoard_level2.png',
         Answer: 8,
         components: [
             {type: 'battery', label: '8V', img: 'assets/Horizontal-Battery.png', value: 8},
             {type: 'battery', label: '3V', img: 'assets/Horizontal-Battery.png', value: 3},
             {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 0},
+            {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
         ]
     },
     
@@ -154,7 +162,7 @@ const levels = [
         Answer: 3,
         components: [
             {type: 'resistor', label: '2Ω', img: 'assets/horizontal-resistor.png', value: 2},
-            {type: 'resistor', label: '6Ω', img: 'assets/horizontal-resistor.png', value: 5},
+            {type: 'resistor', label: '6Ω', img: 'assets/horizontal-resistor.png', value: 6}, 
             {type: 'battery', label: '6v', img: 'assets/Horizontal-Battery.png', value: 6},
             {type: 'battery', label: '3V', img: 'assets/Horizontal-Battery.png', value: 3},
         ]
@@ -171,7 +179,7 @@ const levels = [
             {top: '60%', left: '38.26%'},
             {top: '27.2%', left: '38.26%'},
         ],
-        hint: "Ohm's Law: V = I * R",
+        hint: "Series resistors: R_total = R1 + R2",
         boardImg: 'assets/CircuitBoard_level4.png',
         Answer: 13,
         components: [
@@ -192,7 +200,7 @@ const levels = [
             {top: '38%', left: '38.26%'},
             {top: '16%', left: '38.26%'},
         ],
-        hint: "Ohm's Law: V = I * R",
+        hint: "Series resistors: R_total = R1 + R2 + R3",
         boardImg: 'assets/CircuitBoard_level5.png',
         Answer: 16,
         components: [
@@ -213,7 +221,7 @@ const levels = [
             {top: '38%', left: '60.26%'},
             {top: '60%', left: '38.26%'},
         ],
-        hint: "Ohm's Law: V = I * R",
+        hint: "Parallel: 1/R_total = 1/R1 + 1/R2",
         boardImg: 'assets/CircuitBoard_level6.png',
         Answer: 5,
         components: [
@@ -235,7 +243,7 @@ const levels = [
         dropZones: [
             {top: '27.3%', left: '38.26%'},
         ],
-        hint: "Ohm's Law: V = I * R",
+        hint: "RC Circuit: τ = R × C",
         boardImg: 'assets/CircuitBoard_level7.png',
         Answer: 5,
         components: [
@@ -322,10 +330,9 @@ const levels = [
 
 //checking the value connected to the dropped resistor and checking if it is the correct answer for the level
 function checkAnswer() {
-    const level = levels[currentLevel];
+    const level = categoryLevel[currentLevel];
     const dropZones = Array.from(document.querySelectorAll('.dropZone'));
 
-    //finds the data type through the dataset
     const getVal = (type) => {
         const found = dropZones.find(z => z.dataset.type === type);
         return found ? parseFloat(found.dataset.value) : null;
@@ -333,43 +340,35 @@ function checkAnswer() {
 
     let result;
 
-    //allows the drop of the component to be in any order
     if (level.goalType === 'current') {
-        //if there is a value for the goaltype then we add those specific values
         const V = level.voltage ?? getVal('battery');
         const R = level.resistance ?? getVal('resistor');
-        //proceed to the appropriate formula
         if (V !== null && R !== null) {
             result = V / R;
         }
 
     } else if (level.goalType === 'voltage') {
-        //if there is a value for the goaltype then we add those specific values
         const I = level.fixedCurrent ?? getVal('battery'); 
         const R = level.resistance ?? getVal('resistor');
-        //proceed to the appropriate formula
         if (I !== null && R !== null) {
             result = I * R;
         }
+
     } else if (level.goalType === 'series') {
-        //sums all resistors in series
         result = dropZones.reduce((sum, z) => sum + (parseFloat(z.dataset.value) || 0), 0);
 
     } else if (level.goalType === 'parallel') {
         const values = dropZones.map(z => parseFloat(z.dataset.value) || 0);
 
         if (values.length === 3) {
-            //adds and divides certain zones
             const r1 = values[0];
             const r2 = values[1];
             const r3 = values[2];
-
             const seriesBranch = r1 + r3;
             if (seriesBranch + r2 > 0) {
                 result = (seriesBranch * r2) / (seriesBranch + r2);
             }
         } else if (values.length === 2) {
-            //standard 2 resistor parallel
             const r1 = values[0];
             const r2 = values[1];
             if (r1 + r2 > 0) {
@@ -385,12 +384,13 @@ function checkAnswer() {
 
     // FINAL VALIDATION
     if (result !== undefined && Math.abs(result - level.Answer) < 0.1) {
+        categoryStats[level.category].correct++;  
         nextLevel();
     } else {
+        categoryStats[level.category].incorrect++;  
         lives--;
         updateHearts();
         
-        // Clear board on failure
         dropZones.forEach(zone => {
             zone.innerHTML = '';
             delete zone.dataset.value;
@@ -400,7 +400,6 @@ function checkAnswer() {
         if (lives < 1) gameOver();
     }
 }
-
 //heart function that updates the hearts accordingly to the answers
 function updateHearts(){
     const heartsContainer = document.getElementById('hearts');
@@ -420,20 +419,65 @@ function updateHearts(){
     }
 }
 
-function toggleHint(){
+async function toggleHint(){
     const level = categoryLevel[currentLevel];
     const hintText = document.getElementById('hintText');
     const speechBubble = document.getElementById('speechBubble');
 
     if(!hintVisible){
         speechBubble.style.display = 'block';
-        hintText.innerText = level.hint;  
+        hintText.innerText = 'Thinking...';
+        try {
+            const response = await askAI();
+            hintText.innerText = response;
+        } catch(err) {
+            hintText.innerText = level.hint;  
+            console.error(err);
+        }
         hintVisible = true;
     } else {
         speechBubble.style.display = 'none';
         hintText.innerText = '';
         hintVisible = false;
     }
+}
+
+async function askAI() {
+    const level = categoryLevel[currentLevel];
+    const dropZones = document.querySelectorAll('.dropZone');
+    const currentDrops = [...dropZones].map(zone => zone.dataset.value || 'empty');
+    const allEmpty = [...dropZones].every(zone => !zone.dataset.value);
+
+    let prompt = '';
+    if(allEmpty){
+        prompt = `Student is on level ${level.level}.
+                  Goal: ${level.goalType}
+                  Formula: ${level.hint}
+                  They have not tried anything yet. Give them a starting nudge.`;
+    } else if(lives < 3){
+        prompt = `Student is on level ${level.level}.
+                  Goal: ${level.goalType}
+                  Formula: ${level.hint}
+                  They have lost ${3 - lives} lives. Be more helpful but dont give the answer.`;
+    } else {
+        prompt = `Student is on level ${level.level}.
+                  Goal: ${level.goalType}
+                  Formula: ${level.hint}
+                  They dropped: ${currentDrops.join(', ')}. Guide them.`;
+    }
+
+    const response = await fetch('/api/hint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context: prompt })
+    });
+
+    if(!response.ok){
+        throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.hint;
 }
 
 function loadLevel() {
@@ -444,13 +488,13 @@ function loadLevel() {
     
     const goalText = document.getElementById('goalText');
     if (level.goalType === 'current') {
-        goalText.innerHTML = `Circuit V: <span>${level.voltage}</span>V &nbsp; Resistance <span>(${level.resistance ?? '?'})</span> Current Goal I: <span>${level.goal}</span>A`;
+        goalText.innerHTML = `Circuit V: <span>${level.voltage ?? '?'}</span>V &nbsp; Resistance <span>(${level.resistance ?? '?'})</span> Current Goal I: <span>${level.goal}</span>A`;
     } else if (level.goalType === 'voltage') {
-        goalText.innerHTML = `Current I: <span>${level.fixedCurrent}</span>A &nbsp; Resistance <span>(${level.resistance ?? '?'})</span> Voltage Goal V: <span>${level.goal}</span>V`;
+        goalText.innerHTML = `Current I: <span>${level.fixedCurrent ?? '?'}</span>A &nbsp; Resistance <span>(${level.resistance ?? '?'})</span> Voltage Goal V: <span class="unknown">?</span>V`;
     } else if (level.goalType === 'resistance' || level.goalType === 'parallel' || level.goalType === 'series') {
         goalText.innerHTML = `Target Total Resistance: <span>${level.Answer}</span>Ω`;
     } else if (level.goalType === 'tau') {
-        goalText.innerHTML = `Fixed Resistance: <span>${level.resistance}</span>Ω &nbsp; Target τ: <span>${level.goal}</span>s`;
+        goalText.innerHTML = `Fixed Resistance: <span>${level.resistance ?? '?'}</span>Ω &nbsp; Target τ: <span>${level.goal}</span>s`;
     } else if (level.goalType === 'frequency') {
         goalText.innerHTML = `Target Frequency f: <span>${level.goal}</span>Hz`;
     }
@@ -539,13 +583,85 @@ function dragMethod() {
 }
 function WinScreen(){
     document.getElementById('resultTitle').innerText = 'Congratulations!';
-    document.getElementById('resultMessage').innerText = 'You have completed all levels!';
+    showStats();
     document.getElementById('play-screen').style.display = 'none';
     document.querySelector('.draggables').style.visibility = 'hidden';
     resultScreen();
 }
+async function showStats(){
+    const stats = categoryStats;
+    
+    const categoryNames = {
+        ohmsLaw: "Ohm's Law",
+        resistor: 'Resistors',
+        complexLevel: 'Complex Circuits'
+    };
+
+    const playedCategories = Object.keys(stats).filter(cat => 
+        stats[cat].correct > 0 || stats[cat].incorrect > 0
+    );
+
+    if(playedCategories.length === 0){
+        document.getElementById('resultMessage').innerHTML = `<p>No levels completed yet!</p>`;
+        return;
+    }
+
+    const best = playedCategories.reduce((a, b) => 
+        stats[a].correct > stats[b].correct ? a : b
+    );
+    const worst = playedCategories.reduce((a, b) => 
+        stats[a].incorrect > stats[b].incorrect ? a : b
+    );
+
+    const statsRows = playedCategories.map(cat => 
+        `<p>${categoryNames[cat]}: ${stats[cat].correct}✅ ${stats[cat].incorrect}❌</p>`
+    ).join('');
+
+    // show stats immediately while AI loads
+    document.getElementById('resultMessage').innerHTML = `
+        <p>Your Performance:</p>
+        ${statsRows}
+        <p id="aiRecommendation">🤔 Generating study recommendation...</p>
+    `;
+
+    // get AI recommendation
+    try {
+        const prompt = `A student just finished a circuit theory game.
+                        Their performance:
+                        ${playedCategories.map(cat => 
+                            `${categoryNames[cat]}: ${stats[cat].correct} correct, ${stats[cat].incorrect} incorrect`
+                        ).join('\n')}
+                        
+                        Best category: ${categoryNames[best]}
+                        Worst category: ${categoryNames[worst]}
+                        
+                        Give a 2 sentence personalized study recommendation.
+                        Be specific about what to study in ${categoryNames[worst]}.
+                        Be encouraging and mention their strength in ${categoryNames[best]}.`;
+
+        const response = await fetch('/api/hint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ context: prompt })
+        });
+
+        const data = await response.json();
+        document.getElementById('aiRecommendation').innerHTML = `${data.hint}`;
+
+    } catch(err) {
+        // fallback to static recommendation
+        document.getElementById('aiRecommendation').innerHTML = 
+            `Focus on studying ${categoryNames[worst]} — especially the formulas!`;
+        console.error(err);
+    }
+}
 
 function categorySelection(category){
+    categoryStats = {
+        ohmsLaw: { correct: 0, incorrect: 0 },
+        resistor: { correct: 0, incorrect: 0 },
+        complexLevel: { correct: 0, incorrect: 0 }
+    };
     categoryLevel = levels.filter(level => level.category === category);
     currentLevel = 0;
     lives = 3;
