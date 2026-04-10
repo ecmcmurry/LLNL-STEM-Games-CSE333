@@ -29,7 +29,7 @@ export const LEVELS = [
     realWorldRef: {
       name: 'Pratt Truss Railway Bridges',
       note: 'First built in 1844, Pratt trusses carry dead load across railroad spans worldwide.',
-      photo: '/history-photos/pratt-truss.jpg',
+      photo: './history-photos/pratt-truss.jpg',
       photoCaption: 'Alexandra Railway Bridge, Rockhampton, 1899',
     },
     // Grid positions for pre-placed anchor supports (player cannot remove)
@@ -74,7 +74,7 @@ export const LEVELS = [
     realWorldRef: {
       name: 'Tacoma Narrows Bridge',
       note: 'The 1940 collapse taught engineers that aerodynamic instability, not static wind, is the real threat.',
-      photo: '/history-photos/tacoma-narrows.jpg',
+      photo: './history-photos/tacoma-narrows.jpg',
       photoCaption: 'Tacoma Narrows Bridge, Washington, 1940',
     },
     anchorNodes: [
@@ -119,7 +119,7 @@ export const LEVELS = [
       name: 'Base-isolated Japanese buildings',
       note:
         "Japan's isolated structures ride above the shaking on rubber bearings, dramatically reducing transmitted force.",
-      photo: '/history-photos/japanese-seismic.jpg',
+      photo: './history-photos/japanese-seismic.jpg',
       photoCaption: 'Seismic base isolators beneath Utah State Capitol, 2008',
     },
     anchorNodes: [
@@ -167,7 +167,7 @@ export const LEVELS = [
       name: 'Thames Barrier, London',
       note:
         'The Thames Barrier uses rotating gate sections to resist tidal surges. Each gate handles enormous hydrostatic loads.',
-      photo: '/history-photos/thames-barrier.jpg',
+      photo: './history-photos/thames-barrier.jpg',
       photoCaption: 'Thames Barrier sector gates closing, London',
     },
     anchorNodes: [
@@ -214,7 +214,7 @@ export const LEVELS = [
       name: 'Ronan Point collapse, 1968',
       note:
         'A single gas explosion removed a load-bearing wall and triggered progressive floor collapse. This event established redundancy codes.',
-      photo: '/history-photos/ronan-point.jpg',
+      photo: './history-photos/ronan-point.jpg',
       photoCaption: 'Ronan Point, Newham, London, May 1968',
     },
     anchorNodes: [
