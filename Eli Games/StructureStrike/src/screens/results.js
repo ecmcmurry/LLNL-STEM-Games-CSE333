@@ -6,7 +6,7 @@ import {
 } from '../state.js';
 import { loadProgress, completeLevel } from '../utils/storage.js';
 import { computeStarRating } from '../physics/sim-engine.js';
-import { getSimulationReport, GEMINI_ENABLED } from '../services/gemini.js';
+import { getSimulationReport, AI_REPORT_ENABLED } from '../services/gemini.js';
 
 export function render(container) {
   container.innerHTML = '';
@@ -150,11 +150,11 @@ export function render(container) {
   });
 
   // AI report — fills page 2 when ready
-  if (GEMINI_ENABLED) {
+  if (AI_REPORT_ENABLED) {
     const reportEl = screen.querySelector('.results-ai-report__text');
     getSimulationReport(level, structure, simResult, budgetUsed, totalBudget, stars)
       .then(text => {
-        console.log('[Gemini] Full response:\n', text);
+        console.log('[Claude] Full response:\n', text);
         if (!reportEl) return;
         reportEl.classList.remove('results-ai-report__text--loading');
         reportEl.textContent = text ?? 'Analysis unavailable.';
