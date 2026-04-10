@@ -1,8 +1,14 @@
-// [AI] Gemini API integration for post-simulation engineering reports.
-// Key is loaded from VITE_GEMINI_API_KEY in .env (never committed).
+// [AI] Anthropic Claude API integration for post-simulation engineering reports.
+// Key is loaded from VITE_CLAUDE_API_KEY in .env (never committed).
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const API_KEY = import.meta.env.VITE_CLAUDE_API_KEY;
+const API_URL = 'https://api.anthropic.com/v1/messages';
+
+const SYSTEM_PROMPT =
+  'You are a dry, precise structural engineer reviewing a student\'s design exercise. ' +
+  'Write 2-3 sentences debriefing this simulation. Be specific — reference the element types, ' +
+  'stress levels, and failure mode. Speak directly to the student in second person. ' +
+  'No bullet points or headers.';
 
 // [AI] Builds a rich engineering debrief prompt from simulation data.
 function _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, stars) {
@@ -58,9 +64,6 @@ function _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, star
   })();
 
   return [
-    `You are a dry, precise structural engineer reviewing a student's design exercise.`,
-    `Write 2-3 sentences debriefing this simulation. Be specific — reference the element types, stress levels, and failure mode. Speak directly to the student in second person. No bullet points or headers.`,
-    ``,
     `Level: "${level.name}" (${level.threat.label})`,
     `Threat: ${level.threat.description}`,
     `Result: ${survived ? `Survived — ${stars}/3 stars` : 'Collapsed'}`,
@@ -74,40 +77,42 @@ function _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, star
   ].filter(Boolean).join('\n');
 }
 
-// [AI] Calls Gemini and returns a plain-text report string.
+// [AI] Calls Claude and returns a plain-text report string.
 // Returns null if no API key is set or the request fails.
 // True if a key is configured — lets callers decide whether to show the section at all.
-export const GEMINI_ENABLED = !!API_KEY;
+export const AI_REPORT_ENABLED = !!API_KEY;
 
 export async function getSimulationReport(level, structure, simResult, budgetUsed, totalBudget, stars) {
   if (!API_KEY) return null;
 
-  const prompt = _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, stars);
+  const userMessage = _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, stars);
 
   try {
-    const res = await fetch(`${API_URL}?key=${API_KEY}`, {
+    const res = await fetch(API_URL, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'content-type':      'application/json',
+        'x-api-key':         API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: 1024,
-          temperature: 0.65,
-          thinkingConfig: { thinkingBudget: 0 },
-        },
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        system:     SYSTEM_PROMPT,
+        messages:   [{ role: 'user', content: userMessage }],
       }),
     });
 
     if (!res.ok) {
       const body = await res.text();
-      console.error('[Gemini] API error', res.status, body);
+      console.error('[Claude] API error', res.status, body);
       return null;
     }
 
     const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? null;
+    return data?.content?.[0]?.text?.trim() ?? null;
   } catch (err) {
-    console.warn('[Gemini] Request failed:', err);
+    console.warn('[Claude] Request failed:', err);
     return null;
   }
 }
