@@ -1,8 +1,5 @@
-// [AI] Anthropic Claude API integration for post-simulation engineering reports.
-// Key is loaded from VITE_CLAUDE_API_KEY in .env (never committed).
-
-const API_KEY = import.meta.env.VITE_CLAUDE_API_KEY;
-const API_URL = 'https://api.anthropic.com/v1/messages';
+// [AI] Proxies Claude API requests through /api/report (Vercel serverless function).
+// The actual API key lives server-side only — never in the browser bundle.
 
 const SYSTEM_PROMPT =
   'You are a dry, precise structural engineer reviewing a student\'s design exercise. ' +
@@ -77,40 +74,29 @@ function _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, star
   ].filter(Boolean).join('\n');
 }
 
-// [AI] Calls Claude and returns a plain-text report string.
-// Returns null if no API key is set or the request fails.
-// True if a key is configured — lets callers decide whether to show the section at all.
-export const AI_REPORT_ENABLED = !!API_KEY;
+// Report section is always shown — the proxy endpoint is always available on Vercel.
+export const AI_REPORT_ENABLED = true;
 
+// [AI] Calls the /api/report proxy and returns a plain-text report string.
+// Returns null if the request fails.
 export async function getSimulationReport(level, structure, simResult, budgetUsed, totalBudget, stars) {
-  if (!API_KEY) return null;
-
   const userMessage = _buildPrompt(level, structure, simResult, budgetUsed, totalBudget, stars);
 
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetch('/api/report', {
       method:  'POST',
-      headers: {
-        'content-type':      'application/json',
-        'x-api-key':         API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model:      'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
-        system:     SYSTEM_PROMPT,
-        messages:   [{ role: 'user', content: userMessage }],
-      }),
+      headers: { 'content-type': 'application/json' },
+      body:    JSON.stringify({ system: SYSTEM_PROMPT, userMessage }),
     });
 
     if (!res.ok) {
       const body = await res.text();
-      console.error('[Claude] API error', res.status, body);
+      console.error('[Claude] Proxy error', res.status, body);
       return null;
     }
 
     const data = await res.json();
-    return data?.content?.[0]?.text?.trim() ?? null;
+    return data?.text ?? null;
   } catch (err) {
     console.warn('[Claude] Request failed:', err);
     return null;
