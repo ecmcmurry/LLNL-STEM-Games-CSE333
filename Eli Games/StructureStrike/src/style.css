@@ -1,7 +1,7 @@
 /* ─── Custom fonts ───────────────────────────────────────────────────────── */
 @font-face {
   font-family: 'EngineerHand';
-  src: url('/fonts/EngineerHand.ttf') format('truetype');
+  src: url('./fonts/EngineerHand.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -177,10 +177,10 @@ ul { list-style: none; }
   z-index: 0;
 }
 .build-canvas-wrap--landscape {
-  background-image: url('/background-horizontal.png');
+  background-image: url('./background-horizontal.png');
 }
 .build-canvas-wrap--portrait {
-  background-image: url('/background-vertical.png');
+  background-image: url('./background-vertical.png');
 }
 
 /* Silver metal frame — absolutely centered, sits behind the canvas */
@@ -189,7 +189,7 @@ ul { list-style: none; }
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: url('/silver-texture.jpg') repeat;
+  background: url('./silver-texture.jpg') repeat;
   background-size: 300px 300px;
   border-radius: 12px;
   overflow: hidden;
