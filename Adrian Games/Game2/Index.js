@@ -253,77 +253,80 @@ const levels = [
         {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
         ]
     },
-    // {
-    //     category: 'complexLevel',
-    //     level: 8,
-    //     voltage: 15,
-    //     goal: 5,
-    //     dropZones: [
-    //         {top: '71%', left: '60.26%'},
-    //     ],
-    //     hint: "Ohm's Law: V = I * R",
-    //     boardImg: 'assets/CircuitBoard_level8.png',
-    //     Answer: 5,
-    //     components: [
-    //         {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-    //         {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
-    //         {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
-    //     ]
-    // },
+    {
+        category: 'complexLevel',
+        level: 8,
+        fixedResistor: 5,      
+        fixedCapacitor: 1,    
+        goalType: 'switch',    
+        hint: "τ = R × C — calculate the time constant then pick the right switch!",
+        boardImg: 'assets/CircuitBoard_level8.png',
+        Answer: 5,             
+        dropZones: [
+            {top: '71%', left: '60.26%'},
+        ],
+        components: [
+            {type: 'switch', label: '3s', img: 'assets/switch.gif', value: 3},
+            {type: 'switch', label: '5s', img: 'assets/switch.gif', value: 5},  
+            {type: 'switch', label: '8s', img: 'assets/switch.gif', value: 8},
+        ]
+    },
+    {
+        category: 'complexLevel',
+        level: 9,
+        fixedResistor: 1000,    // 👈 fixed on board
+        goalType: 'tau',
+        goal: 5,                // target τ = 5 seconds
+        hint: "RL Circuit: τ = L / R — pick the inductor that gives τ = 5s!",
+        boardImg: 'assets/CircuitBoard_level9.png',
+        Answer: 5,
+        dropZones: [
+            {top: '27.3%', left: '38.26%'},
+        ],
+        components: [
+            {type: 'inductor', label: '2000H', img: 'assets/Inductor.png', value: 2000},
+            {type: 'inductor', label: '5000H', img: 'assets/Inductor.png', value: 5000}, 
+            {type: 'inductor', label: '8000H', img: 'assets/Inductor.png', value: 8000},
+        ]
+    },
 
-    // {
-    //     category: 'complexLevel',
-    //     level: 9,
-    //     voltage: 15,
-    //     goal: 5,
-    //     dropZones: [
-    //         {top: '27.3%', left: '38.26%'},
-    //     ],
-    //     hint: "Ohm's Law: V = I * R",
-    //     boardImg: 'assets/CircuitBoard_level9.png',
-    //     Answer: 5,
-    //     components: [
-    //         {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-    //         {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
-    //         {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
-    //     ]
-    // },
+    {
+        category: 'complexLevel',
+        level: 10,
+        voltage: 12,          
+        fixedR1: 8,             
+        goalType: 'voltageDivider',
+        hint: "Voltage Divider: V_out = V_in × R2 / (R1 + R2) — pick R2!",
+        boardImg: 'assets/CircuitBoard_level10.png',
+        Answer: 4,             
+        dropZones: [
+            {top: '27.3%', left: '38.26%'},  
+        ],
+        components: [
+            {type: 'resistor', label: '2Ω',  img: 'assets/horizontal-resistor.png', value: 2},
+            {type: 'resistor', label: '4Ω',  img: 'assets/horizontal-resistor.png', value: 4},  
+            {type: 'resistor', label: '6Ω',  img: 'assets/horizontal-resistor.png', value: 6},
+            {type: 'resistor', label: '10Ω', img: 'assets/horizontal-resistor.png', value: 10},
+        ]
+    },
 
-    // {
-    //     category: 'complexLevel',
-    //     level: 10,
-    //     voltage: 15,
-    //     goal: 5,
-    //     dropZones: [
-    //         {top: '27.3%', left: '38.26%'},
-    //     ],
-    //     hint: "Ohm's Law: V = I * R",
-    //     boardImg: 'assets/CircuitBoard_level10.png',
-    //     Answer: 5,
-    //     components: [
-    //         {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-    //         {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
-    //         {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
-    //     ]
-    // },
-
-    // {
-    //     category: 'complexLevel',
-    //     level: 11,
-    //     voltage: 15,
-    //     goal: 5,
-    //     dropZones: [
-    //         {top: '49%', left: '38.26%'},
-    //     ],
-    //     hint: "Ohm's Law: V = I * R",
-    //     boardImg: 'assets/CircuitBoard_level11.png',
-    //     Answer: 5,
-    //     components: [
-    //         {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
-    //         {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
-    //         {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
-    //     ]
-    // }
+     /* {
+         category: 'complexLevel',
+         level: 11,
+         voltage: 15,
+         goal: 5,
+         dropZones: [
+             {top: '49%', left: '38.26%'},
+         ],
+         hint: "Ohm's Law: V = I * R",
+         boardImg: 'assets/CircuitBoard_level11.png',
+         Answer: 5,
+         components: [
+             {type: 'resistor', label: '3Ω', img: 'assets/horizontal-resistor.png', value: 3},
+             {type: 'resistor', label: '5Ω', img: 'assets/horizontal-resistor.png', value: 5},
+             {type: 'resistor', label: '8Ω', img: 'assets/horizontal-resistor.png', value: 8},
+         ]
+     } */
 
 
 ];
@@ -377,9 +380,28 @@ function checkAnswer() {
         }
 
     } else if (level.goalType === 'tau') {
+        const S = getVal('switch');
+        const C = getVal('capacitor');
+        const L = getVal('inductor');  
         const R = level.fixedResistor ?? getVal('resistor');
-        const C = level.fixedCapacitor ?? getVal('capacitor');
-        if (R !== null && C !== null) result = R * C;
+
+        if(S !== null){
+            result = S;                    
+        } else if(C !== null && R !== null){
+            result = R * C;                
+        } else if(L !== null && R !== null){
+            result = L / R;                
+        }
+    } else if (level.goalType === 'switch') {
+        result = getVal('switch'); 
+    } else if (level.goalType === 'voltageDivider') {
+        const R2 = getVal('resistor');
+        const R1 = level.fixedR1;
+        const Vin = level.voltage;
+
+        if(R2 !== null && R1 !== null && Vin !== null){
+            result = Vin * R2 / (R1 + R2);  
+        }
     }
 
     // FINAL VALIDATION
@@ -494,9 +516,19 @@ function loadLevel() {
     } else if (level.goalType === 'resistance' || level.goalType === 'parallel' || level.goalType === 'series') {
         goalText.innerHTML = `Target Total Resistance: <span>${level.Answer}</span>Ω`;
     } else if (level.goalType === 'tau') {
-        goalText.innerHTML = `Fixed Resistance: <span>${level.resistance ?? '?'}</span>Ω &nbsp; Target τ: <span>${level.goal}</span>s`;
+    if(level.fixedCapacitor){
+        // RC circuit — find capacitor
+        goalText.innerHTML = `R: <span>${level.fixedResistor}</span>&Omega; &nbsp;|&nbsp; C: <span class="unknown">?</span>F &nbsp;|&nbsp; &tau;: <span>${level.goal}</span>s`;
+    } else if(level.fixedResistor && !level.fixedCapacitor){
+        // RL circuit — find inductor
+        goalText.innerHTML = `R: <span>${level.fixedResistor}</span>&Omega; &nbsp;|&nbsp; L: <span class="unknown">?</span>H &nbsp;|&nbsp; &tau;: <span>${level.goal}</span>s`;
+    }
     } else if (level.goalType === 'frequency') {
         goalText.innerHTML = `Target Frequency f: <span>${level.goal}</span>Hz`;
+    } else if (level.goalType === 'switch') {
+    goalText.innerHTML = `R: <span>${level.fixedResistor}</span>&Omega; &nbsp;|&nbsp; C: <span>${level.fixedCapacitor}</span>F &nbsp;|&nbsp; &tau; = <span class="unknown">?</span>s`;
+    } else if (level.goalType === 'voltageDivider') {
+    goalText.innerHTML = `V_in: <span>${level.voltage}</span>V &nbsp;|&nbsp; R1: <span>${level.fixedR1}</span>&Omega; &nbsp;|&nbsp; R2: <span class="unknown">?</span>&Omega; &nbsp;|&nbsp; V_out: <span>${level.Answer}</span>V`;
     }
 
 
