@@ -8,7 +8,7 @@
 </head>
 <body>
     <!-- Title Screen + Reaction Select -->
-    <div id="titleScreen" class="screen" style="display: none;">
+    <div id="titleScreen" class="screen" style="display: block;">
         <h1 style="text-align: center;">Reaction Lab</h1>
 
         <h2 style="text-align: center;">
@@ -89,7 +89,7 @@
 
     <!-- Safety Screen -->
      <!-- Placeholder for now -->
-    <div id="safetyScreen" class="screen" style="display: block;">
+    <div id="safetyScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- Maybe update these so they each only appear when the task is actually finished -->
         
@@ -133,11 +133,11 @@
             <label for="noBody">None</label><br>
 
         <h2 style="text-align: center;">Footwear</h2>
-            <input type="radio" id="closedShoe" name="footProtection" value="Closed-toe shoes">
-            <label for="closedShoe">Closed-toe shoes</label><br>
+            <input type="radio" id="closedShoe" name="footProtection" value="Closed-toe Shoes">
+            <label for="closedShoe">Closed-toe Shoes</label><br>
 
-            <input type="radio" id="openShoe" name="footProtection" value="Open-toe shoes" checked>
-            <label for="openShoe">Open-toe shoes</label><br>
+            <input type="radio" id="openShoe" name="footProtection" value="Open-toe Shoes" checked>
+            <label for="openShoe">Open-toe Shoes</label><br>
 
         <h2 style="text-align: center;">Respiratory Protection</h2>
             <input type="radio" id="fumeHood" name="respiratoryProtection" value="Fume Hood">
@@ -154,9 +154,13 @@
             <button id="verifyPPE">Verify PPE</button>
         </p>
 
-        <p id="PPECheck" class = "bodytext" style="text-align: center;">
-            
+        <p id="PPEFeedback" class = "bodytext" style="text-align: center;">
         </p>
+
+        <p style="text-align: center;">
+            <button class="toLabBtn hidden">Back to Lab</button>
+        </p>
+            
     </div>
 
     <!-- Storage Screen -->
@@ -250,13 +254,50 @@
         </p>
         <h1 style="text-align: center;">Dispose</h1>
 
-        <!-- The player has to identify the proper way to dispose of the product -->
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+        <!-- Player should be presented with multiple choice options for what PPE to use for this experiment. Ideally multiple answers will be correct -->
+        <h2 style="text-align: center;">Liquid Waste</h2>
+            <input type="radio" id="drain" name="liquidWaste" value="Drain Disposal">
+            <label for="drain">Drain Disposal</label><br>
+
+            <input type="radio" id="acidWaste" name="liquidWaste" value="Acid Waste Container">
+            <label for="acidWaste">Acid Waste Container</label><br>
+
+            <input type="radio" id="baseWaste" name="liquidWaste" value="Base Waste Container">
+            <label for="baseWaste">Base Waste Container</label><br>
+
+            <input type="radio" id="noLiquid" name="liquidWaste" value="None" checked>
+            <label for="noLiquid">None</label><br>
+
+        <h2 style="text-align: center;">Solid Waste</h2>
+            <input type="radio" id="trash" name="solidWaste" value="Regular Trash">
+            <label for="trash">Regular Trash</label><br>
+
+            <input type="radio" id="solidChemicalWaste" name="solidWaste" value="Solid Chemical Waste Container">
+            <label for="solidChemicalWaste">Solid Chemical Waste Container</label><br>
+
+            <input type="radio" id="sharps" name="solidWaste" value="Sharps Container">
+            <label for="sharps">Sharps Container</label><br>
+
+            <input type="radio" id="noSolid" name="solidWaste" value="None" checked>
+            <label for="noSolid">None</label><br>
+
+        <h2 style="text-align: center;">Gaseous Waste</h2>
+            <input type="radio" id="ventToFumeHood" name="gaseousWaste" value="Vent To Fume Hood">
+            <label for="ventToFumeHood">Vent To Fume Hood</label><br>
+
+            <input type="radio" id="noGas" name="gaseousWaste" value="None" checked>
+            <label for="noGas">None</label><br>
+
+
+        <p style="text-align: center;">
+            <button id="verifyDisposal">Verify Disposal Methods</button>
+        </p>
+
+        <p id="disposalFeedback" class = "bodytext" style="text-align: center;">
         </p>
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button class="toLabBtn hidden">Back to Lab</button>
         </p>
     </div>
 
