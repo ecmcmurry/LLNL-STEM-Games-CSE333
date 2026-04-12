@@ -8,7 +8,7 @@
 </head>
 <body>
     <!-- Title Screen + Reaction Select -->
-    <div id="titleScreen" class="screen" >
+    <div id="titleScreen" class="screen" style="display: none;">
         <h1 style="text-align: center;">Reaction Lab</h1>
 
         <h2 style="text-align: center;">
@@ -69,12 +69,14 @@
       <!-- This will mostly hold buttons going to the various stages of the experiment -->
     <div id="labScreen" class="screen" style="display: none;">
         <!-- I don't know if this screen should have a back button, since that would allow you to change your predictions after starting the experiment -->
+         <!-- Currently just sends you to title -->
         <p style="text-align: left;">
-            <button id="preLabToTitleBtn">Back</button>
+            <button id="labToTitleBtn">Back to Title</button>
         </p>
         <h1 style="text-align: center;">Lab Overview</h1>
 
-        <!-- TODO: Add buttons leading to the sub screens: Safety, Storage, Measure, React, Analyze, Dispose -->
+        <!-- Buttons leading to the sub screens: Safety, Storage, Measure, React, Analyze, Dispose -->
+        <!-- Update to add pictures? -->
         <p style="text-align: center;">
             <button id="toSafetyScreenBtn">Safety</button>
             <button id="toStorageScreenBtn">Storage</button>
@@ -87,21 +89,73 @@
 
     <!-- Safety Screen -->
      <!-- Placeholder for now -->
-    <div id="safetyScreen" class="screen" style="display: none;">
+    <div id="safetyScreen" class="screen" style="display: block;">
         <!-- back button should redirect to the labScreen -->
-        <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        <!-- Maybe update these so they each only appear when the task is actually finished -->
+        
         <h1 style="text-align: center;">Safety</h1>
 
         <!-- Player should be presented with multiple choice options for what PPE to use for this experiment. Ideally multiple answers will be correct -->
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
-        </p>
+        <h2 style="text-align: center;">Eye and Face Protection</h2>
+            <input type="radio" id="goggles" name="eyeAndFaceProtection" value="Safety Goggles">
+            <label for="goggles">Safety Goggles</label><br>
+
+            <input type="radio" id="glasses" name="eyeAndFaceProtection" value="Safety Glasses">
+            <label for="glasses">Safety Glasses</label><br>
+
+            <input type="radio" id="faceShield" name="eyeAndFaceProtection" value="Face Shield">
+            <label for="faceShield">Face Shield</label><br>
+
+            <input type="radio" id="noFace" name="eyeAndFaceProtection" value="None" checked>
+            <label for="noFace">None</label><br>
+
+        <h2 style="text-align: center;">Hand Protection</h2>
+            <input type="radio" id="nitrile" name="handProtection" value="Nitrile Gloves">
+            <label for="nitrile">Nitrile Gloves</label><br>
+
+            <input type="radio" id="latex" name="handProtection" value="Latex Gloves">
+            <label for="latex">Latex Gloves</label><br>
+
+            <input type="radio" id="thickRubber" name="handProtection" value="Thick Rubber Gloves">
+            <label for="thickRubber">Thick Rubber Gloves</label><br>
+
+            <input type="radio" id="noHand" name="handProtection" value="None" checked>
+            <label for="noHand">None</label><br>
+
+        <h2 style="text-align: center;">Body Protection</h2>
+            <input type="radio" id="labCoat" name="bodyProtection" value="Lab Coat">
+            <label for="labCoat">Lab Coat</label><br>
+
+            <input type="radio" id="apron" name="bodyProtection" value="Apron">
+            <label for="apron">Apron</label><br>
+
+            <input type="radio" id="noBody" name="bodyProtection" value="None" checked>
+            <label for="noBody">None</label><br>
+
+        <h2 style="text-align: center;">Footwear</h2>
+            <input type="radio" id="closedShoe" name="footProtection" value="Closed-toe shoes">
+            <label for="closedShoe">Closed-toe shoes</label><br>
+
+            <input type="radio" id="openShoe" name="footProtection" value="Open-toe shoes" checked>
+            <label for="openShoe">Open-toe shoes</label><br>
+
+        <h2 style="text-align: center;">Respiratory Protection</h2>
+            <input type="radio" id="fumeHood" name="respiratoryProtection" value="Fume Hood">
+            <label for="fumeHood">Fume Hood</label><br>
+
+            <input type="radio" id="respiratorMask" name="respiratoryProtection" value="Respirator Mask">
+            <label for="respiratorMask">Respirator Mask</label><br>
+
+            <input type="radio" id="noRespiration" name="respiratoryProtection" value="None" checked>
+            <label for="noRespiration">None</label><br>
+
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button id="verifyPPE">Verify PPE</button>
+        </p>
+
+        <p id="PPECheck" class = "bodytext" style="text-align: center;">
+            
         </p>
     </div>
 
@@ -226,6 +280,7 @@
 
     <script src="reactions.js"></script>
     <script src="main.js"></script>
+    <script src="swapScreen.js"></script>
 
 </body>
 </html>
