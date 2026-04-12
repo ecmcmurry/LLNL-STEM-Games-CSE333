@@ -25,3 +25,7 @@ select, button {
 .bodytext {
     font-size: 18px;
 }
+
+.hidden {
+    display: none;
+}

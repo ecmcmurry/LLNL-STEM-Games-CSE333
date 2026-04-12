@@ -25,6 +25,18 @@ const REACTIONS = {
             },
             // add more later
         ],
+        safety: {
+            eyeAndFace: "Safety Goggles",
+            hands: "Nitrile Gloves",
+            body: "Lab Coat",
+            foot: "Closed-toe Shoes",
+            respiratory: "None"
+        },
+        disposal: {
+            liquid: "Drain Disposal",
+            solid: "None",
+            gaseous: "None"
+        },
     },
     pb_no3_ki: {
         //populate for second reaction later
