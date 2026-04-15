@@ -1,0 +1,69 @@
+/*Base design for the whole program*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Press Start 2P', monospace;
+    image-rendering: pixelated;
+}
+
+/* Main colors used throughout the program */
+:root {
+    --silver:       #C8C8C8;
+    --silver-light: #E0E0E0;
+    --silver-dark:  #888888;
+    --silver-edge:  #666666;
+    --foam:         #34345e;
+    --foam-inner:   #0D0D1A;
+    --gold:         #FFD700;
+    --red:          #FF3B3B;
+    --yellow:       #FFD700;
+    --green:        #39FF14;
+    --white:        #FFFFFF;
+    --black:        #0A0A0A;
+}
+
+body {
+    background-color: #ffc9af;
+    background-size: 20px 20px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 1.4rem;
+    color: var(--white);
+    text-align: center;
+    line-height: 1.6;
+}
+
+p {
+    font-size: 0.5rem;
+    color: var(--white);
+    text-align: center;
+}
+
+/* Animations used throughout the game */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+@keyframes blink {
+    0%, 100% { border-right-color: var(--gold); }
+    50%       { border-right-color: transparent; }
+}
+
+@keyframes glowPulse {
+    0%, 100% { text-shadow: 0 0 8px #ff0000, 0 0 16px #ff0000; }
+    50%       { text-shadow: none; }
+}
+
+/* necessary rotations for certain components*/
+.rotated {
+    transform: rotate(90deg);
+}
