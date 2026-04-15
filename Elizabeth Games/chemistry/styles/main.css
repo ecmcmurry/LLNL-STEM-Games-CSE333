@@ -29,3 +29,9 @@ select, button {
 .hidden {
     display: none;
 }
+
+.volumeControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
