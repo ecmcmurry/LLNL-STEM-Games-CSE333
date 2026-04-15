@@ -33,7 +33,7 @@
     <!-- the Pre-Lab screen -->
     <div id="preLabScreen" class="screen" style="display: none;">
         <p style="text-align: left;">
-            <button id="preLabToTitleBtn">Back</button>
+            <button id="preLabToTitleBtn">Back to Title</button>
         </p>
         <h1 style="text-align: center;">Pre-Lab</h1>
 
@@ -44,12 +44,16 @@
         <p style="text-align: center;">
             <button id="preLabToPredictionsBtn">Make Your Predictions</button>
         </p>
+
+        <p style="text-align: center;">
+            <button id="preLabToLabBtn" class="hidden">Back to Lab</button>
+        </p>
     </div>
 
     <!-- the Making Predictions stage -->
     <div id="predictionScreen" class="screen" style="display: none;">
         <p style="text-align: left;">
-            <button id="predictionsToPreLabBtn">Back</button>
+            <button id="predictionsToPreLabBtn">Back to Pre-Lab</button>
         </p>
         <h1 style="text-align: center;">Predictions</h1>
         <p class = "bodytext" style="text-align: center;">
@@ -71,7 +75,7 @@
         <!-- I don't know if this screen should have a back button, since that would allow you to change your predictions after starting the experiment -->
          <!-- Currently just sends you to title -->
         <p style="text-align: left;">
-            <button id="labToTitleBtn">Back to Title</button>
+            <button id="labToPreLabBtn">Back to Pre-Lab</button>
         </p>
         <h1 style="text-align: center;">Lab Overview</h1>
 
@@ -84,6 +88,9 @@
             <button id="toReactScreenBtn">React</button>
             <button id="toAnalyzeScreenBtn">Analyze</button>
             <button id="toDisposeScreenBtn">Dispose</button>
+        </p>
+
+        <p id="labFeedback" class = "bodytext" style="text-align: center;">
         </p>
     </div>
 
@@ -168,18 +175,20 @@
     <div id="storageScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        
         <h1 style="text-align: center;">Storage</h1>
 
         <!-- Player has to select which reactants on the shelf are involved in this reaction. Harder difficulties (if implemented) should have more wrong options -->
         <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+            <label for="reactions">Study the reactants you are using in this reaction.</label>
         </p>
 
+        <div id="storageCards" class="cards">
+            
+        </div>
+
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button class="toLabBtn">Back to Lab</button>
         </p>
     </div>
 
@@ -188,9 +197,7 @@
     <div id="measureScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        
         <h1 style="text-align: center;">Measure</h1>
 
         <!-- Player has to adjust the amounts of both reactants to get the right amount for the product? -->
@@ -200,7 +207,7 @@
         </p>
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button class="toLabBtn hidden">Back to Lab</button>
         </p>
     </div>
 
@@ -209,9 +216,7 @@
     <div id="reactScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        
         <h1 style="text-align: center;">React</h1>
 
         <!-- This is where the magic happens, likely little to no user input -->
@@ -220,7 +225,7 @@
         </p>
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button class="toLabBtn hidden">Back to Lab</button>
         </p>
     </div>
 
@@ -229,9 +234,7 @@
     <div id="analyzeScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        
         <h1 style="text-align: center;">Analyze</h1>
 
         <!-- The user is able to inspect the product. They will be told some characteristics (clear liquid with suspended white crystals), but will need to test for others (pH, temperature) -->
@@ -240,7 +243,7 @@
         </p>
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button class="toLabBtn hidden">Back to Lab</button>
         </p>
     </div>
 
@@ -249,9 +252,7 @@
     <div id="disposeScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        <p style="text-align: left;">
-            <button class="toLabBtn">Back</button>
-        </p>
+        
         <h1 style="text-align: center;">Dispose</h1>
 
         <!-- Player should be presented with multiple choice options for what PPE to use for this experiment. Ideally multiple answers will be correct -->

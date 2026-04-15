@@ -4,9 +4,32 @@ const predictionCards = document.getElementById('predictionCards');
 let reaction = null;
 let predictions = null;
 
+let visitedSafety = false;
+let visitedStorage = false;
+let visitedMeasure = false;
+let visitedReact = false;
+let visitedAnalyze = false;
+let visitedDispose = false;
+
 //Changes from the Title Screen to the Pre-Lab Screen
 //This is included in main and NOT swapScreen because of the added functionality when you press the button
+//Though I should probably be consistent and any time a button switches screens it should be in swapScreen
 document.getElementById('titleToPreLabBtn').addEventListener('click', () => {
+    //resets variables
+    reaction = null;
+    predictions = null;
+
+    visitedSafety = false;
+    visitedStorage = false;
+    visitedMeasure = false;
+    visitedReact = false;
+    visitedAnalyze = false;
+    visitedDispose = false;
+
+
+    document.getElementById('preLabToPredictionsBtn').classList.remove('hidden');
+    document.getElementById('preLabToLabBtn').classList.add('hidden');
+
     swapScreen("prelab")
 
     //pulls the value from the reaction dropdown and stores that as the current reaction
@@ -85,6 +108,62 @@ document.getElementById('preLabToPredictionsBtn').addEventListener('click', () =
     });
 });
 
+//Changes from the Lab to the Storage Screen
+document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
+    //uses the reaction to pull the list of reactants
+    let reactants = REACTIONS[reaction].reactants;
+    
+    //finds the cards that will hold the reactant information
+    let cards = document.getElementById('storageCards');
+    //clears the cards so that if the user backs out and re-enters, it doesn't duplicate
+    cards.innerHTML = "";
+
+    
+    //For each prediction we want to make a new card and populate it with the reactant information
+    reactants.forEach((reactant) => {
+        //create the card
+        let card = document.createElement('article');
+        card.classList.add('card');
+
+        //create the header, this will hold the name of the reactant
+        let header = document.createElement('header');
+        //create the h2 which will actually have the text
+        let h2 = document.createElement('h2');
+        h2.textContent = reactant.name;
+        header.appendChild(h2);
+
+        //create the content section of the card, this will hold the answers
+        let content = document.createElement('div');
+        content.classList.add('content');
+
+        //create the content section of the card, this will hold the remaining information
+        //far more elegant solution thanks to claude
+        const fields = [
+            { key: 'symbol', label: 'Symbol' },
+            { key: 'state', label: 'State' },
+            { key: 'concentration', label: 'Concentration' },
+            { key: 'appearance', label: 'Appearance' },
+            { key: 'pH', label: 'pH' },
+            { key: 'hazards', label: 'Hazards', transform: v => v.join(', ') },
+            { key: 'ghs', label: 'GHS', transform: v => v.join(', ') }
+        ];
+
+        fields.forEach(field => {
+            let p = document.createElement('p');
+            p.textContent = `${field.label}: ${reactant[field.key]}`;
+            content.appendChild(p);
+        });
+
+        //attach the header and content to the card
+        card.appendChild(header);
+        card.appendChild(content);
+
+        //add the card to the list of cards
+        cards.appendChild(card);
+    });
+    visitedStorage = true;
+});
+
 //Verifies that the PPE options chosen by the player line up with the reaction
 document.getElementById('verifyPPE').addEventListener('click', () => {
     //pulls answer from each category
@@ -118,10 +197,11 @@ document.getElementById('verifyPPE').addEventListener('click', () => {
         //if correct display this
         document.getElementById('PPEFeedback').innerText = "Good job!";
         document.getElementById('safetyScreen').querySelector('.toLabBtn').classList.remove('hidden');
+        visitedSafety = true;
     } else {
         //if incorrect display this
         document.getElementById('PPEFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
-        //If, for some reason, the user goes back to the safety screen and makes an incorrect guess, we want the button to be hidden again
+        //Redundancy
         document.getElementById('safetyScreen').querySelector('.toLabBtn').classList.add('hidden');
     }
 });
@@ -151,10 +231,12 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
         //if correct display this
         document.getElementById('disposalFeedback').innerText = "Good job!";
         document.getElementById('disposalScreen').querySelector('.toLabBtn').classList.remove('hidden');
+        visitedDispose = true;
     } else {
         //if incorrect display this
+        //Maybe include some canned responses just in case?
         document.getElementById('disposalFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
-        //If, for some reason, the user goes back to the disposal screen and makes an incorrect guess, we want the button to be hidden again
+        //Redundancy
         document.getElementById('disposalScreen').querySelector('.toLabBtn').classList.add('hidden');
     }
 });
