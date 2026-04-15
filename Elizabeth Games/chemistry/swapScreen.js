@@ -12,56 +12,91 @@ const resultsScreen = document.getElementById('resultsScreen');
 
 //Changes from the Predictions Screen to the Pre-Lab Screen
 document.getElementById('predictionsToPreLabBtn').addEventListener('click', () => {
-    swapScreen("prelab")
+    swapScreen("prelab");
 });
 
 //Changes from the Pre-Lab Screen to the Title Screen
 document.getElementById('preLabToTitleBtn').addEventListener('click', () => {
-    swapScreen("title")
+    swapScreen("title");
 });
 
-//Changes from the Pre-Lab Screen to the Title Screen
-document.getElementById('labToTitleBtn').addEventListener('click', () => {
-    swapScreen("title")
-});
-
-//Changes from the Pre-Lab Screen to the Title Screen
+//Changes from the Pre-Lab Screen to the Predictions Screen
 document.getElementById('preLabToPredictionsBtn').addEventListener('click', () => {
-    swapScreen("prediction")
+    swapScreen("prediction");
 });
 
+//Changes from the Predictions Screen to the Lab Screen
 document.getElementById('predictionsToLabBtn').addEventListener('click', () => {
-    swapScreen("lab")
+    swapScreen("lab");
+    document.getElementById('preLabToPredictionsBtn').classList.add('hidden');
+    document.getElementById('preLabToLabBtn').classList.remove('hidden');
 });
 
 //Changes from the Lab Screen to the Safety Screen
 document.getElementById('toSafetyScreenBtn').addEventListener('click', () => {
-    swapScreen("safety")
+    if (visitedSafety == true) {
+        document.getElementById('labFeedback').innerText = "You are already wearing the proper PPE.";
+    } else {
+        swapScreen("safety");
+        document.getElementById('labFeedback').innerText = "";
+    }
 });
 
 //Changes from the Lab Screen to the Storage Screen
 document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
-    swapScreen("storage")
+    if (visitedSafety == true) {
+        swapScreen("storage");
+        document.getElementById('labFeedback').innerText = "";
+    } else if (visitedStorage == true) {
+        document.getElementById('labFeedback').innerText = "You have already retrieved the reactants.";
+    } else {
+        document.getElementById('labFeedback').innerText = "You must have the proper Personal Protective Equipment before you can enter the lab.";
+    }
 });
 
 //Changes from the Lab Screen to the Measure Screen
 document.getElementById('toMeasureScreenBtn').addEventListener('click', () => {
-    swapScreen("measure")
+    if (visitedStorage == true) {
+        swapScreen("measure");
+        document.getElementById('labFeedback').innerText = "";
+    } else if (visitedMeasure == true) {
+        document.getElementById('labFeedback').innerText = "You have already weighed the reactants.";
+    } else {
+        document.getElementById('labFeedback').innerText = "You must have retrieved the reactants from storage before you can measure them.";
+    }
 });
 
 //Changes from the Lab Screen to the React Screen
 document.getElementById('toReactScreenBtn').addEventListener('click', () => {
-    swapScreen("react")
+    if (visitedMeasure == true) {
+        swapScreen("react");
+        document.getElementById('labFeedback').innerText = "";
+    } else if (visitedReact == true) {
+        document.getElementById('labFeedback').innerText = "You have already performed the reaction.";
+    } else {
+        document.getElementById('labFeedback').innerText = "You must have the proper quantities before beginning the reaction.";
+    }
 });
 
 //Changes from the Lab Screen to the Analyze Screen
 document.getElementById('toAnalyzeScreenBtn').addEventListener('click', () => {
-    swapScreen("analyze")
+    if (visitedReact == true) {
+        swapScreen("analyze");
+        document.getElementById('labFeedback').innerText = "";
+    } else { //While the other screens have an "you already performed this step" response here, the player should be able to review their analysis
+        document.getElementById('labFeedback').innerText = "You must perform the reaction before you can analyze it.";
+    }
 });
 
 //Changes from the Lab Screen to the Dispose Screen
 document.getElementById('toDisposeScreenBtn').addEventListener('click', () => {
-    swapScreen("dispose")
+    if (visitedAnalyze == true) {
+        swapScreen("dispose");
+        document.getElementById('labFeedback').innerText = "";
+    } else {
+        document.getElementById('labFeedback').innerText = "You must analyze the product before you can dispose of it.";
+    }
+    
 });
 
 //Changes from the Lab subscreens to the Lab Screen
@@ -69,6 +104,16 @@ document.querySelectorAll('.toLabBtn').forEach(btn => {
     btn.addEventListener('click', () => {
         swapScreen("lab");
     });
+});
+
+//Changes from the Lab Screen to the Pre-Lab Screen
+document.getElementById('labToPreLabBtn').addEventListener('click', () => {
+    swapScreen("prelab");
+});
+
+//Changes from the Pre-Lab to the Lab Screen
+document.getElementById('preLabToLabBtn').addEventListener('click', () => {
+    swapScreen("lab");
 });
 
 function swapScreen(screenName) {
