@@ -44,11 +44,12 @@ document.getElementById('toSafetyScreenBtn').addEventListener('click', () => {
 
 //Changes from the Lab Screen to the Storage Screen
 document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
-    if (visitedSafety == true) {
-        swapScreen("storage");
-        document.getElementById('labFeedback').innerText = "";
-    } else if (visitedStorage == true) {
+    if (visitedStorage == true) {
         document.getElementById('labFeedback').innerText = "You have already retrieved the reactants.";
+    } else if (visitedSafety == true) {
+        swapScreen("storage");
+        visitedStorage = true;
+        document.getElementById('labFeedback').innerText = "";
     } else {
         document.getElementById('labFeedback').innerText = "You must have the proper Personal Protective Equipment before you can enter the lab.";
     }
@@ -56,11 +57,12 @@ document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
 
 //Changes from the Lab Screen to the Measure Screen
 document.getElementById('toMeasureScreenBtn').addEventListener('click', () => {
-    if (visitedStorage == true) {
+    if (visitedMeasure == true) {
+        // Maybe allow the player to go back and edit their weighed values, assuming they haven't performed the reaction yet
+        document.getElementById('labFeedback').innerText = "You have already weighed the reactants.";
+    } else if (visitedStorage == true) {
         swapScreen("measure");
         document.getElementById('labFeedback').innerText = "";
-    } else if (visitedMeasure == true) {
-        document.getElementById('labFeedback').innerText = "You have already weighed the reactants.";
     } else {
         document.getElementById('labFeedback').innerText = "You must have retrieved the reactants from storage before you can measure them.";
     }
@@ -68,11 +70,11 @@ document.getElementById('toMeasureScreenBtn').addEventListener('click', () => {
 
 //Changes from the Lab Screen to the React Screen
 document.getElementById('toReactScreenBtn').addEventListener('click', () => {
-    if (visitedMeasure == true) {
+    if (visitedReact == true) {
+        document.getElementById('labFeedback').innerText = "You have already performed the reaction.";
+    } else if (visitedMeasure == true) {
         swapScreen("react");
         document.getElementById('labFeedback').innerText = "";
-    } else if (visitedReact == true) {
-        document.getElementById('labFeedback').innerText = "You have already performed the reaction.";
     } else {
         document.getElementById('labFeedback').innerText = "You must have the proper quantities before beginning the reaction.";
     }
@@ -113,6 +115,12 @@ document.getElementById('labToPreLabBtn').addEventListener('click', () => {
 
 //Changes from the Pre-Lab to the Lab Screen
 document.getElementById('preLabToLabBtn').addEventListener('click', () => {
+    swapScreen("lab");
+});
+
+//Changes from the Measure subscreen to the Lab Screen
+document.getElementById('measureToLabBtn').addEventListener('click', () => {
+    visitedMeasure = true
     swapScreen("lab");
 });
 

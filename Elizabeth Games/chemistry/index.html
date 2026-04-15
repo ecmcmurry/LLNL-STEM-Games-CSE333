@@ -69,11 +69,7 @@
     </div>
 
     <!-- the main Lab screen -->
-     <!-- Just a placeholder for now, will get updated later -->
-      <!-- This will mostly hold buttons going to the various stages of the experiment -->
     <div id="labScreen" class="screen" style="display: none;">
-        <!-- I don't know if this screen should have a back button, since that would allow you to change your predictions after starting the experiment -->
-         <!-- Currently just sends you to title -->
         <p style="text-align: left;">
             <button id="labToPreLabBtn">Back to Pre-Lab</button>
         </p>
@@ -95,14 +91,11 @@
     </div>
 
     <!-- Safety Screen -->
-     <!-- Placeholder for now -->
     <div id="safetyScreen" class="screen" style="display: none;">
-        <!-- back button should redirect to the labScreen -->
-        <!-- Maybe update these so they each only appear when the task is actually finished -->
         
         <h1 style="text-align: center;">Safety</h1>
 
-        <!-- Player should be presented with multiple choice options for what PPE to use for this experiment. Ideally multiple answers will be correct -->
+        <!-- Player is presented with multiple choice options for what PPE to use for this experiment. -->
         <h2 style="text-align: center;">Eye and Face Protection</h2>
             <input type="radio" id="goggles" name="eyeAndFaceProtection" value="Safety Goggles">
             <label for="goggles">Safety Goggles</label><br>
@@ -171,7 +164,6 @@
     </div>
 
     <!-- Storage Screen -->
-     <!-- Placeholder for now -->
     <div id="storageScreen" class="screen" style="display: none;">
         <!-- back button should redirect to the labScreen -->
         <!-- See about giving them a class so they can all be queried to reduce the js code -->
@@ -195,19 +187,36 @@
     <!-- Measure Screen -->
      <!-- Placeholder for now -->
     <div id="measureScreen" class="screen" style="display: none;">
-        <!-- back button should redirect to the labScreen -->
-        <!-- See about giving them a class so they can all be queried to reduce the js code -->
         
-        <h1 style="text-align: center;">Measure</h1>
-
-        <!-- Player has to adjust the amounts of both reactants to get the right amount for the product? -->
-        <!-- Instead of sliders, use -/+ buttons to make it easier to use on mobile -->
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+        <!-- Allows the user to go back and read the pre-lab before measuring -->
+        <p style="text-align: left;">
+            <button class="toLabBtn">Back to Lab</button>
         </p>
 
+        <!-- Not sure if the header is necessary tbh but I'll keep it for now -->
+        <h1 style="text-align: center;">Measure</h1>
+
+        <!-- Displays the equation with the mols showing how much the player is planning on reacting. Since the equation is based on the reaction, it needs to be filled using javascript -->
+        <div id="measureEquation">
+            <p id="measureEquationText"></p>
+        </div>
+
+        <!-- Player adjusts the volumes of each reactant using +/- buttons and are allowed to fail to reinforce learning (though we won't make it hard to succeed). Since reactions has differing number of reactants, this needs to be filled using javascript -->
+        <div id="measureInputs"></div>
+
+        <!-- Basic feedback about whether the reaction looks balanced, excess, or deficient. The text gets populated using javascript -->
+
         <p style="text-align: center;">
-            <button class="toLabBtn hidden">Back to Lab</button>
+            <button id="measureBalanceBtn">Help me balance!</button>
+        </p>
+
+        <div style="text-align: center;" id="measureFeedback">
+            <p id="measureFeedbackText"></p>
+        </div>
+
+        <!-- The proceed button is hidden until the user has non-zero volumes for both reactants -->
+        <p style="text-align: center;">
+            <button id="measureToLabBtn">Lock in Measurements</button>
         </p>
     </div>
 
@@ -248,14 +257,11 @@
     </div>
 
     <!-- Dispose Screen -->
-     <!-- Placeholder for now -->
     <div id="disposeScreen" class="screen" style="display: none;">
-        <!-- back button should redirect to the labScreen -->
-        <!-- See about giving them a class so they can all be queried to reduce the js code -->
         
         <h1 style="text-align: center;">Dispose</h1>
 
-        <!-- Player should be presented with multiple choice options for what PPE to use for this experiment. Ideally multiple answers will be correct -->
+        <!-- Player is presented with multiple choice options for what disposal method to use for this experiment. -->
         <h2 style="text-align: center;">Liquid Waste</h2>
             <input type="radio" id="drain" name="liquidWaste" value="Drain Disposal">
             <label for="drain">Drain Disposal</label><br>

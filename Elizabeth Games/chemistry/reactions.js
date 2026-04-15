@@ -17,7 +17,8 @@ const REACTIONS = {
                 appearance: "Clear, colorless liquid",
                 pH: "~0 at 1.0 mol/L",
                 hazards: ["Corrosive", "Irritant"],
-                ghs: ["GHS05", "GHS07"]
+                ghs: ["GHS05", "GHS07"],
+                molarRatio: 1
             },
             { 
                 name: "Sodium hydroxide", 
@@ -27,17 +28,20 @@ const REACTIONS = {
                 appearance: "Clear, colorless liquid",
                 pH: "~14 at 1.0 mol/L",
                 hazards: ["Corrosive"],
-                ghs: ["GHS05"]
+                ghs: ["GHS05"],
+                molarRatio: 1
             }
         ],
         products: [
             { 
                 name: "Sodium chloride", 
-                symbol: "NaCl" 
+                symbol: "NaCl",
+                molarRatio: 1
             },
             { 
                 name: "Water", 
-                symbol: "H₂O" 
+                symbol: "H₂O",
+                molarRatio: 1
             }
         ],
         energyChange: "exothermic",
