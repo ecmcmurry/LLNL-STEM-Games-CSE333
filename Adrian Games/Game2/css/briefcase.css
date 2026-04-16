@@ -1,0 +1,161 @@
+
+/*main brief case design for the games container*/
+.briefcase-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 620px;
+    position: relative;
+}
+
+.briefcase-lid {
+    width: 100%;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: linear-gradient(
+        180deg,
+        var(--silver-dark)  0%,
+        var(--silver)       20%,
+        var(--silver-light) 50%,
+        var(--silver)       80%,
+        var(--silver-dark)  100%
+    );
+    box-shadow:
+        0 0 0 4px var(--silver-dark),
+        0 0 0 8px var(--black),
+        8px 8px 0px var(--black);
+    clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        12px 100%,
+        0% calc(100% - 12px)
+    );
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 220px;
+}
+
+.lid-interior {
+    margin: 16px;
+    flex: 1;
+    background: var(--foam);
+    border: 4px solid var(--black);
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.8),
+        inset 0 0 0 3px #2A2A3E;
+}
+
+.hinge-row {
+    width: 90%;
+    height: 24px;
+    background: var(--silver-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    border-left: 4px solid var(--black);
+    border-right: 4px solid var(--black);
+    z-index: 2;
+    position: relative;
+}
+
+
+.hinge {
+    width: 28px;
+    height: 28px;
+    background: var(--silver);
+    border: 3px solid var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 0 0 2px var(--silver-light),
+        2px 2px 0px var(--black);
+}
+
+.screw {
+    font-size: 0.6rem;
+    color: var(--silver-edge);
+    line-height: 1;
+}
+
+.hinge-bar {
+    flex: 1;
+    height: 6px;
+    background: linear-gradient(180deg, var(--silver-light), var(--silver-dark));
+    margin: 0 4px;
+    border-top: 2px solid var(--silver-light);
+    border-bottom: 2px solid var(--black);
+}
+
+/* Bottom of lid of the briefcase holds the game in it as a container */
+.briefcase-bottom {
+    width: 100%;
+    min-height: 220px;
+    background: linear-gradient(
+        180deg,
+        var(--silver-dark)  0%,
+        var(--silver)       20%,
+        var(--silver-light) 50%,
+        var(--silver)       80%,
+        var(--silver-dark)  100%
+    );
+    box-shadow:
+        0 0 0 4px var(--silver-dark),
+        0 0 0 8px var(--black),
+        8px 8px 0px var(--black);
+    clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        12px 100%,
+        0% calc(100% - 12px)
+    );
+}
+
+.briefcase-interior {
+    margin: 16px;
+    background: var(--foam);
+    border: 4px solid var(--black);
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.8),
+        inset 0 0 0 3px #2A2A3E;
+    min-height: 360px;
+    max-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.latch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: var(--silver-dark);
+    border-bottom: 4px solid var(--black);
+}
+
+.latch {
+    font-size: 0.5rem;
+    color: var(--silver-dark);
+    background: #333333;
+    padding: 4px 10px;
+    border: 2px solid var(--silver-edge);
+    box-shadow: 2px 2px 0px var(--black);
+}
+
+.latch-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--silver-edge);
+    margin: 0 12px;
+    border-top: 2px solid var(--black);
+}
