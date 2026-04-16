@@ -239,12 +239,24 @@ body {
 }
 
 .modal h2 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-family: "Press Start 2P", monospace;
 }
 
 .modal p {
   margin: 0 0 14px;
   color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  font-family: "Press Start 2P", monospace;
+}
+
+.modal button {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  line-height: 1.4;
 }
 
 .choices {
@@ -253,10 +265,20 @@ body {
   margin-bottom: 12px;
 }
 
+.SIFName {
+  font-size: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.InvRemain {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
 /* inventory */
 .inventoryGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
@@ -274,7 +296,7 @@ body {
 /* store */
 .storeGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
