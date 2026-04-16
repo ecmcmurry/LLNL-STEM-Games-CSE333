@@ -1,0 +1,85 @@
+/* Formatting and spacing of screens and logic of when they should show up */
+.screen {
+    width: 100%;
+    height: 105%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 17px;
+}
+
+/*Basic css to show the correct screen when needed and javascript handles the dynamic displays*/
+#play-screen  { display: none; }
+#howToPlay    { display: none; }
+#resultScreen { display: none; }
+#levelScreen  { display: none; }
+
+.pixel-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 40px;
+    min-width: 95%;
+    max-height: 100%;
+    overflow-y: auto;
+    background: var(--foam-inner);
+    box-shadow:
+        0 0 0 4px var(--white),
+        0 0 0 8px var(--white),
+        0 0 0 12px var(--black),
+        6px 6px 0px var(--white);
+}
+
+.pixel-divider {
+    width: 100%;
+    height: 4px;
+}
+
+/*basic button designs and spacing below*/
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.pixel-btn {
+    width: 100%;
+    padding: 8px 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    background: var(--silver);
+    color: var(--black);
+    transition: transform 0.1s;
+}
+
+.pixel-btn:hover {
+    transform: translate(-2px, -2px);
+    color: white;
+    border: 2px solid var(--gold);
+    background-color: var(--foam);
+}
+
+.pixel-btn:active {
+    transform: translate(4px, 4px);
+}
+
+#resultMessage p {
+    font-size: 0.45rem;
+    margin: 4px 0;
+    color: var(--white);
+}
+
+/*AI recommendation is the LLMs advice to the student on what they should work on based on results*/
+#aiRecommendation {
+    margin-top: 8px !important;
+    color: var(--gold) !important;
+    font-size: 0.4rem !important;
+    line-height: 1.8;
+}
