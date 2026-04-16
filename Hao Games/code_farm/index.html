@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Farming Learning Game</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   </head>
 
   <body>
@@ -19,34 +20,45 @@
 
     <!-- FARM -->
     <main id="farm" class="screen hidden">
-      <div class="topbar">
-        <div class="coins">🪙 Coins: <span id="coinsText">50</span></div>
-
-        <div class="rightControls">
-          <button id="editBtn" class="btn">Edit Plots</button>
-          <button id="nextDayBtn" class="btn primary">Next Day</button>
-        </div>
-      </div>
-
-      <div class="dayText">Day: <span id="dayText">1</span></div>
-
-      <div class="progressBox">
-        <div class="progressHeader">
-          <span>Harvest Progress</span>
-          <span id="progressText">0 / 5</span>
-        </div>
-
-        <div class="bar">
-          <div id="barFill" class="barFill"></div>
-        </div>
-
-        <div id="unlockText" class="unlockText">
-          Next unlock: Daisy at 5 harvests!
-        </div>
-      </div>
 
       <div id="farmStage" class="farm-stage">
         <img id="farmImg" src="assets/farm.jpg" alt="Farm background" />
+
+        <div class="farmTop">
+          <div class="dayBox">
+            Day <span id="dayText">1</span>
+          </div>
+
+          <div class="farmHudRow">
+            <div class="coinsBox">
+              <div class="hundLabel">
+                <span class="coinIcon">🪙</span>
+                <span class="coinText">Coins</span>
+              </div>
+              <div class="coinsValue" id="coinsText">50</div>
+            </div>
+
+            <div class="progressBox">
+              <div class="progressHeader">
+                <span class="progressText">Harvest Progress</span>
+                <span id="progressText" class="progressCount">0 / 5</span>
+              </div>
+
+              <div class="bar">
+                <div id="barFill" class="barFill"></div>
+              </div>
+
+              <div id="unlockText" class="unlockText">
+                Next unlock: Daisy at 5 harvests!
+              </div>
+            </div>
+
+            <button id="nextDayBtn" class="nextDayCard">
+              <span class="nextDayTop">Next Day</span>
+              <span class="nextDayArrow">→</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Terminal -->
         <div class="terminal">
