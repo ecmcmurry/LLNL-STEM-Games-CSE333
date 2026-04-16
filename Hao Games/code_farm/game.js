@@ -5,7 +5,6 @@ const farmEl = $("#farm");
 
 const startBtn = $("#startBtn");
 const nextDayBtn = $("#nextDayBtn");
-const editBtn = $("#editBtn");
 const resetBtn = $("#resetBtn");
 
 const coinsText = $("#coinsText");
@@ -468,49 +467,49 @@ function createDefaultLayout() {
   return [
     {
         "x": 38.09948668187978,
-        "y": 24.610414916011344,
-        "w": 7.338435114646444,
-        "h": 10.24876685800824},
-    {
-        "x": 46.6482450524155,
-        "y": 24.97768025924203,
-        "w": 7.1400225892358895,
-        "h": 9.918025638867329},
-    {
-        "x": 55.12471413125797,
-        "y": 24.912750712270018,
-        "w": 7.205218101034359,
-        "h": 10.177744941349182},
-    {
-        "x": 38.25254790636958,
-        "y": 36.77055743421578,
-        "w": 7.220814763283243,
-        "h": 10.409057706355004},
-    {
-        "x": 46.6695077078683,
-        "y": 36.76243873300824,
-        "w": 7.097508955974968,
-        "h": 10.504423466104935},
-    {
-        "x": 55.13888300681601,
-        "y": 36.93693507928061,
-        "w": 7.20804720508809,
-        "h": 10.13107689912516},
-    {
-        "x": 38.161845304528065,
-        "y": 48.79271324051828,
+        "y": 35.210414916011344,
         "w": 7.434804488201531,
         "h": 10.715445051060879},
     {
-        "x": 46.85374045858578,
-        "y": 48.65678183957554,
-        "w": 7.130098926777742,
-        "h": 10.741823027828822},
+        "x": 46.4695077078683,
+        "y": 35.210414916011344,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
     {
-        "x": 55.04676351741868,
-        "y": 48.74401440839858,
-        "w": 7.37953808842873,
-        "h": 10.480075164638878}
+        "x": 55.03888300681601,
+        "y": 35.210414916011344,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 38.09948668187978,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 46.4695077078683,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 55.03888300681601,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 38.09948668187978,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 46.4695077078683,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 55.03888300681601,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879}
     ];
 }
 
@@ -542,15 +541,7 @@ function renderPlots() {
     }
     plotEl.appendChild(cropImg);
 
-    // resize handle (only for getting the position of the plot)
-    const handle = document.createElement("div");
-    handle.className = "handle";
-    plotEl.appendChild(handle);
-
     plotEl.addEventListener("click", (e) => {
-      // In edit mode, clicks are handled by drag logic; avoid opening modal
-      if (farmStage.classList.contains("editMode")) return;
-
       const i = Number(plotEl.dataset.index);
       onPlotClicked(i);
     });
@@ -715,35 +706,6 @@ function nextDay() {
 }
 
 
-// Plot edit mode: drag + resize
-// Stored as % units so it scales with the image.
-let isEditMode = false;
-
-function toggleEditMode() {
-  isEditMode = !isEditMode;
-  farmStage.classList.toggle("editMode", isEditMode);
-  editBtn.textContent = isEditMode ? "Done Editing" : "Edit Plots";
-}
-
-// function pxToPercent(xPx, yPx, wPx, hPx) {
-//   const rect = farmStage.getBoundingClientRect();
-//   return {
-//     x: (xPx / rect.width) * 100,
-//     y: (yPx / rect.height) * 100,
-//     w: (wPx / rect.width) * 100,
-//     h: (hPx / rect.height) * 100,
-//   };
-// }
-
-// check if n in range of (a,b), return the max
-// function clamp(n, a, b) {
-//   return Math.max(a, Math.min(b, n));
-// }
-
-// function attachDragResize() {
-// }
-
-
 function init() {
   loadState();
 
@@ -809,10 +771,6 @@ function init() {
   });
 
   nextDayBtn.addEventListener("click", nextDay);
-
-  // editBtn.addEventListener("click", () => {
-  //   toggleEditMode();
-  // });
 
   closeModal.addEventListener("click", closeModalFn);
   modalBackdrop.addEventListener("click", (e) => {
