@@ -1386,6 +1386,26 @@ ul { list-style: none; }
 @media (max-width: 767px) and (orientation: portrait) {
   :root { --hud-height-top: 48px; }
 
+  /* Align canvas + frame to bottom of wrap so background photo shows
+     above it — post-its float on the photo, not white space.
+     padding-bottom: creates gap from buttons AND gives silver border
+     equal framing below the canvas */
+  .build-canvas-wrap {
+    align-items: flex-end;
+    padding-bottom: 14px;
+  }
+  .canvas-silver-border {
+    top: auto;
+    bottom: 6px;
+    transform: translateX(-50%);
+  }
+  /* Post-its: allow much more height now that canvas is out of the way */
+  .requirements-postit,
+  .history-postit {
+    max-height: calc(50vh - 39vw + 60px);
+  }
+
+
   .hud-side--left {
     flex-direction: row;
     align-items: center;
