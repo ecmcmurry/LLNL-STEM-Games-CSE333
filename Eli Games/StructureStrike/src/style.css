@@ -937,6 +937,78 @@ ul { list-style: none; }
 .hud-btn--reset:hover { background: var(--hud-btn-hover); }
 .hud-btn--disabled  { opacity: 0.4; pointer-events: none; }
 
+/* ─── Build screen: construction-steel theme ──────────────────────────────── */
+/* HUD panels: gunmetal steel with truss lattice + scratch marks */
+.hud-side {
+  background-color: #3a3f44;
+  background-image:
+    /* Scratch marks — light catchlight edge + dark shadow edge */
+    linear-gradient( 78deg, transparent 22%,   rgba(255,255,255,0.11) 22%,   rgba(255,255,255,0.11) 22.35%, rgba(0,0,0,0.07) 22.35%, rgba(0,0,0,0.07) 22.6%,  transparent 22.6%),
+    linear-gradient(112deg, transparent 55%,   rgba(255,255,255,0.08) 55%,   rgba(255,255,255,0.08) 55.3%,  transparent 55.3%),
+    linear-gradient( 62deg, transparent 78%,   rgba(255,255,255,0.09) 78%,   rgba(255,255,255,0.09) 78.35%, rgba(0,0,0,0.05) 78.35%, rgba(0,0,0,0.05) 78.6%,  transparent 78.6%),
+    linear-gradient( 88deg, transparent 41%,   rgba(255,255,255,0.06) 41%,   rgba(255,255,255,0.06) 41.2%,  transparent 41.2%),
+    linear-gradient(134deg, transparent 14.5%, rgba(255,255,255,0.10) 14.5%, rgba(255,255,255,0.10) 14.85%, rgba(0,0,0,0.06) 14.85%, rgba(0,0,0,0.06) 15.1%, transparent 15.1%),
+    linear-gradient( 52deg, transparent 63%,   rgba(255,255,255,0.07) 63%,   rgba(255,255,255,0.07) 63.25%, transparent 63.25%),
+    /* Truss lattice */
+    repeating-linear-gradient( 58deg, rgba(255,255,255,0.045) 0, rgba(255,255,255,0.045) 1.5px, transparent 1.5px, transparent 40px),
+    repeating-linear-gradient(-58deg, rgba(255,255,255,0.045) 0, rgba(255,255,255,0.045) 1.5px, transparent 1.5px, transparent 40px),
+    /* Horizontal brushed-metal lines */
+    repeating-linear-gradient(to bottom, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 4px),
+    /* Base steel plate */
+    linear-gradient(175deg, #2e3336 0%, #4e5459 25%, #3c4245 50%, #52595e 75%, #2c3134 100%);
+}
+
+/* Amber hazard stripe at the top of every panel */
+.hud-side::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent-amber) 0, var(--accent-amber) 20px,
+    #1a1a1a             20px, #1a1a1a             40px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Steel-plate dividers between panels and canvas */
+.hud-side--left  { border-right: 3px solid #888e94; box-shadow:  2px 0 8px rgba(0,0,0,0.4); }
+.hud-side--right { border-left:  3px solid #888e94; box-shadow: -2px 0 8px rgba(0,0,0,0.4); }
+
+/* Steel buttons: gunmetal base with bright text for contrast */
+.hud-btn {
+  background-color: #3c4248;
+  background-image: linear-gradient(160deg, #464d54 0%, #4e5560 45%, #363d44 100%);
+  border: 1px solid #7a8590;
+  color: #e8f0f6;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 4px rgba(0,0,0,0.35);
+}
+.hud-btn:not(.hud-btn--simulate):not(.hud-btn--animate):not(.hud-btn--delete):not(.hud-btn--disabled):hover {
+  background-color: #545c66;
+  background-image: linear-gradient(160deg, #545c66 0%, #5c6570 45%, #444c56 100%);
+  border-color: #aab4bc;
+  color: #ffffff;
+}
+/* Preserve accent-coloured buttons */
+.hud-btn--simulate { background: var(--accent-cyan); background-image: none; border: none; color: #000; text-shadow: none; box-shadow: 0 2px 8px rgba(0,229,255,0.3); }
+.hud-btn--animate  { background: var(--accent-cyan); background-image: none; border: none; color: #0a0e1a; text-shadow: none; }
+.hud-btn--delete   { background-color: #2a1010; background-image: none; border: 1px solid var(--accent-red); color: var(--accent-red); text-shadow: none; }
+
+/* Level title — brighter brushed-steel gradient for legibility */
+.level-strip__name {
+  background: linear-gradient(180deg,
+    #ccd8e0 0%, #f0f8fc 18%, #9aaab4 38%,
+    #e0ecf2 58%, #b0c0cc 78%, #f2faff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 5px rgba(0,0,0,0.8));
+}
+
 @media (min-width: 768px) {
   .hud-btn {
     justify-content: center;
@@ -1319,8 +1391,8 @@ ul { list-style: none; }
     align-items: center;
     justify-content: center;
     gap: 4px;
-    background: var(--hud-bg);
-    border-bottom: 1px solid var(--hud-border-col);
+    border-bottom: 3px solid #888e94;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     padding: 6px 16px;
   }
   .hud-side--left .level-strip {
@@ -1350,8 +1422,8 @@ ul { list-style: none; }
     gap: 5px;
     padding: 6px;
     align-items: stretch;
-    background: var(--hud-bg);
-    border-top: 1px solid var(--hud-border-col);
+    border-top: 3px solid #888e94;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
   }
 
   /* r1c1=Back  r1c2=History  r2c1=Reset  r2c2=Undo  r3=Simulate (full width) */
