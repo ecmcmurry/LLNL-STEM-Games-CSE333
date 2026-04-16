@@ -1329,7 +1329,7 @@ ul { list-style: none; }
     justify-content: center;
   }
   .hud-side--left .level-strip__name {
-    font-size: 1rem;
+    font-size: 1.2rem;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -1365,7 +1365,7 @@ ul { list-style: none; }
   .hud-side--right .hud-btn {
     width: 100%;
     justify-content: center;
-    font-size: 0.95rem;
+    font-size: 1.15rem;
     padding: 6px 8px;
     margin-left: 0;
   }
@@ -1422,7 +1422,7 @@ ul { list-style: none; }
     justify-content: flex-start;
   }
   .hud-side--left .level-strip__name {
-    font-size: 0.88rem;
+    font-size: 1.1rem;
     text-align: left;
   }
   .hud-side--left .budget      { flex-shrink: 0; column-gap: 8px; }

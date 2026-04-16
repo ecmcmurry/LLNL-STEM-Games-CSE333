@@ -157,15 +157,17 @@ export function drawElementLegend(ctx, cellPx) {
   ctx.fillText('KEY', cellPx * 0.3, cy);
 
   // ── Items ─────────────────────────────────────────────────────────────────
+  // Short names so they fit without crowding on small canvases
   const items = Object.values(ELEMENT_PROPERTIES).map(p => ({
     color: p.blueprintColor,
-    name: p.displayName,
+    name: p.displayName.replace('Steel ', '').replace(' Member', ''),
   }));
 
   const sqSize = Math.max(10, Math.round(cellPx * 0.27));
-  const gap    = Math.round(cellPx * 0.18);
-  const startX = cellPx * 2.2;
-  const spacing = (gridW - startX - cellPx * 0.5) / items.length;
+  const gap    = Math.round(cellPx * 0.22);
+  const startX = cellPx * 2.0;
+  // Divide by (items.length - 0.5) to add a natural gap at the end and widen spacing
+  const spacing = (gridW - startX - cellPx * 0.5) / (items.length - 0.5);
 
   ctx.textAlign    = 'left';
   ctx.textBaseline = 'middle';
