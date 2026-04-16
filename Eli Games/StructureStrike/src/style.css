@@ -91,71 +91,327 @@ ul { list-style: none; }
 .screen { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
 /* ─── Home screen ────────────────────────────────────────────────────────── */
-.screen--home { padding: 0; background: var(--bg); overflow-y: auto; }
+.screen--home {
+  /* position: absolute + inset: 0 escapes parent overflow: hidden chain */
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
 
+/* ── Header ── */
 .home-header {
-  padding: 32px 24px 16px;
-  background: linear-gradient(180deg, #0d1a2e 0%, var(--bg) 100%);
+  padding: 32px 32px 28px;
+  padding-top: max(52px, 10vw);
+  padding-bottom: max(40px, 8vw);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 180px;
+  /* brushed gunmetal steel */
+  background-color: #3a3f44;
+  background-image:
+    /* truss lattice — crossing diagonals */
+    repeating-linear-gradient(
+      58deg,
+      rgba(255,255,255,0.055) 0, rgba(255,255,255,0.055) 1.5px,
+      transparent 1.5px, transparent 42px
+    ),
+    repeating-linear-gradient(
+      -58deg,
+      rgba(255,255,255,0.055) 0, rgba(255,255,255,0.055) 1.5px,
+      transparent 1.5px, transparent 42px
+    ),
+    /* subtle horizontal brushed-metal lines */
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px,
+      transparent 1px, transparent 4px
+    ),
+    /* steel plate gradient: dark edge → light → dark → light */
+    linear-gradient(
+      165deg,
+      #2e3336 0%, #52595e 18%, #3c4245 35%,
+      #5a6166 52%, #3a3f44 68%, #4e5459 85%, #2c3134 100%
+    );
+  border-bottom: 3px solid #888e94;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 6px 20px rgba(0,0,0,0.4);
 }
+
+/* ── Hazard stripe at very top ── */
+.home-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent-amber) 0px,  var(--accent-amber) 28px,
+    #1a1a1a              28px, #1a1a1a              56px
+  );
+}
+
+/* ── I-beam flanges (horizontal steel members) ── */
+.home-beam {
+  position: absolute;
+  left: 0; right: 0;
+  height: 10px;
+  background:
+    linear-gradient(to bottom,
+      #8a9198 0,   #8a9198 2.5px,   /* top flange */
+      #4a5055 2.5px, #4a5055 7.5px, /* web (darker) */
+      #8a9198 7.5px, #8a9198 10px   /* bottom flange */
+    );
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.home-beam--top { top: 12px; }
+.home-beam--bot { bottom: 0; }
+
+/* ── Corner bolts ── */
+.home-bolt {
+  position: absolute;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  /* bolt head: steel plate hole → steel ring → highlight rim */
+  background: radial-gradient(
+    circle,
+    #1e2225 0, #1e2225 30%,
+    #5a6268 30%, #5a6268 60%,
+    #8a9298 60%, #8a9298 78%,
+    rgba(180,190,198,0.3) 78%, rgba(180,190,198,0.3) 100%
+  );
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.home-bolt--tl { top: 22px; left: 18px; }
+.home-bolt--tr { top: 22px; right: 18px; }
+.home-bolt--bl { bottom: 10px; left: 18px; }
+.home-bolt--br { bottom: 10px; right: 18px; }
+
 .home-title {
-  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-size: clamp(1rem, 5.5vw, 4rem);
   font-family: var(--font-mono);
-  color: var(--accent-cyan);
-  letter-spacing: 0.05em;
-  text-shadow: 0 0 24px #00e5ff44;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.1;
 }
+
+/* "Structure" — brushed steel gradient, like the beams/struts in the game */
+.home-title__structure {
+  background: linear-gradient(
+    180deg,
+    #b8c4cc 0%, #e2eaee 18%, #8a9aa4 38%,
+    #cdd8de 58%, #9aaab2 78%, #dce6ea 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+}
+
+/* "Strike" — hot orange-to-red */
+.home-title__strike {
+  background: linear-gradient(
+    180deg,
+    #ffb347 0%, #ff6b35 35%, #f44336 65%, #b71c1c 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 18px rgba(244,67,54,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
 .home-subtitle {
-  margin-top: 8px;
-  color: var(--text-secondary);
-  font-size: 1.05rem;
-  letter-spacing: 0.03em;
-}
-.home-beta-btn {
-  margin-top: 12px;
-  padding: 5px 14px;
-  font-size: 0.75rem;
+  margin-top: 0;
+  color: var(--accent-amber);
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
   font-family: var(--font-mono);
-  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.home-beta-btn {
+  margin-top: 0;
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,183,77,0.5);
   background: transparent;
-  border: 1px dashed var(--border);
-  border-radius: 4px;
+  border: 1px dashed rgba(255,183,77,0.3);
+  border-radius: 2px;
   cursor: pointer;
-  opacity: 0.55;
+  opacity: 0.6;
   transition: opacity 0.15s;
 }
 .home-beta-btn:hover { opacity: 1; }
 
-.home-levels { padding: 16px 16px 32px; }
-.home-levels__heading { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
+.home-levels { padding: 24px 20px 48px; }
+
+@media (max-width: 600px) {
+  .home-title {
+    font-size: 8vw;
+    letter-spacing: 0.01em;
+  }
+  .home-subtitle {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+  }
+  .home-levels {
+    padding-bottom: 80px;
+  }
+}
+
+.home-levels__heading {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.home-levels__heading::before,
+.home-levels__heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
 
 .level-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
 }
 
+/* ── Card shell ── */
 .level-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex; align-items: center; gap: 12px;
-  opacity: 0; transform: translateY(16px);
-  transition: opacity var(--transition-med), transform var(--transition-med), border-color var(--transition-fast);
+  border-left: 4px solid var(--border);
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--transition-med), transform var(--transition-med),
+              border-color var(--transition-fast), background var(--transition-fast);
+  /* Chamfered top-right corner */
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  overflow: hidden;
 }
-.level-card--visible       { opacity: 1; transform: none; }
-.level-card--unlocked      { cursor: pointer; }
-.level-card--unlocked:hover { border-color: var(--accent-cyan); }
-.level-card--locked        { opacity: 0.7; }
+.level-card--visible        { opacity: 1; transform: none; }
+.level-card--unlocked       { cursor: pointer; border-left-color: var(--accent-amber); }
+.level-card--unlocked:hover { background: var(--bg-card-alt); border-color: var(--accent-amber); }
+.level-card--locked         { opacity: 0.55; }
 
-.level-card__number   { font-family: var(--font-mono); font-size: 1.7rem; color: var(--text-muted); min-width: 28px; }
-.level-card__threat-icon { font-size: 1.5rem; }
-.level-card__info     { flex: 1; }
-.level-card__name     { font-size: 1.05rem; font-weight: 600; }
-.level-card__subtitle { font-size: 0.85rem; color: var(--text-secondary); }
-.level-card__stars    { font-size: 1.1rem; color: var(--accent-amber); letter-spacing: 2px; }
-.level-card__lock     { font-size: 1.2rem; }
+/* ── Number block (left amber slab) ── */
+.level-card__number {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #0a0e1a;
+  background: var(--accent-amber);
+  min-width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+.level-card--locked .level-card__number {
+  background: #1e2f46;
+  color: var(--text-muted);
+}
+
+/* ── Body (name + meta row) ── */
+.level-card__body {
+  flex: 1;
+  padding: 14px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+.level-card__name {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.level-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.level-card__subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.level-card__threat-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.level-card__threat-badge--gravity   { color: var(--text-muted); }
+.level-card__threat-badge--wind      { color: var(--accent-cyan); }
+.level-card__threat-badge--seismic   { color: var(--accent-amber); }
+.level-card__threat-badge--flood     { color: #64b5f6; }
+.level-card__threat-badge--ballistic { color: var(--accent-red); }
+
+/* ── Right column (stars / lock) ── */
+.level-card__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px 16px;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.level-card__stars {
+  font-size: 1.1rem;
+  color: var(--accent-amber);
+  letter-spacing: 2px;
+}
+.level-card__lock {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 
 /* ─── Build screen ───────────────────────────────────────────────────────── */
 
