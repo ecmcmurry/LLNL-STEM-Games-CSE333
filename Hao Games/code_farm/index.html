@@ -120,9 +120,18 @@
             </div>
           </div>
 
-          <div class="modalFooter">
-            <button id="closeInventoryBtn" class="btn">Close</button>
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="invTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="invTerminalOutput" class="modalTerminalOutput"></div>
           </div>
+
         </div>
       </div>
 
@@ -171,9 +180,19 @@
           </div>
 
           <p id="storeMessage"></p>
-          <div class="modalFooter">
-            <button id="closeStoreBtn" class="btn">Close</button>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="storeTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="storeTerminalOutput" class="modalTerminalOutput"></div>
           </div>
+
         </div>
       </div>
 

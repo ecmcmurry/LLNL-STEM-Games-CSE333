@@ -365,6 +365,52 @@ body {
   resize: vertical;
 }
 
+.modalTerminal {
+  margin-top: 16px;
+  border: 1px solid rgb(244, 245, 247);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
+  padding: 10px;
+}
+
+.modalTerminalLabel {
+  font-size: 10px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.modalTerminalInput::placeholder {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.65);
+}
+
+.modalTerminalInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgb(244, 245, 247);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  color: rgb(255, 255, 255);
+  outline: none;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.modalTerminalOutput {
+  margin-top: 8px;
+  min-height: 20px;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+
 /*progress */
 .progressBox {
   flex: 1;

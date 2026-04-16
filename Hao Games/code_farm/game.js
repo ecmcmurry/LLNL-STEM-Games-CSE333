@@ -48,7 +48,8 @@ const inventoryC = $("#inventoryC");
 const inventoryD = $("#inventoryD");
 const inventoryE = $("#inventoryE");
 const inventoryF = $("#inventoryF");
-const closeInventoryBtn = $("#closeInventoryBtn");
+const invTerminalInput = $("#invTerminalInput");
+const invTerminalOutput = $("#invTerminalOutput");
 
 // store
 const storeBackdrop = $("#storeBackdrop");
@@ -58,8 +59,9 @@ const buyC = $("#buyC");
 const buyD = $("#buyD");
 const buyE = $("#buyE");
 const buyF = $("#buyF");
-const closeStoreBtn = $("#closeStoreBtn");
 const storeMessage = $("#storeMessage");
+const storeTerminalInput = $("#storeTerminalInput");
+const storeTerminalOutput = $("#storeTerminalOutput");
 
 // 9 plots
 const PLOT_COUNT = 9;
@@ -341,31 +343,31 @@ function buySeed(type) {
   storeMessage.textContent = `${flower.name} seed purchased!`;
 }
 
-function runTerminal(command) {
+function runTerminal(command, outputEl = terminalOutput) {
   const text = command.trim().toLowerCase();
 
   if (text === 'cd farm') {
     closeInventory();
     closeStore();
-    terminalOutput.textContent = "Switched to farm.";
+    outputEl.textContent = "Switched to farm.";
     return;
   }
 
   if (text === 'cd farm/inventory') {
     closeStore();
     openInventory();
-    terminalOutput.textContent = "Switched to inventory.";
+    outputEl.textContent = "Switched to inventory.";
     return;
   }
 
   if (text === 'cd store') {
     closeInventory();
     openStore();
-    terminalOutput.textContent = "Switched to store.";
+    outputEl.textContent = "Switched to store.";
     return;
   }
 
-  terminalOutput.textContent = `Unknown command: ${command}`;
+  outputEl.textContent = `Unknown command: ${command}`;
 
 }
 
@@ -792,9 +794,6 @@ function init() {
   buyE.addEventListener("click", () => buySeed("E"));
   buyF.addEventListener("click", () => buySeed("F"));
 
-  closeInventoryBtn.addEventListener("click", closeInventory);
-  closeStoreBtn.addEventListener("click", closeStore);
-
   inventoryBackdrop.addEventListener("click", (e) => {
     if (e.target === inventoryBackdrop) closeInventory();
   });
@@ -807,6 +806,20 @@ function init() {
     if (e.key === "Enter") {
       runTerminal(terminalInput.value);
       terminalInput.value = "";
+    }
+  });
+
+  storeTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(storeTerminalInput.value, storeTerminalOutput);
+      storeTerminalInput.value = "";
+    }
+  });
+
+  invTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(invTerminalInput.value, invTerminalOutput);
+      invTerminalInput.value = "";
     }
   });
 
