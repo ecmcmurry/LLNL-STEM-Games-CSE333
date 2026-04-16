@@ -14,7 +14,7 @@ import {
 import { drawThreatDirectionArrows } from '../canvas/sim-renderer.js';
 import {
   findNodeAtCanvasPoint, findElementAtCanvasPoint,
-  snapToGrid, placePlayerNode, connectNodes, removeElement, undoLastElement,
+  snapToGrid, placePlayerNode, connectNodes, removeElement, removeNode,
   isStructureSimulatable, getElementCostOptions,
 } from '../canvas/build-tools.js';
 import {
@@ -144,6 +144,10 @@ export function render(container) {
   let deleteBtn       = null;
   let cursorCanvasPos = null;
   let alreadyDetectedPatterns = new Set();
+  // Stack of player actions for undo. Each entry is one of:
+  //   { type: 'node', nodeId }
+  //   { type: 'element', elementId, cost }
+  let undoHistory = [];
 
   // ── Initial render ────────────────────────────────────────────────────────
   renderCanvas();
@@ -199,7 +203,11 @@ export function render(container) {
 
     // Tapping empty grid space: place a new node
     const snapped = snapToGrid(x, y, cellPx);
-    placePlayerNode(snapped.col, snapped.row, structure);
+    const prevNodeCount = structure.nodes.length;
+    const placedNode = placePlayerNode(snapped.col, snapped.row, structure);
+    if (structure.nodes.length > prevNodeCount) {
+      undoHistory.push({ type: 'node', nodeId: placedNode.id });
+    }
     selectedNodeId = null;
     selectedElemId = null;
     _syncDeleteButton();
@@ -257,6 +265,7 @@ export function render(container) {
       return;
     }
     deductBudget(result.cost);
+    undoHistory.push({ type: 'element', elementId: result.element.id, cost: result.cost });
     updateBudgetDisplay(getBudgetRemaining());
     saveStructure(levelIndex, structure);
     _checkForNewPatterns(structure);
@@ -274,6 +283,7 @@ export function render(container) {
     refundBudget(spent);
     selectedNodeId = null;
     selectedElemId = null;
+    undoHistory    = [];
     alreadyDetectedPatterns = new Set();
     _syncDeleteButton();
     updateBudgetDisplay(getBudgetRemaining());
@@ -282,12 +292,25 @@ export function render(container) {
     setSimulateButtonEnabled(simBtn, isStructureSimulatable(structure));
   }
 
-  // [BUILD-PHASE] Removes the last placed element and refunds its cost.
+  // [BUILD-PHASE] Undoes the last player action (node placement or element placement),
+  // one step at a time. Nodes and elements are each their own undo step.
   function handleUndo() {
+    if (undoHistory.length === 0) return;
     const structure = getStructure();
-    const refund    = undoLastElement(structure);
-    refundBudget(refund);
-    updateBudgetDisplay(getBudgetRemaining());
+    const action    = undoHistory.pop();
+
+    if (action.type === 'node') {
+      removeNode(action.nodeId, structure);
+    } else if (action.type === 'element') {
+      // Remove element without orphan cleanup so explicitly-placed nodes survive
+      removeElement(action.elementId, structure, false);
+      refundBudget(action.cost);
+      updateBudgetDisplay(getBudgetRemaining());
+    }
+
+    selectedNodeId = null;
+    selectedElemId = null;
+    _syncDeleteButton();
     saveStructure(levelIndex, structure);
     renderCanvas();
     setSimulateButtonEnabled(simBtn, isStructureSimulatable(structure));
