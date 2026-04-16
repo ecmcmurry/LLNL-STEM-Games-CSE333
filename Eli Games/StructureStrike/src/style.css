@@ -914,6 +914,47 @@ ul { list-style: none; }
   filter: grayscale(1) sepia(0.25) contrast(1.12) brightness(0.97);
 }
 
+.history-lightbox__note {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #4a3010;
+  line-height: 1.5;
+  margin: 0 14px;
+  padding: 8px 0 14px;
+  border-top: 1px dashed rgba(120,80,20,0.35);
+}
+
+/* ─── Mode toggle ─────────────────────────────────────────────────────────── */
+.mode-toggle {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.hud-btn--mode {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Active/pressed state: darker, recessed, cyan accent */
+.hud-btn--mode--active {
+  background-color: #1c2228 !important;
+  background-image: linear-gradient(160deg, #1a2228 0%, #202830 45%, #181e24 100%) !important;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.05) !important;
+  border-color: var(--accent-cyan) !important;
+  color: var(--accent-cyan) !important;
+  text-shadow: 0 0 8px rgba(0,229,255,0.35) !important;
+}
+
+/* Completely hidden (not just disabled) */
+.hud-btn--hidden { display: none !important; }
+
+/* Mode-based visibility on the right sidebar */
+.hud-side--right.mode--build .hud-btn--reset { display: none !important; }
+.hud-side--right.mode--edit  .hud-btn--back  { display: none !important; }
+.hud-side--right.mode--edit  .hud-btn--undo  { display: none !important; }
+
 /* ─── HUD buttons ─────────────────────────────────────────────────────────── */
 .hud-btn {
   display: flex; align-items: center; gap: 7px;
@@ -1408,7 +1449,7 @@ ul { list-style: none; }
     text-overflow: ellipsis;
   }
 
-  /* Right sidebar → bottom bar: 2×3 grid */
+  /* Right sidebar → bottom bar: mode toggle row + context row + simulate row */
   .hud-side--right {
     top: auto;
     bottom: 0;
@@ -1426,13 +1467,21 @@ ul { list-style: none; }
     box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
   }
 
-  /* r1c1=Back  r1c2=History  r2c1=Reset  r2c2=Undo  r3=Simulate (full width) */
-  .hud-btn--back     { grid-column: 1; grid-row: 1; }
-  .hud-btn--museum   { grid-column: 2; grid-row: 1; }
-  .hud-btn--reset    { grid-column: 1; grid-row: 2; }
-  .hud-btn--undo     { grid-column: 2; grid-row: 2; }
+  /* Row 1: mode toggle spans full width */
+  .mode-toggle { grid-column: 1 / -1; grid-row: 1; gap: 5px; }
+  .mode-toggle .hud-btn--mode { width: auto; }
+
+  /* Row 2: context buttons (differ by mode) */
+  .hud-side--right.mode--build .hud-btn--back  { grid-column: 1; grid-row: 2; }
+  .hud-side--right.mode--build .hud-btn--undo  { grid-column: 2; grid-row: 2; }
+  .hud-side--right.mode--edit  .hud-btn--reset  { grid-column: 1; grid-row: 2; }
+  .hud-side--right.mode--edit  .hud-btn--delete { grid-column: 2; grid-row: 2; }
+
+  /* Row 3: simulate always full width */
   .hud-btn--simulate { grid-column: 1 / -1; grid-row: 3; margin-left: 0; margin-top: 0; }
-  .hud-btn--delete   { display: none; }
+
+  /* Delete is always visible in edit mode on mobile (disabled until element selected) */
+  .hud-side--right.mode--edit .hud-btn--delete { display: flex !important; }
 
   .hud-side--right .hud-btn {
     width: 100%;
