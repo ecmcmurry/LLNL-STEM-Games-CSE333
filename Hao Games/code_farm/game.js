@@ -28,6 +28,12 @@ const plantC = $("#plantC");
 const plantD = $("#plantD");
 const plantE = $("#plantE");
 const plantF = $("#plantF");
+const plantSeedA = $("#plantSeedA");
+const plantSeedB = $("#plantSeedB");
+const plantSeedC = $("#plantSeedC");
+const plantSeedD = $("#plantSeedD");
+const plantSeedE = $("#plantSeedE");
+const plantSeedF = $("#plantSeedF");
 const harvestBtn = $("#harvestBtn");
 const closeModal = $("#closeModal");
 
@@ -114,7 +120,7 @@ const FLOWERS = {
     bugImages: ["assets/flowerE_bug1.jpg", "assets/flowerE_bug2.jpg", "assets/flowerE_bug3.jpg"],
   },
   F: {
-    name: "Emberblossom",
+    name: "Moonflower",
     seedCost: 20,
     price: 30,
     daysToGrow: 9,
@@ -599,12 +605,12 @@ function onPlotClicked(i) {
     modalTitle.textContent = `Plot ${i + 1}`;
     modalDesc.textContent = `Choose a seed to plant.`;
 
-    plantA.textContent = `Plant Tulip (Remaining seeds: ${state.inventory.A})`;
-    plantB.textContent = `Plant Daisy (Remaining seeds: ${state.inventory.B})`;
-    plantC.textContent = `Plant Crimson Rose (Remaining seeds: ${state.inventory.C})`;
-    plantD.textContent = `Plant Violet Star (Remaining seeds: ${state.inventory.D})`;
-    plantE.textContent = `Plant Emberblossom (Remaining seeds: ${state.inventory.E})`;
-    plantF.textContent = `Plant Moonflower (Remaining seeds: ${state.inventory.F})`;
+    plantSeedA.textContent = state.inventory.A;
+    plantSeedB.textContent = state.inventory.B;
+    plantSeedC.textContent = state.inventory.C;
+    plantSeedD.textContent = state.inventory.D;
+    plantSeedE.textContent = state.inventory.E;
+    plantSeedF.textContent = state.inventory.F;
 
     plantChoices.classList.remove("hidden");
     harvestChoice.classList.add("hidden");
