@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Circuit Game</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="Index.js" defer></script>
+      <title>8-BIT CIRCUIT</title>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="css/base.css">
+      <link rel="stylesheet" href="css/briefcase.css">
+      <link rel="stylesheet" href="css/screens.css">
+      <link rel="stylesheet" href="css/game.css">
+      <link rel="stylesheet" href="css/components.css">
+      <link rel="stylesheet" href="css/ai.css">
+      <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+      <script src="js/constants.js" defer></script>
+      <script src="js/screens.js"   defer></script>
+      <script src="js/game.js"      defer></script>
+      <script src="js/board.js"     defer></script>
+      <script src="js/stats.js"     defer></script>
+      <script src="js/ai.js"        defer></script>
   </head>
   <body>
+
       <div class="draggables">
         <p class="Tray">COMPONENTS</p>
-        <div class="slots" draggable = "true" id="componentSlots">
-        </div>
+        <div class="slots" id="componentSlots"></div>
       </div>
 
       <div class="briefcase-wrapper">
 
         <div class="briefcase-lid">
           <div class="lid-interior"></div>
-        </div> 
+        </div>
 
         <div class="hinge-row">
           <div class="hinge">
@@ -29,99 +40,107 @@
           </div>
         </div>
 
-
         <div class="briefcase-bottom">
           <div class="briefcase-interior">
 
+            <!-- HOME SCREEN -->
             <div class="screen" id="home-screen">
               <div class="pixel-card">
                 <h1>8 BIT CIRCUIT</h1>
                 <div class="pixel-divider"></div>
                 <p>Solve the Circuit or BOOM!</p>
                 <div class="btn-group">
-                  <button class="pixel-btn" onclick="startGame()">FREE PLAY</button>
+                  <button class="pixel-btn" onclick="startGame()">FULL CIRCUIT</button>
                   <button class="pixel-btn" onclick="howToPlay()">HOW TO PLAY</button>
                   <button class="pixel-btn" onclick="levelScreen()">LEVELS</button>
+                  <button class="pixel-btn" onclick="supportedLearning()">SUPPORTED LEARNING 🤖</button>
                 </div>
               </div>
             </div>
-            <!-- show how to play screen here -->
-            <!-- HOW TO PLAY-->
+
+            <!-- HOW TO PLAY -->
             <div class="screen" id="howToPlay">
-              <div class = "pixel-card">
-                  <h1>HOW TO PLAY</h1>
-                  <p>You only have 30 seconds to deactivate the bomb!</p>
-                  <p>You will know if the current flow is correct if the light is green!</p>
-                  <p>If the 30 seconds are up then the bomb will explode!</p>
-                  <p>Tools given:
-                    Resistor 
-                    Wire
-                  </p>
-                  <button class="pixel-btn" onclick="homeScreen()">BACK</button>
+              <div class="pixel-card">
+                <h1>HOW TO PLAY</h1>
+                <p>You only have 30 seconds to deactivate the bomb!</p>
+                <p>You will know if the current flow is correct if the light is green!</p>
+                <p>If the 30 seconds are up then the bomb will explode!</p>
+                <p>Tools given: Resistor, Wire</p>
+                <button class="pixel-btn" onclick="homeScreen()">BACK</button>
               </div>
             </div>
+
+            <!-- RESULT SCREEN -->
             <div class="screen" id="resultScreen">
-                <div class="pixel-card">
-                    <h1 id="resultTitle"></h1>
-                    <p id="resultMessage"></p>
-                    <div class="btn-group">
-                        <button class="pixel-btn" onclick="homeScreen()">HOME</button>
-                        <button class="pixel-btn" onclick="startGame()">RETRY</button>
-                    </div>
+              <div class="pixel-card">
+                <h1 id="resultTitle"></h1>
+                <div id="resultMessage"></div>
+                <div class="btn-group">
+                  <button class="pixel-btn" onclick="homeScreen()">HOME</button>
+                  <button class="pixel-btn" onclick="startGame()">RETRY</button>
+                  <button class="pixel-btn" onclick="levelScreen()">STUDY TOPIC</button>
                 </div>
+              </div>
             </div>
 
+            <!-- LEVEL SELECT -->
             <div class="screen" id="levelScreen">
-                <div class="pixel-card">
-                    <h1>SELECT CATEGORY</h1>
-                    <div class="pixel-divider"></div>
-                    <div class="btn-group">
-                        <button class="pixel-btn" onclick="">OHM'S LAW</button>
-                        <button class="pixel-btn" onclick="">RESISTORS</button>
-                        <button class="pixel-btn" onclick="">COMPLEX CIRCUITS</button>
-                    </div>
-                    <button class="pixel-btn" onclick="homeScreen()">BACK</button>
+              <div class="pixel-card">
+                <h1>SELECT CATEGORY</h1>
+                <div class="pixel-divider"></div>
+                <div class="btn-group">
+                  <button class="pixel-btn" onclick="categorySelection('ohmsLaw')">OHM'S LAW</button>
+                  <button class="pixel-btn" onclick="categorySelection('resistor')">RESISTORS</button>
+                  <button class="pixel-btn" onclick="categorySelection('complexLevel')">COMPLEX CIRCUITS</button>
                 </div>
+                <button class="pixel-btn" onclick="homeScreen()">BACK</button>
+              </div>
             </div>
 
+            <!-- PLAY SCREEN -->
             <div class="screen" id="play-screen">
               <div id="formattingGame">
 
                 <div class="goalDisplay">
-                  <p class="goalText">Circuit V: <span id="goalVoltage"></span>V   Current Goal I: <span id="goalValue"></span>A</p>
-                  <div id="hearts"></div>
+                  <p class="goalText" id="goalText"></p>
                 </div>
-                
+
                 <div class="circuitBoard" id="circuitBoard">
-                    <img src="assets/CircuitBoard_blank (1).png" class="circuitBoardImg" id="circuitBoardImg">
-                    <div class="boardOverlay">
-                        <div class ="dropZone" id="slot1"></div>
-                    </div>
+                  <img src="assets/CircuitBoard_blank1.1.png" class="circuitBoardImg" id="circuitBoardImg">
+                  <div class="boardOverlay" id="boardOverlay"></div>
                 </div>
-
-                <div class="timerDesign">
-                  <p class="timerText"><span id="timer">30</span>:00</p>
+                <div class="statusDisplay">
+                  <div id="hearts"></div>
+                  <div class="timerDesign">
+                    <p class="timerText"><span id="timer">30</span>:00</p>
+                  </div>
                 </div>
-
               </div>
             </div>
 
           </div>
-              <div class="latch-row">
-                  <div class="latch">[ - ]</div>
-                  <div class="latch-bar"></div>
-                  <div class="latch">[ - ]</div>
-              </div>
+
+          <div class="latch-row">
+            <div class="latch">[ - ]</div>
+            <div class="latch-bar"></div>
+            <div class="latch">[ - ]</div>
           </div>
-        </div>
-        <div class="aiGuide">
-          <p>AI Guide</p>  
-          <div class="guideContainer" onclick="toggleHint()">
-              <img src="assets/AI-Guide.png" alt="AI Guide" class="guideCharacter" id="guideImg">
-              <p id="hintText"></p>
-              </div>
-          </div>
+
         </div>
       </div>
+
+      <!-- AI GUIDE -->
+      <div class="aiGuide">
+          <div class="aiGuideBox">
+              <p class="guideLabel">AI TUTOR</p>
+              <div class="guideContainer" onclick="toggleHint()">
+                  <img src="assets/AI-Guide.png" alt="AI Guide" class="guideCharacter" id="guideImg">
+                  <div class="speechBubble" id="speechBubble">
+                      <p id="hintText"></p>
+                  </div>
+              </div>
+          </div>
+      </div>
+
   </body>
 </html>
