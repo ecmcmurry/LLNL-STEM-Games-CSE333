@@ -12,8 +12,18 @@ export function render(container) {
 
   const screen = el('div', { class: 'screen screen--home' },
     el('header', { class: 'home-header' },
-      el('h1', { class: 'home-title' }, 'StructureStrike'),
-      el('p',  { class: 'home-subtitle' }, 'Build structures. Survive the forces.'),
+      // Corner bolts
+      el('div', { class: 'home-bolt home-bolt--tl' }),
+      el('div', { class: 'home-bolt home-bolt--tr' }),
+      el('div', { class: 'home-bolt home-bolt--bl' }),
+      el('div', { class: 'home-bolt home-bolt--br' }),
+      // Top I-beam (below hazard stripe)
+      el('div', { class: 'home-beam home-beam--top' }),
+      el('h1', { class: 'home-title' },
+        el('span', { class: 'home-title__structure' }, 'Structure'),
+        el('span', { class: 'home-title__strike' }, 'Strike'),
+      ),
+      el('p',  { class: 'home-subtitle' }, 'Build · Survive · Engineer'),
       el('button', {
         class: 'home-beta-btn',
         onClick: () => {
@@ -23,6 +33,8 @@ export function render(container) {
           render(container);
         },
       }, 'Unlock All (Beta)'),
+      // Bottom I-beam
+      el('div', { class: 'home-beam home-beam--bot' }),
     ),
     el('main', { class: 'home-levels' },
       el('h2', { class: 'home-levels__heading' }, 'Select Level'),
@@ -51,28 +63,25 @@ function _buildLevelCard(level, progress) {
   const isUnlocked = progress.unlockedLevels.includes(level.id);
   const stars      = progress.starsPerLevel[level.id] ?? 0;
 
-  const threatIcons = {
-    gravity:   '↓',
-    wind:      '→',
-    seismic:   '~',
-    flood:     '↑',
-    ballistic: '●',
-  };
+  const num = String(level.id + 1).padStart(2, '0');
+  const starsStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
 
   const card = el('div', {
     class: `level-card ${isUnlocked ? 'level-card--unlocked' : 'level-card--locked'}`,
     onClick: isUnlocked ? () => _startLevel(level.id) : null,
   },
-    el('div', { class: 'level-card__number' }, `${level.id + 1}`),
-    el('div', { class: 'level-card__threat-icon' }, threatIcons[level.threat.type] ?? '?'),
-    el('div', { class: 'level-card__info' },
+    el('div', { class: 'level-card__number' }, num),
+    el('div', { class: 'level-card__body' },
       el('h3', { class: 'level-card__name' }, level.name),
-      el('span', { class: 'level-card__subtitle' }, level.subtitle),
+      el('div', { class: 'level-card__meta' },
+        el('span', { class: 'level-card__subtitle' }, level.tagline),
+        el('span', { class: `level-card__threat-badge level-card__threat-badge--${level.threat.type}` }, level.threat.label),
+      ),
     ),
-    el('div', { class: 'level-card__stars' },
-      '★'.repeat(stars) + '☆'.repeat(3 - stars),
+    el('div', { class: 'level-card__right' },
+      el('div', { class: 'level-card__stars' }, starsStr),
+      !isUnlocked ? el('div', { class: 'level-card__lock' }, '⬛ LOCKED') : null,
     ),
-    !isUnlocked ? el('div', { class: 'level-card__lock' }, 'LOCKED') : null,
   );
 
   return card;
