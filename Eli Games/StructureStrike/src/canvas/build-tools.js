@@ -126,8 +126,9 @@ export function connectNodes(nodeA, nodeB, elementType, structure, budgetRemaini
 }
 
 // [BUILD-PHASE] Removes an element from the structure by ID and returns its cost
-// so the caller can refund the budget.
-export function removeElement(elementId, structure) {
+// so the caller can refund the budget. Pass cleanupOrphans=false when undoing
+// to preserve explicitly-placed nodes.
+export function removeElement(elementId, structure, cleanupOrphans = true) {
   const index = structure.elements.findIndex(e => e.id === elementId);
   if (index === -1) return 0;
 
@@ -138,26 +139,25 @@ export function removeElement(elementId, structure) {
 
   structure.elements.splice(index, 1);
 
-  // Remove orphan non-anchor nodes (nodes with no remaining connections)
-  _removeOrphanNodes(structure);
+  if (cleanupOrphans) _removeOrphanNodes(structure);
 
   return cost;
 }
 
-// [BUILD-PHASE] Removes the most recently placed element (undo). Returns refunded cost.
-export function undoLastElement(structure) {
-  if (structure.elements.length === 0) return 0;
-  const lastElement = structure.elements[structure.elements.length - 1];
-  return removeElement(lastElement.id, structure);
+// [BUILD-PHASE] Removes a single node by ID. Used by undo to remove an explicitly
+// placed snap-point node without touching any other nodes or elements.
+export function removeNode(nodeId, structure) {
+  structure.nodes = structure.nodes.filter(n => n.id !== nodeId);
 }
 
 // [BUILD-PHASE] Removes player-placed nodes that are no longer connected to any element.
+// Preserves anchors and load nodes (which carry force indicators).
 function _removeOrphanNodes(structure) {
   const connectedNodeIds = new Set(
     structure.elements.flatMap(e => [e.nodeAId, e.nodeBId]),
   );
   structure.nodes = structure.nodes.filter(
-    n => n.isAnchor || connectedNodeIds.has(n.id),
+    n => n.isAnchor || n.isLoadNode || connectedNodeIds.has(n.id),
   );
 }
 
