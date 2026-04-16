@@ -349,21 +349,27 @@ function runTerminal(command, outputEl = terminalOutput) {
   if (text === 'cd farm') {
     closeInventory();
     closeStore();
-    outputEl.textContent = "Switched to farm.";
+    terminalOutput.textContent = "Switched to farm.";
+    storeTerminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd farm/inventory') {
     closeStore();
     openInventory();
-    outputEl.textContent = "Switched to inventory.";
+    invTerminalOutput.textContent = "Switched to inventory.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd store') {
     closeInventory();
     openStore();
-    outputEl.textContent = "Switched to store.";
+    storeTerminalOutput.textContent = "Switched to store.";
+    terminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
     return;
   }
 
@@ -794,13 +800,6 @@ function init() {
   buyE.addEventListener("click", () => buySeed("E"));
   buyF.addEventListener("click", () => buySeed("F"));
 
-  inventoryBackdrop.addEventListener("click", (e) => {
-    if (e.target === inventoryBackdrop) closeInventory();
-  });
-
-  storeBackdrop.addEventListener("click", (e) => {
-    if (e.target === storeBackdrop) closeStore();
-  });
 
   terminalInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
