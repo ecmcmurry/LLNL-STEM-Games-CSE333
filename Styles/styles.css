@@ -1,30 +1,32 @@
+/* ── UCM Colors: Blue #003DA5, Gold #FFB81C, Dark Navy #001E62 ── */
+
 html {
     margin: 0;
     padding: 0;
-    background-color: #0a0f1e; 
+    background-color: #001E62;
 }
 
-body { 
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     height: 100vh;
-    margin: 0; 
+    margin: 0;
     box-sizing: border-box;
-    background-color: #f4f6f9; 
-    color: #2c3e50;
-    transition: background-color 0.4s ease; 
+    background-color: #001E62;
+    color: #ffffff;
+    transition: background-color 0.4s ease;
 }
 
 .top-bar, #main-nav {
-    transition: opacity 0.3s ease; 
+    transition: opacity 0.3s ease;
 }
 
-h1 { 
-    margin-bottom: 32px; 
-    color:#c29e27;
+h1 {
+    margin-bottom: 32px;
+    color: #FFB81C;
 }
 
 .top-bar {
@@ -42,7 +44,7 @@ h1 {
 #logo {
     margin: 0;
     font-size: 2.5rem;
-    color: #1a252f;
+    color: #ffffff;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -52,62 +54,60 @@ h1 {
 
 #logo span {
     font-size: 1.8rem;
-    color: #0055cc;
+    color: #FFB81C;
     transition: transform 0.3s ease;
 }
 
-#logo:hover {
-    opacity: 0.8;
-}
-
-#logo:hover span {
-    transform: translateY(2px); 
-}
+#logo:hover { opacity: 0.85; }
+#logo:hover span { transform: translateY(2px); }
 
 .search-bar {
     padding: 12px 20px;
     border-radius: 25px;
-    border: 1px solid #d1d8e0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     font-size: 1rem;
     outline: none;
     width: 250px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
 }
 
+.search-bar::placeholder { color: rgba(255, 255, 255, 0.55); }
+
 .search-bar:focus {
-    border-color: #0055cc;
-    box-shadow: 0 4px 12px rgba(0, 85, 204, 0.2);
-    width: 260px; 
+    border-color: #FFB81C;
+    box-shadow: 0 0 0 2px rgba(255, 184, 28, 0.3);
+    width: 260px;
 }
 
-nav { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 16px; 
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-/* Unified Deep Blue for all STEM buttons */
 nav a {
     display: block;
     font-size: 2rem;
     font-weight: bold;
     text-decoration: none;
     color: #fff;
-    background: linear-gradient(135deg, #0A192F, #112240); 
+    background: linear-gradient(135deg, #002260, #003DA5);
     padding: 15px 45px;
-    border-radius: 8px; 
+    border-radius: 8px;
     text-align: left;
     letter-spacing: 2px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); 
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 184, 28, 0.15);
+    transition: all 0.3s ease;
 }
 
-nav a:hover { 
-    background: linear-gradient(135deg, #0055cc, #0077ff); 
-    box-shadow: 0 10px 20px rgba(0, 85, 204, 0.3); 
+nav a:hover {
+    background: linear-gradient(135deg, #003DA5, #0055cc);
+    box-shadow: 0 10px 20px rgba(255, 184, 28, 0.2);
+    border-color: rgba(255, 184, 28, 0.5);
     transform: translateY(-3px);
 }
 
@@ -117,8 +117,8 @@ nav a:hover {
     position: fixed;
     z-index: 1000;
     top: 0;
-    left: -250px; 
-    background-color: #0A192F; 
+    left: -250px;
+    background-color: #002260;
     overflow-x: hidden;
     transition: left 0.3s ease;
     padding-top: 60px;
@@ -136,9 +136,9 @@ nav a:hover {
 }
 
 .sidebar a:hover {
-    background-color: #112240;
-    color: #ffffff;
-    padding-left: 30px; 
+    background-color: #003DA5;
+    color: #FFB81C;
+    padding-left: 30px;
 }
 
 .sidebar .closebtn {
@@ -150,219 +150,174 @@ nav a:hover {
     margin: 0;
 }
 
-#category-view {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    margin-top: 80px;
-    color: #ffffff;
-    animation: floatUp 0.6s ease forwards;
-}
-
 @keyframes floatUp {
     from { transform: translateY(100px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
 
-#category-title {
-    font-size: 3.5rem;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-}
-
-#games-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    max-width: 1000px;
-}
-
-/* Updated to support links and stacked text properly */
-.game-card {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 30px 40px;
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    text-align: center;
-    min-width: 200px;
-}
-
-.game-card:hover {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.game-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.game-author {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-#back-btn {
-    position: absolute;
-    top: 100px;
-    left: 40px;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    backdrop-filter: blur(5px);
-    transition: background 0.2s ease;
-}
-
-#back-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
-}
-
-/* ── Desktop: STEM + games inline layout ── */
-.desktop-games {
-  display: none;
-}
+/* ── Desktop: STEM + games inline, no scroll ── */
+.desktop-games { display: none; }
 
 @media (min-width: 769px) {
-  body {
-    justify-content: flex-start;
-    align-items: flex-start;
-    height: auto;
-    min-height: 100vh;
-    background-color: #0A192F;
-    color: #ffffff;
-    padding-top: 100px;
-    padding-bottom: 60px;
-  }
+    html, body {
+        height: 100%;
+        overflow: hidden;
+        background-color: #001E62;
+    }
 
-  .top-bar {
-    position: fixed;
-    background: rgba(10, 25, 47, 0.96);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
 
-  #logo {
-    color: #ffffff;
-  }
+    /* Top bar: in normal flow, not absolutely positioned */
+    .top-bar {
+        position: relative;
+        flex-shrink: 0;
+        height: 72px;
+        padding: 0 40px;
+        background: #003DA5;
+        border-bottom: 3px solid #FFB81C;
+        z-index: 200;
+        box-sizing: border-box;
+    }
 
-  #main-nav {
-    display: none;
-  }
+    #logo { font-size: 1.7rem; }
+    .search-bar { width: 220px; }
+    .search-bar:focus { width: 240px; }
 
-  .desktop-games {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    width: 100%;
-    padding: 20px 40px;
-  }
+    #main-nav { display: none; }
 
-  .stem-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-  }
+    /* Games container fills remaining height exactly */
+    .desktop-games {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        padding: 12px 28px;
+        gap: 8px;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
 
-  .stem-letter-box {
-    width: 250px;
-    min-width: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0A192F, #112240);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    font-size: 7rem;
-    font-weight: bold;
-    color: #ffffff;
-    letter-spacing: 2px;
-    /* match game card height: 16/9 image + padding + text */
-    padding: 20px;
-    aspect-ratio: 1 / 1.1;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    flex-shrink: 0;
-  }
+    .stem-row {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
 
-  .stem-games-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
+    /* Letter box — same fixed width as game cards */
+    .stem-letter-box {
+        flex: 0 0 150px;
+        background: linear-gradient(135deg, #002260, #003DA5);
+        border: 1px solid rgba(255, 184, 28, 0.4);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
 
-  .desktop-card {
-    width: 250px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: center;
-    text-decoration: none;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s ease, background 0.2s ease;
-    cursor: pointer;
-  }
+    /* Background design layer */
+    .stem-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
 
-  .desktop-card:hover {
-    transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.15);
-  }
+    .stem-bg span {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.16);
+        font-size: 0.65rem;
+        font-family: 'Segoe UI', monospace, sans-serif;
+        white-space: nowrap;
+        line-height: 1;
+    }
 
-  .dc-img {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
+    /* Letter itself sits above the bg */
+    .stem-char {
+        position: relative;
+        z-index: 2;
+        color: #FFB81C;
+    }
 
-  .dc-placeholder {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    background-color: rgba(0, 0, 0, 0.25);
-    border: 1px dashed rgba(255, 255, 255, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.8rem;
-    font-style: italic;
-  }
+    .stem-games-row {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
 
-  .dc-title {
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
+    /* Game cards — same fixed width as letter box */
+    .desktop-card {
+        flex: 0 0 150px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 184, 28, 0.2);
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        cursor: pointer;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
 
-  .dc-author {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    margin-top: auto;
-  }
+    .desktop-card:hover {
+        transform: scale(1.04);
+        background: rgba(255, 184, 28, 0.1);
+        border-color: rgba(255, 184, 28, 0.6);
+    }
+
+    .dc-img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 7px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        flex-shrink: 0;
+    }
+
+    .dc-placeholder {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 5px;
+        margin-bottom: 7px;
+        background-color: rgba(0, 0, 0, 0.2);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.55rem;
+        font-style: italic;
+        flex-shrink: 0;
+    }
+
+    .dc-title {
+        font-size: 0.78rem;
+        font-weight: bold;
+        margin-bottom: 3px;
+        line-height: 1.2;
+    }
+
+    .dc-author {
+        font-size: 0.68rem;
+        color: #FFB81C;
+        margin-top: auto;
+    }
 }
 
 @media (max-width: 768px) {
@@ -372,36 +327,14 @@ nav a:hover {
         gap: 15px;
         padding: 20px;
     }
-    
-    #logo {
-        font-size: 2rem;
-    }
-    
+
+    #logo { font-size: 2rem; }
+
     .search-bar {
         width: 100%;
         max-width: 350px;
         box-sizing: border-box;
     }
 
-    .search-bar:focus {
-        width: 100%; 
-    }
-
-    #back-btn {
-        top: 150px;
-        left: 20px;
-    }
-
-    #category-view {
-        margin-top: 150px;
-    }
-
-    #category-title {
-        font-size: 2.5rem;
-        margin-top: 40px;
-    }
-
-    .game-card {
-        padding: 30px 40px;
-    }
+    .search-bar:focus { width: 100%; }
 }
