@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" width="400" height="225">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- subtle geo grid lines -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="225" fill="#0a0e1a"/>
+  <!-- Grid overlay -->
+  <rect width="400" height="225" fill="url(#grid)"/>
+
+  <!-- Bracket decorations -->
+  <text x="30" y="130" font-family="Courier New, Courier, monospace" font-size="80" fill="rgba(255,255,255,0.22)" dominant-baseline="middle">[</text>
+  <text x="360" y="130" font-family="Courier New, Courier, monospace" font-size="80" fill="rgba(255,255,255,0.22)" dominant-baseline="middle" text-anchor="end">]</text>
+
+  <!-- Main title -->
+  <text x="200" y="105"
+    font-family="Courier New, Courier, monospace"
+    font-size="34"
+    font-weight="normal"
+    fill="#00e5ff"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="1"
+    filter="url(#glow)">StructureStrike</text>
+
+  <!-- Subtitle -->
+  <text x="200" y="148"
+    font-family="Courier New, Courier, monospace"
+    font-size="12"
+    fill="#b8d0e8"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="2">BUILD · SURVIVE · STRIKE</text>
+</svg>
