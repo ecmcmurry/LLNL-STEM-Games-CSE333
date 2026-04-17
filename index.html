@@ -33,12 +33,87 @@
         />
       </div>
     </div>
+
+    <!-- Mobile: four STEM nav buttons -->
     <nav id="main-nav">
       <a href="science.html">S &mdash; Science</a>
       <a href="technology.html">T &mdash; Technology</a>
       <a href="engineering.html">E &mdash; Engineering</a>
       <a href="math.html">M &mdash; Math</a>
     </nav>
+
+    <!-- Desktop: STEM letters with games inline -->
+    <div class="desktop-games">
+
+      <!-- Science -->
+      <div class="stem-row">
+        <div class="stem-letter-box">S</div>
+        <div class="stem-games-row">
+          <a href="Adrian Games/Game1/index.html" class="desktop-card">
+            <div class="dc-placeholder">Cover image coming soon</div>
+            <div class="dc-title">Absolute Physics Master Lab</div>
+            <div class="dc-author">By Adrian</div>
+          </a>
+          <a href="Eli Games/Sound and Valid/index.html" class="desktop-card">
+            <img src="assets/Images/SoundAndValid.svg" class="dc-img" alt="Sound and Valid" />
+            <div class="dc-title">Sound and Valid</div>
+            <div class="dc-author">By Eli</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Technology -->
+      <div class="stem-row">
+        <div class="stem-letter-box">T</div>
+        <div class="stem-games-row">
+          <a href="Hao Games/code_farm/index.html" class="desktop-card">
+            <img src="assets/Images/Farming Learning Game.png" class="dc-img" alt="Farming Learning Game" />
+            <div class="dc-title">Farming Learning Game</div>
+            <div class="dc-author">By Hao</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Engineering -->
+      <div class="stem-row">
+        <div class="stem-letter-box">E</div>
+        <div class="stem-games-row">
+          <a href="Ella Games/Game2Engineering/index.html" class="desktop-card">
+            <img src="assets/Images/Forge & Fortune.png" class="dc-img" alt="Forge &amp; Fortune" />
+            <div class="dc-title">Forge &amp; Fortune</div>
+            <div class="dc-author">By Ella</div>
+          </a>
+          <a href="Adrian Games/Game2/Home.html" class="desktop-card">
+            <div class="dc-placeholder">Cover image coming soon</div>
+            <div class="dc-title">8 Bit Circuit</div>
+            <div class="dc-author">By Adrian</div>
+          </a>
+          <a href="Eli Games/StructureStrike/dist/index.html" class="desktop-card">
+            <img src="assets/Images/StructureStrike.svg" class="dc-img" alt="StructureStrike" />
+            <div class="dc-title">StructureStrike</div>
+            <div class="dc-author">By Eli</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Math -->
+      <div class="stem-row">
+        <div class="stem-letter-box">M</div>
+        <div class="stem-games-row">
+          <a href="Elizabeth Games/fourier/index.html" class="desktop-card">
+            <img src="assets/Images/Fourier.png" class="dc-img" alt="What Wave" />
+            <div class="dc-title">What Wave</div>
+            <div class="dc-author">By Elizabeth</div>
+          </a>
+          <a href="Ella Games/GraphGame1/index.html" class="desktop-card">
+            <div class="dc-placeholder">Cover image coming soon</div>
+            <div class="dc-title">Feed The Function</div>
+            <div class="dc-author">By Ella</div>
+          </a>
+        </div>
+      </div>
+
+    </div>
 
     <script>
       function toggleSidebar() {
@@ -51,16 +126,10 @@
       }
 
       function transitionToPage(event, url) {
-        event.preventDefault(); // pauses jump to screen
-
-        // fills screen with button color
+        event.preventDefault();
         document.body.style.backgroundColor = "#0A192F";
-
-        // fades from homepage
         document.getElementById("main-nav").style.opacity = "0";
         document.querySelector(".top-bar").style.opacity = "0";
-
-        // redirects after 400 ms.
         setTimeout(() => {
           window.location.href = url;
         }, 400);

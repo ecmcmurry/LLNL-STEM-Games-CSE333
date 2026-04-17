@@ -57,6 +57,7 @@ a.back:hover {
     align-items: center;
     gap: 16px;
     margin-bottom: 20px;
+    padding: 12px 20px 0 20px;
 }
 
 .top h1 {
