@@ -1456,12 +1456,12 @@ ul { list-style: none; }
     left: 0;
     right: 0;
     width: 100%;
-    height: 144px;
+    height: 152px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     gap: 5px;
-    padding: 6px;
+    padding: 14px 6px 6px; /* top 14px clears the 8px hazard stripe */
     align-items: stretch;
     border-top: 3px solid #888e94;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
@@ -1494,12 +1494,12 @@ ul { list-style: none; }
   /* Canvas: sit between the two bars */
   .build-canvas-wrap {
     top: var(--hud-height-top);
-    bottom: 144px;
+    bottom: 152px;
   }
 
   /* Notification stack: above bottom bar */
   .notification-stack {
-    bottom: calc(144px + 12px);
+    bottom: calc(152px + 12px);
   }
 }
 
