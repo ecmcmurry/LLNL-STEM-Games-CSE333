@@ -18,10 +18,6 @@
   <!-- Grid overlay -->
   <rect width="400" height="225" fill="url(#grid)"/>
 
-  <!-- Bracket decorations -->
-  <text x="30" y="130" font-family="Courier New, Courier, monospace" font-size="80" fill="rgba(255,255,255,0.22)" dominant-baseline="middle">[</text>
-  <text x="360" y="130" font-family="Courier New, Courier, monospace" font-size="80" fill="rgba(255,255,255,0.22)" dominant-baseline="middle" text-anchor="end">]</text>
-
   <!-- Main title -->
   <text x="200" y="105"
     font-family="Courier New, Courier, monospace"
