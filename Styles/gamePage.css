@@ -1,15 +1,17 @@
+/* ── UCM Colors: Blue #003DA5, Gold #FFB81C, Dark Navy #001E62 ── */
+
 body {
-    background: #0A192F;
+    background: #001E62;
     min-height: 100%;
-    font-family: sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     margin: auto;
 }
 
 #gameContainer {
-    width: 98%;       
+    width: 98%;
     height: 100vh;
     margin: 20px auto;
-    border: 4px solid rgba(255, 255, 255, 0.1);
+    border: 4px solid rgba(255, 184, 28, 0.2);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -33,23 +35,24 @@ p {
     font-size: 1.2rem;
 }
 
-h1  {
-    color: #c29e27;
+h1 {
+    color: #FFB81C;
     font-size: 2.5rem;
-    border-bottom: rgba(255, 255, 255, 0.2) 2px solid;
+    border-bottom: rgba(255, 184, 28, 0.3) 2px solid;
 }
 
 a.back {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 184, 28, 0.4);
     border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 184, 28, 0.1);
     padding: 8px 16px;
     text-decoration: none;
-    color: #e6f1ff;
+    color: #FFB81C;
+    transition: background 0.2s;
 }
 
-a.back:hover { 
-    background: rgba(255, 255, 255, 0.2);
+a.back:hover {
+    background: rgba(255, 184, 28, 0.22);
 }
 
 .top {
