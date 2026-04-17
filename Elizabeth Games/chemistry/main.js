@@ -173,34 +173,40 @@ document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
     });
 });
 
+//Takes in a list of answers and compares them to the correct responses
+//Refactored with support from Claude to enable easier testing
+function checkPPEAnswers(selected, reactionSafety) {
+    let correctSum = 0;
+    if (selected.eye == reactionSafety.eyeAndFace) {
+        correctSum++;
+    }
+    if (selected.hands == reactionSafety.hands) {
+        correctSum++;
+    }
+    if (selected.body == reactionSafety.body) {
+        correctSum++;
+    }
+    if (selected.foot == reactionSafety.foot) {
+        correctSum++;
+    }
+    if (selected.respiratory == reactionSafety.respiratory) {
+        correctSum++;
+    }
+    return correctSum;
+}
+
 //Verifies that the PPE options chosen by the player line up with the reaction
 document.getElementById('verifyPPE').addEventListener('click', () => {
     //pulls answer from each category
-    //checks that against value in reaction
-    let correctSum = 0;
-
-    const eye = document.querySelector('input[name="eyeAndFaceProtection"]:checked');
-    const hands = document.querySelector('input[name="handProtection"]:checked');
-    const body = document.querySelector('input[name="bodyProtection"]:checked');
-    const foot = document.querySelector('input[name="footProtection"]:checked');
-    const respiratory = document.querySelector('input[name="respiratoryProtection"]:checked');
-
-    //there is almost certainly a smarter way of doing this
-    if (eye.value == REACTIONS[reaction].safety.eyeAndFace) {
-        correctSum++;
+    const selected = {
+        eye:     document.querySelector('input[name="eyeAndFaceProtection"]:checked'),
+        hands:   document.querySelector('input[name="handProtection"]:checked'),
+        body:    document.querySelector('input[name="bodyProtection"]:checked'),
+        foot:    document.querySelector('input[name="footProtection"]:checked'),
+        respiratory: document.querySelector('input[name="respiratoryProtection"]:checked')
     }
-    if (hands.value == REACTIONS[reaction].safety.hands) {
-        correctSum++;
-    }
-    if (body.value == REACTIONS[reaction].safety.body) {
-        correctSum++;
-    }
-    if (foot.value == REACTIONS[reaction].safety.foot) {
-        correctSum++;
-    }
-    if (respiratory.value == REACTIONS[reaction].safety.respiratory) {
-        correctSum++;
-    }
+    //checks which of these answers are correct
+    let correctSum = checkPPEAnswers(selected, REACTIONS[reaction].safety);
 
     if (correctSum == 5) {
         //if correct display this
