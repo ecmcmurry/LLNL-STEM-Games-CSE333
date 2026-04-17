@@ -163,15 +163,24 @@
   }
 
 	//Returns the amplitude of a compositve wave at a given time(t) based on the component waves
-  function generateComposite(waves, t) {
+  function generateComposite(t, type) {
     let sum = 0;
-    //for each enabled wave in waves, generate the wave and add it to the sum
-    waves.forEach(wave => {
-      if(wave.enabled) {
-        sum += generateWave(wave, t);
-      }
-    });
-    return sum;
+    if (type == "Player") {
+      //for each enabled subwave, generate the wave and add it to the sum
+      subwaves.forEach(wave => {
+        if(wave.enabled) {
+          sum += generateWave(wave, t)
+        }
+      });
+      return sum;
+    } else {
+      realwaves.forEach(wave => {
+        if(wave.enabled) {
+          sum += generateWave(wave, t)
+        }
+      });
+      return sum;
+    }
   }
 
   function draw() {
@@ -277,7 +286,7 @@
 
     for (let i = 0; i <= N; i++) {
       let t = tMin + ((tMax - tMin) * (i / N));
-      let y = generateComposite(subwaves, t);
+      let y = generateComposite(t, "Player");
       let px = padX + plotW * (i / N);
       let py = midY - y * scaleY;
       if (i === 0) {
@@ -303,7 +312,7 @@
 
     for (let i = 0; i <= N; i++) {
       let t = tMin + ((tMax - tMin) * (i / N));
-      let y = generateComposite(realwaves, t);
+      let y = generateComposite(t);
       let px = padX + plotW * (i / N);
       let py = midY - y * scaleY;
       if (i === 0) {
