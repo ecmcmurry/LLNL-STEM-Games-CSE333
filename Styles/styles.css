@@ -208,8 +208,8 @@ nav a:hover {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.18;
-        filter: grayscale(1);
+        opacity: 0.6;
+        filter: grayscale(1) brightness(2.5);
         pointer-events: none;
     }
 
@@ -222,7 +222,7 @@ nav a:hover {
     }
     .stem-bg span {
         position: absolute;
-        color: rgba(255, 255, 255, 0.18);
+        color: rgba(255, 255, 255, 0.55);
         font-size: 0.65rem;
         font-family: 'Segoe UI', monospace, sans-serif;
         white-space: nowrap;
@@ -242,10 +242,10 @@ nav a:hover {
         align-items: stretch;
     }
 
-    /* ── Game card: width auto-determined by 16/9 image inside ── */
+    /* ── Game card: fixed width so all cards are consistent ── */
     .desktop-card {
-        flex: 0 0 auto;
-        width: auto;
+        flex: 0 0 200px;
+        width: 200px;
         background: rgba(255, 255, 255, 0.07);
         padding: 10px;
         border-radius: 10px;
@@ -267,11 +267,11 @@ nav a:hover {
         border-color: rgba(219, 170, 0, 0.55);
     }
 
-    /* Image wrapper: flex: 1 takes remaining height, aspect-ratio sets the width */
+    /* Image wrapper: fixed aspect ratio, width driven by card width */
     .dc-img-wrapper {
-        flex: 1;
-        min-height: 0;
+        flex: none;
         aspect-ratio: 16 / 9;
+        width: 100%;
         border-radius: 5px;
         margin-bottom: 7px;
         overflow: hidden;
