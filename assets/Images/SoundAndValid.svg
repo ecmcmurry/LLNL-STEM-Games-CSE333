@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" width="400" height="225">
+  <defs>
+    <!-- Wave path animation stand-in: static sine waves -->
+    <clipPath id="clip">
+      <rect width="400" height="225"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="225" fill="#ffffff"/>
+
+  <!-- Decorative sine waves in background -->
+  <g clip-path="url(#clip)" opacity="0.18">
+    <path d="M-20 112 C20 72, 60 152, 100 112 S180 72, 220 112 S300 152, 340 112 S400 72, 440 112"
+      fill="none" stroke="#0DA186" stroke-width="2.5"/>
+    <path d="M-20 130 C20 90, 60 170, 100 130 S180 90, 220 130 S300 170, 340 130 S400 90, 440 130"
+      fill="none" stroke="#0D72A1" stroke-width="2.5"/>
+    <path d="M-20 94 C20 54, 60 134, 100 94 S180 54, 220 94 S300 134, 340 94 S400 54, 440 94"
+      fill="none" stroke="#0DA13C" stroke-width="2.5"/>
+  </g>
+
+  <!-- Frosted backdrop behind title -->
+  <rect x="60" y="70" width="280" height="85" rx="16"
+    fill="rgba(255,255,255,0.72)"/>
+
+  <!-- Main title -->
+  <text x="200" y="108"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="34"
+    font-weight="800"
+    fill="#1a1a2e"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="-0.5">Sound and Valid</text>
+
+  <!-- Subtitle -->
+  <text x="200" y="142"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="12"
+    fill="#6b7280"
+    text-anchor="middle"
+    dominant-baseline="middle">Match tones with your voice</text>
+</svg>
