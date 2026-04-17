@@ -17,135 +17,281 @@ import { stressRatioToColor, drawDeformedElement } from './blueprint-canvas.js';
 // Industrial warehouse interior. Structure holds up a suspended roof platform.
 // Anchor row=12, load nodes at row=3.
 function drawWarehouseScene(ctx, w, h, gl, gt, gw, gh, cp, timeSec) {
-  // Full canvas: very dark industrial ceiling
-  ctx.fillStyle = '#0a0a12';
+  const floorY   = gt + gh;
+  const lightCols = [3, 7, 10, 13, 17];
+
+  // ── Dark steel background ──
+  ctx.fillStyle = '#080b10';
   ctx.fillRect(0, 0, w, h);
 
-  // Back wall panel (grid area background)
-  ctx.fillStyle = '#141420';
-  ctx.fillRect(gl, gt, gw, gh);
-
-  // Factory floor (below grid bottom → screen bottom)
-  const floorTop = gt + gh;
-  const floorGrad = ctx.createLinearGradient(0, floorTop, 0, h);
-  floorGrad.addColorStop(0, '#2a2a36');
-  floorGrad.addColorStop(1, '#1a1a28');
-  ctx.fillStyle = floorGrad;
-  ctx.fillRect(0, floorTop, w, h - floorTop);
-
-  // Floor expansion joints — subtle vertical lines every ~2 cells
-  ctx.strokeStyle = '#32323e';
-  ctx.lineWidth = 1;
-  for (let x = gl % (cp * 2); x < w; x += cp * 2) {
-    ctx.beginPath();
-    ctx.moveTo(x, floorTop);
-    ctx.lineTo(x, h);
-    ctx.stroke();
+  // Back wall: dark corrugated steel panels
+  for (let col = 0; col < 20; col++) {
+    const shade = col % 2 === 0 ? '#0d1018' : '#0b0e14';
+    ctx.fillStyle = shade;
+    ctx.fillRect(gl + col * cp, gt, cp, gh);
   }
 
-  // Ceiling trusses above the grid top
-  ctx.strokeStyle = '#1a1a28';
-  ctx.fillStyle = '#16161e';
-  for (let t = 0; t < 4; t++) {
-    const ty = gt - cp * (1.2 + t * 0.9);
-    const bh = cp * 0.22;
-    // Main horizontal beam
-    ctx.fillRect(0, ty - bh / 2, w, bh);
-    // Cross-members
-    ctx.strokeStyle = '#1e1e2c';
-    ctx.lineWidth = 1.5;
-    for (let x = 0; x < w; x += cp * 2.5) {
-      ctx.beginPath();
-      ctx.moveTo(x, ty - bh / 2);
-      ctx.lineTo(x + cp * 1.2, ty + bh / 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(x + cp * 1.2, ty - bh / 2);
-      ctx.lineTo(x, ty + bh / 2);
-      ctx.stroke();
+  // Side walls (outside grid)
+  ctx.fillStyle = '#0c0f14';
+  ctx.fillRect(0, 0, gl, h);
+  ctx.fillRect(gl + gw, 0, w - gl - gw, h);
+
+  // Vertical structural columns every 4 grid-columns
+  for (let col = 0; col <= 20; col += 4) {
+    const cx = gl + col * cp;
+    // Column body
+    ctx.fillStyle = '#181e28';
+    ctx.fillRect(cx - cp * 0.15, gt - cp * 3, cp * 0.3, gh + cp * 3 + (h - floorY));
+    // Reflective edge highlight
+    ctx.fillStyle = '#222d3a';
+    ctx.fillRect(cx - cp * 0.15, gt - cp * 3, cp * 0.055, gh + cp * 3 + (h - floorY));
+  }
+
+  // ── Ceiling steel framework ──
+  for (let i = 0; i < 5; i++) {
+    const by = gt - cp * (0.5 + i * 0.7);
+    const beamH = cp * 0.28;
+    // Web (I-beam body)
+    ctx.fillStyle = '#141c26';
+    ctx.fillRect(0, by - beamH / 2, w, beamH);
+    // Top flange
+    ctx.fillStyle = '#1e2a36';
+    ctx.fillRect(0, by - beamH / 2 - cp * 0.07, w, cp * 0.07);
+    // Bottom flange
+    ctx.fillStyle = '#1a2430';
+    ctx.fillRect(0, by + beamH / 2, w, cp * 0.06);
+    // Warren truss diagonals between adjacent beams
+    if (i < 4) {
+      const nextY = gt - cp * (0.5 + (i + 1) * 0.7);
+      ctx.strokeStyle = '#1a2230';
+      ctx.lineWidth = 1.2;
+      for (let x = 0; x < w; x += cp * 3) {
+        ctx.beginPath();
+        ctx.moveTo(x,          by - beamH / 2);
+        ctx.lineTo(x + cp * 3, nextY + beamH / 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + cp * 3, by - beamH / 2);
+        ctx.lineTo(x,          nextY + beamH / 2);
+        ctx.stroke();
+      }
     }
   }
 
-  // Industrial overhead lighting — amber-warm cone pools
-  const lightCols = [5, 10, 15];
-  for (const col of lightCols) {
-    const lx = gl + col * cp;
-    const ly = gt;
-    const coneH = cp * 4.5;
-    const coneR = cp * 3;
-    const cone = ctx.createRadialGradient(lx, ly, 0, lx, ly + coneH * 0.5, coneR);
-    cone.addColorStop(0, '#ffa04230');
-    cone.addColorStop(0.5, '#ffa04212');
-    cone.addColorStop(1, 'transparent');
-    ctx.fillStyle = cone;
+  // ── Overhead crane gantry ──
+  const craneY = gt - cp * 0.25;
+  // Runway rails
+  ctx.fillStyle = '#2a3848';
+  ctx.fillRect(gl - cp * 0.4, craneY - cp * 0.12, gw + cp * 0.8, cp * 0.18);
+  ctx.fillRect(gl - cp * 0.4, craneY + cp * 0.05, gw + cp * 0.8, cp * 0.06);
+
+  // Trolley — slow back-and-forth
+  const trolleyX = gl + gw * (0.5 + 0.32 * Math.sin(timeSec * 0.18));
+  ctx.fillStyle = '#d4820a';
+  ctx.fillRect(trolleyX - cp * 0.55, craneY - cp * 0.5, cp * 1.1, cp * 0.5);
+  ctx.fillStyle = '#f5a623';
+  ctx.fillRect(trolleyX - cp * 0.42, craneY - cp * 0.44, cp * 0.84, cp * 0.38);
+  // Wheels on rail
+  for (const side of [-0.38, 0.38]) {
+    ctx.fillStyle = '#1a222e';
     ctx.beginPath();
-    ctx.moveTo(lx, ly - cp * 0.5);
-    ctx.lineTo(lx - coneR, ly + coneH);
-    ctx.lineTo(lx + coneR, ly + coneH);
-    ctx.closePath();
+    ctx.arc(trolleyX + side * cp, craneY, cp * 0.12, 0, Math.PI * 2);
     ctx.fill();
-    // Small lamp fixture
-    ctx.fillStyle = '#ffd07088';
-    ctx.fillRect(lx - cp * 0.3, ly - cp * 0.6, cp * 0.6, cp * 0.15);
+  }
+  // Hoist chain
+  const hookLen = cp * 2.2;
+  ctx.strokeStyle = '#344050';
+  ctx.lineWidth = 2.5;
+  ctx.setLineDash([cp * 0.12, cp * 0.1]);
+  ctx.beginPath();
+  ctx.moveTo(trolleyX, craneY + cp * 0.05);
+  ctx.lineTo(trolleyX, craneY + hookLen);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Hook
+  ctx.strokeStyle = '#5a6878';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.arc(trolleyX, craneY + hookLen + cp * 0.17, cp * 0.17, Math.PI * 0.15, Math.PI * 1.85);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // ── High-bay light fixtures ──
+  for (const col of lightCols) {
+    const lx     = gl + col * cp;
+    const fixY   = gt - cp * 2.6;
+    const flicker = 0.96 + 0.04 * Math.sin(timeSec * 14.3 + col * 6.7);
+
+    // Suspension wire
+    ctx.strokeStyle = '#2a3848';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(lx, 0);
+    ctx.lineTo(lx, fixY);
+    ctx.stroke();
+
+    // Reflector bowl (light grey aluminium)
+    ctx.fillStyle = '#c8cdd4';
+    ctx.beginPath();
+    ctx.ellipse(lx, fixY + cp * 0.3, cp * 0.55, cp * 0.22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#a0a8b0';
+    ctx.fillRect(lx - cp * 0.38, fixY, cp * 0.76, cp * 0.32);
+
+    // Bulb — bright white-amber
+    ctx.fillStyle = `rgba(255,245,200,${flicker})`;
+    ctx.beginPath();
+    ctx.arc(lx, fixY + cp * 0.28, cp * 0.16, 0, Math.PI * 2);
+    ctx.fill();
+    // Inner hotspot
+    ctx.fillStyle = `rgba(255,255,240,${flicker})`;
+    ctx.beginPath();
+    ctx.arc(lx, fixY + cp * 0.28, cp * 0.07, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Volumetric light cone (3 transparent triangle passes)
+    const coneH = cp * 8;
+    const coneW = cp * 3.8;
+    for (let pass = 0; pass < 3; pass++) {
+      const a = (0.10 - pass * 0.028) * flicker;
+      const spreadW = coneW * (1 + pass * 0.35);
+      const grad = ctx.createLinearGradient(lx, fixY + cp * 0.3, lx, fixY + coneH);
+      grad.addColorStop(0,   `rgba(255,230,160,${a * 1.6})`);
+      grad.addColorStop(0.5, `rgba(255,210,130,${a})`);
+      grad.addColorStop(1,   `rgba(255,200,100,0)`);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(lx - cp * 0.25, fixY + cp * 0.3);
+      ctx.lineTo(lx - spreadW,   fixY + coneH);
+      ctx.lineTo(lx + spreadW,   fixY + coneH);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Light pool on floor
+    const poolGrad = ctx.createRadialGradient(lx, floorY, 0, lx, floorY, coneW * 0.75);
+    poolGrad.addColorStop(0, `rgba(255,230,150,${0.14 * flicker})`);
+    poolGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = poolGrad;
+    ctx.beginPath();
+    ctx.ellipse(lx, floorY, coneW * 0.75, cp * 0.35, 0, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // Yellow safety stripes near anchor columns (col 3 and col 17)
+  // ── Factory floor ──
+  const floorGrad = ctx.createLinearGradient(0, floorY, 0, h);
+  floorGrad.addColorStop(0,   '#1e2228');
+  floorGrad.addColorStop(0.4, '#191c22');
+  floorGrad.addColorStop(1,   '#14171c');
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, floorY, w, h - floorY);
+
+  // Concrete expansion joints
+  ctx.strokeStyle = '#252930';
+  ctx.lineWidth = 1;
+  for (let x = gl % (cp * 2.5); x < w; x += cp * 2.5) {
+    ctx.beginPath(); ctx.moveTo(x, floorY); ctx.lineTo(x, h); ctx.stroke();
+  }
+  for (let y = floorY + cp * 0.5; y < h; y += cp) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  }
+
+  // Yellow safety lane lines
+  ctx.strokeStyle = '#c8880044';
+  ctx.lineWidth = cp * 0.12;
+  for (const laneX of [gl + cp * 0.8, gl + gw - cp * 0.8]) {
+    ctx.beginPath();
+    ctx.moveTo(laneX, floorY);
+    ctx.lineTo(laneX, h);
+    ctx.stroke();
+  }
+
+  // Hazard stripes beneath anchor columns
   for (const anchorCol of [3, 17]) {
-    const ax = gl + anchorCol * cp;
-    const stripeTop = floorTop;
-    const stripeBot = floorTop + cp;
-    const stripeW   = cp * 1.4;
+    const ax    = gl + anchorCol * cp;
+    const sW    = cp * 1.8;
+    const sH    = cp * 0.9;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(ax - stripeW / 2, stripeTop, stripeW, stripeBot - stripeTop);
+    ctx.rect(ax - sW / 2, floorY, sW, sH);
     ctx.clip();
-    ctx.strokeStyle = '#e8b80066';
-    ctx.lineWidth = cp * 0.18;
-    for (let sx = ax - stripeW * 1.5; sx < ax + stripeW * 2; sx += cp * 0.35) {
+    ctx.lineWidth = cp * 0.22;
+    for (let sx = ax - sW * 1.5; sx < ax + sW * 2; sx += cp * 0.42) {
+      ctx.strokeStyle = (Math.floor((sx - ax + sW * 1.5) / (cp * 0.42)) % 2 === 0)
+        ? '#c8880055' : '#08080a55';
       ctx.beginPath();
-      ctx.moveTo(sx, stripeTop);
-      ctx.lineTo(sx + cp * 0.6, stripeBot);
+      ctx.moveTo(sx,           floorY);
+      ctx.lineTo(sx + cp * 0.75, floorY + sH);
       ctx.stroke();
     }
     ctx.restore();
   }
 
-  // Window panels on left/right walls beyond grid
-  const windowData = [
-    { x: gl * 0.15, y: gt + cp * 1.5 },
-    { x: gl * 0.15, y: gt + cp * 5 },
-    { x: gl + gw + (w - gl - gw) * 0.15, y: gt + cp * 1.5 },
-    { x: gl + gw + (w - gl - gw) * 0.15, y: gt + cp * 5 },
-  ];
-  for (const win of windowData) {
-    const ww = cp * 1.8, wh = cp * 2.4;
-    ctx.fillStyle = '#1a1a30';
-    ctx.fillRect(win.x - ww / 2, win.y, ww, wh);
-    ctx.strokeStyle = '#2a2a40';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(win.x - ww / 2, win.y, ww, wh);
-    // Dim interior glow
-    ctx.fillStyle = '#3a4a6018';
-    ctx.fillRect(win.x - ww / 2 + 2, win.y + 2, ww - 4, wh - 4);
-    // Cross frame
-    ctx.strokeStyle = '#2a2a40';
-    ctx.lineWidth = 1;
+  // ── Warning beacons at anchor columns ──
+  for (const anchorCol of [3, 17]) {
+    const bx    = gl + anchorCol * cp;
+    const by    = gt + 10.5 * cp;
+    const pulse = 0.45 + 0.45 * Math.sin(timeSec * 2.8 + (anchorCol === 3 ? 0 : Math.PI));
+    // Housing
+    ctx.fillStyle = '#1a1c1e';
+    ctx.fillRect(bx - cp * 0.12, by - cp * 0.28, cp * 0.24, cp * 0.28);
+    // Glow
+    const bglow = ctx.createRadialGradient(bx, by, 0, bx, by, cp * 0.9);
+    bglow.addColorStop(0, `rgba(255,100,20,${pulse * 0.7})`);
+    bglow.addColorStop(0.5, `rgba(255,80,10,${pulse * 0.25})`);
+    bglow.addColorStop(1, 'transparent');
+    ctx.fillStyle = bglow;
     ctx.beginPath();
-    ctx.moveTo(win.x, win.y); ctx.lineTo(win.x, win.y + wh);
-    ctx.moveTo(win.x - ww / 2, win.y + wh / 2); ctx.lineTo(win.x + ww / 2, win.y + wh / 2);
-    ctx.stroke();
+    ctx.arc(bx, by, cp * 0.9, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // Subtle smoke/dust particles — deterministic, floating upward
-  for (let i = 0; i < 14; i++) {
-    const baseX = gl + (Math.sin(i * 9.7) * 0.4 + 0.5) * gw;
-    const baseY = gt + gh * 0.9;
-    const px = baseX + Math.sin(timeSec * 0.4 + i * 3.1) * cp * 0.8;
-    const py = baseY - ((timeSec * cp * 0.25 + i * cp * 3.7) % (gh * 1.1));
-    ctx.fillStyle = '#ffffff14';
-    ctx.beginPath();
-    ctx.arc(px, py, 1.5 + Math.sin(i * 2.3) * 0.8, 0, Math.PI * 2);
-    ctx.fill();
+  // ── Skylights on side walls ──
+  const sideGap = Math.min(gl, w - gl - gw);
+  if (sideGap > cp * 1.2) {
+    for (const [wallX, dir] of [[gl * 0.35, 1], [gl + gw + sideGap * 0.35, -1]]) {
+      for (let i = 0; i < 2; i++) {
+        const wy = gt + cp * (1.5 + i * 3);
+        const ww = Math.min(sideGap * 0.7, cp * 2.2);
+        const wh = cp * 1.8;
+        // Frame
+        ctx.fillStyle = '#1a2030';
+        ctx.fillRect(wallX - ww / 2, wy, ww, wh);
+        ctx.strokeStyle = '#2a3848';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(wallX - ww / 2, wy, ww, wh);
+        // Dim daylight glow inside
+        const winGrad = ctx.createLinearGradient(wallX - ww / 2, wy, wallX + ww / 2, wy);
+        winGrad.addColorStop(dir === 1 ? 0 : 1, '#3a5a7818');
+        winGrad.addColorStop(dir === 1 ? 1 : 0, '#1a2a3808');
+        ctx.fillStyle = winGrad;
+        ctx.fillRect(wallX - ww / 2 + 2, wy + 2, ww - 4, wh - 4);
+        // Cross frame
+        ctx.strokeStyle = '#243040';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(wallX, wy); ctx.lineTo(wallX, wy + wh);
+        ctx.moveTo(wallX - ww / 2, wy + wh / 2); ctx.lineTo(wallX + ww / 2, wy + wh / 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // ── Floating dust motes in light beams ──
+  for (let i = 0; i < 22; i++) {
+    const col    = lightCols[i % lightCols.length];
+    const lx     = gl + col * cp;
+    const moteX  = lx + Math.sin(i * 9.7 + timeSec * 0.25) * cp * 1.6;
+    const moteY  = gt + cp * 0.5 + ((timeSec * cp * 0.12 + i * cp * 2.7) % (gh * 1.05));
+    const inCone = Math.abs(moteX - lx) < ((moteY - (gt - cp * 2.6)) * 0.45 + cp * 0.2);
+    if (inCone) {
+      const alpha = 0.12 + 0.1 * Math.sin(i * 2.3 + timeSec * 1.4);
+      ctx.fillStyle = `rgba(255,230,160,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(moteX, moteY, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 }
 
