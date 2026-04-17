@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
+    <title>FEED THE FUNCTION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+  </head>
+  <body>
+    <!-- title screen -->
+    <div class="title-screen" id="titleScreen">
+      <div class="title-card">
+        <h1 class="title-name">FEED THE<br />FUNCTION</h1>
+        <p class="title-sub">Recognize the shape, Name the function</p>
+
+        <div class="title-buttons">
+          <button class="start-btn" id="startBtn">Start</button>
+          <button class="settings-toggle-btn" id="settingsBtn">Settings</button>
+        </div>
+
+        <div class="settings-panel" id="settingsPanel" style="display: none">
+          <h3 class="settings-heading">Function Types</h3>
+          <div class="type-grid">
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="linear"
+                checked
+              />
+              <span class="type-label">Linear</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="polynomial"
+                checked
+              />
+              <span class="type-label">Polynomial</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="rational"
+                checked
+              />
+              <span class="type-label">Rational</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="absolute"
+                checked
+              />
+              <span class="type-label">Absolute Value</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="exponential"
+                checked
+              />
+              <span class="type-label">Exponential</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="sine"
+                checked
+              />
+              <span class="type-label">Sine</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="cosine"
+                checked
+              />
+              <span class="type-label">Cosine</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="signum"
+                checked
+              />
+              <span class="type-label">Signum</span>
+            </label>
+          </div>
+
+          <h3 class="settings-heading">Rounds</h3>
+          <div class="round-options">
+            <button class="round-btn" data-rounds="5">5</button>
+            <button class="round-btn" data-rounds="10">10</button>
+            <button class="round-btn" data-rounds="15">15</button>
+            <button class="round-btn active" data-rounds="0">Endless</button>
+          </div>
+
+          <button class="settings-done" id="settingsDoneBtn">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- game (hidden until start) -->
+    <div class="game-container" id="gameContainer" style="display: none">
+      <div class="stats">
+        <div class="timer-block">
+          <span class="timer-icon">⏳</span>
+          <span id="timer">60</span>
+        </div>
+        <div class="round-block" id="roundBlock" style="display: none">
+          <span id="roundDisplay">1 / 10</span>
+        </div>
+        <div class="pause-btn" id="pauseBtn">||</div>
+        <div class="score-block">
+          <span id="score">0</span>
+          <span class="coin-icon">$</span>
+        </div>
+      </div>
+
+      <div class="hint-area" id="hintArea" style="display: none">
+        <span id="hintText"></span>
+      </div>
+
+      <div class="graph-panel">
+        <canvas id="graphCanvas" width="500" height="500"></canvas>
+      </div>
+
+      <div class="function-entry">
+        <span class="function-label">f(x)=</span>
+        <input
+          type="text"
+          id="functionInput"
+          placeholder="ex. x ^ 2 + 1"
+          value=""
+          spellcheck="false"
+        />
+        <button class="submit-btn" id="submitBtn">✓</button>
+      </div>
+
+      <div class="skill-display">
+        Skill Level: <span id="skillLevelText">Novice</span>
+      </div>
+
+      <!-- hidden but still tracked by game.js -->
+      <div style="display: none">
+        <span id="accuracyPercent">0%</span>
+        <span id="earnedCoins">0</span>
+        <div id="scoreHistory">—</div>
+      </div>
+
+      <div class="bottom-row">
+        <button class="menu-btn" id="menuBtn">Menu</button>
+        <button class="restart-btn" id="playAgainBtn">Restart</button>
+      </div>
+    </div>
+
+    <div class="bonus-container" id="bonusContainer"></div>
+
+    <div class="gameover-tab" id="gameoverTab">
+      <button class="close-tab" id="closeGameoverTab">✕</button>
+      <div class="gameover-title" id="gameoverTitle">GAME OVER</div>
+      <div class="gameover-label">Final Score</div>
+      <div id="gameoverScore">0</div>
+      <div class="gameover-actions">
+        <button class="menu-btn" id="gameoverMenuBtn">Menu</button>
+        <button class="restart-btn" id="gameoverRetryBtn">Retry</button>
+      </div>
+    </div>
+
+    <div class="coin-rain-container" id="coinContainer"></div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>
