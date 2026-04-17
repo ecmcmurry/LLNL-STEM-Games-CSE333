@@ -17,7 +17,7 @@ const { test, expect } = require('@playwright/test');
 test.describe('Initial page load', () => {
   test('page title is correct', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page).toHaveTitle('What Wave');
+    await expect(page).toHaveTitle('Fourier Demo');
   });
 
   test('score display starts at "Score: 0"', async ({ page }) => {

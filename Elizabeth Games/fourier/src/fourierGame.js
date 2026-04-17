@@ -104,21 +104,30 @@ function applyDifficulty(subwaves, realwaves, { waveCount, ampEnabled, freEnable
   return { subwaves, realwaves };
 }
 
-//I initially changed this to use my function as opposed to the Claude generated function, but the tests expect the function to have input parameters
-//This version of the function is probably better suited for testing anyways
-function checkSolution(subwaves, realwaves, waveCount) {
+//Checks the current list of subwaves against the list of realwaves to determine if they match
+function checkSolution(){
+  //Simply need to check each of the subwaves against each of the real waves, incrementing a "correctness" score for each match
+  //if the correctness equals or exceeds the number of active waves, then the player correctly identified the wave
+  //upon properly identifying the wave, the player's score increases and a new wave is generated
+
   let correctness = 0;
   subwaves.forEach(swave => {
-    if (!swave.enabled) return;
-    realwaves.forEach(rwave => {
-      if (!rwave.enabled) return;
-      const ampMatch   = swave.amplitude  === rwave.amplitude;
-      const freqMatch  = swave.frequency  === rwave.frequency;
-      const phaseMatch = Math.abs((rwave.phase / Math.PI) - (swave.phase / Math.PI)) < 0.05;
-      if (ampMatch && freqMatch && phaseMatch) correctness++;
-    });
+    //only runs for each relevant sub wave
+    if (swave.enabled) {
+      realwaves.forEach(rwave => {
+        //only runs for each relevant real wave
+        if (rwave.enabled) {
+          //Theres probably a better way to see if they are matching
+          if ((swave.amplitude == rwave.amplitude) && (swave.frequency == rwave.frequency) && ((rwave.phase/Math.PI)-(swave.phase/Math.PI) < 0.05)) {
+            correctness++;
+          }
+        }
+      });
+    }
   });
-  return correctness >= waveCount;
+  //Claude initially generated an altered version of this function
+  //I decided to reuse my original one but I needed to change the output so that the tests could perform as expected
+  return (correctness >= waveCount);
 }
 
 //Claude took a "function" used in scaling the screen and pulled it out for testing
