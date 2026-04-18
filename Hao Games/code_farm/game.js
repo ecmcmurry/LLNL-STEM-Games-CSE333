@@ -69,6 +69,21 @@ const storeMessage = $("#storeMessage");
 const storeTerminalInput = $("#storeTerminalInput");
 const storeTerminalOutput = $("#storeTerminalOutput");
 
+// stat
+const statsBackdrop = $("#statsBackdrop");
+const statsTotalHarvest = $("#statsTotalHarvest");
+const statsHarvestA = $("#statsHarvestA");
+const statsHarvestB = $("#statsHarvestB");
+const statsHarvestC = $("#statsHarvestC");
+const statsHarvestD = $("#statsHarvestD");
+const statsHarvestE = $("#statsHarvestE");
+const statsHarvestF = $("#statsHarvestF");
+const statsTotalCoins = $("#statsTotalCoins");
+const statsCurrentDay = $("#statsCurrentDay");
+const statsTotalBugsFixed = $("#statsTotalBugsFixed");
+const statsTerminalInput = $("#statsTerminalInput");
+const statsTerminalOutput = $("#statsTerminalOutput");
+
 // 9 plots
 const PLOT_COUNT = 9;
 
@@ -200,6 +215,17 @@ let state = {
   day: 1,
   coins: 50,
   harCount: 0,
+  totalCoinsEarned: 0,
+  totalBugsFixed: 0,
+
+  flowerHarvests: {
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+    F: 0,
+  },
 
   inventory: {
     A: 0,
@@ -239,6 +265,25 @@ function loadState() {
       
       if (typeof state.harCount !== "number") {
         state.harCount = 0;
+      }
+
+      if (typeof state.totalCoinsEarned !== "number") {
+        state.totalCoinsEarned = 0;
+      }
+
+      if (typeof state.totalBugsFixed !== "number") {
+        state.totalBugsFixed = 0;
+      }
+
+      if (!state.flowerHarvests || typeof state.flowerHarvests !== "object" ) {
+        state.flowerHarvests = {
+          A: 0,
+          B: 0,
+          C: 0,
+          D: 0,
+          E: 0,
+          F: 0,
+        };
       }
     }
   } catch {
@@ -349,32 +394,51 @@ function buySeed(type) {
   storeMessage.textContent = `${flower.name} seed purchased!`;
 }
 
+
+
 function runTerminal(command, outputEl = terminalOutput) {
   const text = command.trim().toLowerCase();
 
   if (text === 'cd farm') {
     closeInventory();
     closeStore();
+    closeStats();
     terminalOutput.textContent = "Switched to farm.";
     storeTerminalOutput.textContent = "";
     invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd farm/inventory') {
     closeStore();
+    closeStats();
     openInventory();
     invTerminalOutput.textContent = "Switched to inventory.";
     terminalOutput.textContent = "";
     storeTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd store') {
     closeInventory();
+    closeStats();
     openStore();
     storeTerminalOutput.textContent = "Switched to store.";
     terminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
+    return;
+  }
+
+  if (text === 'cd farm/stats') {
+    closeInventory();
+    closeStore();
+    openStats();
+    statsTerminalOutput.textContent = "Switched to statistics.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
     invTerminalOutput.textContent = "";
     return;
   }
@@ -474,6 +538,28 @@ function updateStore() {
       btn.textContent = `Locked!`;
     }
   }
+}
+
+function updateStatsUI() {
+  statsTotalHarvest.textContent = state.harCount;
+  statsHarvestA.textContent = state.flowerHarvests.A;
+  statsHarvestB.textContent = state.flowerHarvests.B;
+  statsHarvestC.textContent = state.flowerHarvests.C;
+  statsHarvestD.textContent = state.flowerHarvests.D;
+  statsHarvestE.textContent = state.flowerHarvests.E;
+  statsHarvestF.textContent = state.flowerHarvests.F;
+  statsTotalCoins.textContent = state.totalCoinsEarned;
+  statsCurrentDay.textContent = state.day;
+  statsTotalBugsFixed.textContent = state.totalBugsFixed;
+}
+
+function openStats() {
+  updateStatsUI();
+  statsBackdrop.classList.remove("hidden");
+}
+
+function closeStats() {
+  statsBackdrop.classList.add("hidden");
 }
 
 
@@ -682,6 +768,8 @@ function harvest() {
 
   state.coins += earn;
   state.harCount += 1;
+  state.totalCoinsEarned += earn;
+  state.flowerHarvests[plot.flowerType] += 1;
 
   // clear plot
   plot.planted = false;
@@ -722,22 +810,13 @@ function nextDay() {
 
 function init() {
   loadState();
-
-  // const ALLOW_EDIT_MODE = false; // set true only while developing
-
     layout = createDefaultLayout();
 
-    // if (ALLOW_EDIT_MODE) {
-    //     const saved = loadLayout();
-    //     if (saved) layout = saved;
-    //     editBtn.style.display = "inline-block";
-    // } else {
-    //     editBtn.style.display = "none";
-    // }
 
   updateTopUI();
   updateInventoryUI();
   updateProgressUI();
+  updateStatsUI();
 
   // Wait for image to load so stage has correct size
   farmImg.addEventListener("load", () => {
@@ -776,7 +855,10 @@ function init() {
         plot.bugPuzzleId = null;
         plot.bugStartDay = null;
 
+        state.totalBugsFixed += 1;
+
         saveState();
+        updateStatsUI();
         refreshCropsOnly();
         closeModalFn();
     } else {
@@ -825,6 +907,13 @@ function init() {
     if (e.key === "Enter") {
       runTerminal(invTerminalInput.value, invTerminalOutput);
       invTerminalInput.value = "";
+    }
+  });
+
+  statsTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(statsTerminalInput.value, statsTerminalOutput);
+      statsTerminalInput.value = "";
     }
   });
 

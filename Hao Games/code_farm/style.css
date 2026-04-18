@@ -359,6 +359,36 @@ body {
   cursor: not-allowed;
 }
 
+/* stats */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.statsCard {
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.statsLabel {
+  font-size: 9px;
+  font-family: "Press Start 2P", monospace;
+  color: #d6d3d1;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.statsValue {
+  font-size: 16px;
+  font-family: "Press Start 2P", monospace;
+  color: #ffffff;
+}
+
 /* planting */
 .plantGrid {
   display: grid;
