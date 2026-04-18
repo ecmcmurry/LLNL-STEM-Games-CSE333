@@ -80,8 +80,8 @@ const FLOWERS = {
     price: 10,
     daysToGrow: 5,
     mid: 2,
-    images: ["assets/flowerAB_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
-    bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
+    images: ["assets/flowerA_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
+    bugImages: ["assets/flowerA_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
   },
   B: {
     name: "Daisy",
@@ -89,8 +89,8 @@ const FLOWERS = {
     price: 13,
     daysToGrow: 7,
     mid: 3,
-    images: ["assets/flowerAB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
-    bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
+    images: ["assets/flowerB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
+    bugImages: ["assets/flowerB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
   },
   C: {
     name: "Crimson Rose",
