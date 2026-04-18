@@ -1,9 +1,9 @@
 :root {
-  --bg: #0f172a;
+  --bg: #0f2a0f;
   --card: #111827;
   --text: #e5e7eb;
   --muted: #9ca3af;
-  --primary: #22c55e;
+  --primary: rgb(237, 135, 57);
   --primaryText: #052e16;
   --outline: rgba(255, 255, 255, 0.16);
 }
@@ -16,7 +16,8 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, #0b1023, #4061af);
+  background: linear-gradient(180deg, #1b5e20, #81c784);
+  /* background: linear-gradient(180deg, #064e3b, #22c55e); */
   color: var(--text);
   min-height: 100vh;
 }
@@ -70,6 +71,39 @@ body {
   color: var(--primaryText);
   border-color: rgba(0, 0, 0, 0.15);
   font-weight: 650;
+}
+
+.homeScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  text-align: center;
+}
+
+.gameTitle {
+  margin: 0;
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 1.2;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  text-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+}
+
+.homeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.homeButtons .btn {
+  width: 300px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 16px;
+  padding: 18px 22px;
+  border-radius: 16px;
 }
 
 #farm.screen {
