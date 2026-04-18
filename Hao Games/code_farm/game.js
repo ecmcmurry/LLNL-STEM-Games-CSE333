@@ -88,6 +88,9 @@ const statsTerminalOutput = $("#statsTerminalOutput");
 const helpBackdrop = $("#helpBackdrop");
 const helpTerminalInput = $("#helpTerminalInput");
 const helpTerminalOutput = $("#helpTerminalOutput");
+// first-time help guide
+const terminalGuide = $("#terminalGuide");
+
 
 // 9 plots
 const PLOT_COUNT = 9;
@@ -214,6 +217,7 @@ function randomPuzzleId() {
 // local storage keys: save the data in the browser
 const STORAGE_KEY = "farm_game_state_v1";
 const PLOTS_KEY = "farm_plot_layout_v1";
+const GUIDE_KEY = "farm_help_guide_done";
 
 // State
 let state = {
@@ -310,6 +314,23 @@ function loadLayout() {
     // ignore
   }
   return null;
+}
+
+function shouldShowGuide() {
+  return localStorage.getItem(GUIDE_KEY) !== "true";
+}
+
+function showGuide() {
+  terminalGuide.classList.remove("hidden");
+}
+
+function hideGuide() {
+  terminalGuide.classList.add("hidden");
+}
+
+function completeGuide() {
+  localStorage.setItem(GUIDE_KEY, "true");
+  hideGuide();
 }
 
 function updateTopUI() {
@@ -461,6 +482,7 @@ function runTerminal(command, outputEl = terminalOutput) {
     closeStore();
     closeStats();
     openHelp();
+    completeGuide();
     helpTerminalOutput.textContent = "Switched to help page.";
     terminalOutput.textContent = "";
     storeTerminalOutput.textContent = "";
@@ -865,6 +887,10 @@ function init() {
   // Buttons
   startBtn.addEventListener("click", () => {
     showFarm();
+
+    if (shouldShowGuide()) {
+      showGuide();
+    }
   });
 
   resetBtn.addEventListener("click", () => {
