@@ -196,6 +196,79 @@
         </div>
       </div>
 
+      <!-- Statistics page -->
+      <div id="statsBackdrop" class="modal-backdrop hidden">
+        <div class="modal">
+          <h2>Statistics</h2>
+          <p>Your farm progress:</p>
+
+          <div class="statsGrid">
+            <div class="statsCard">
+              <div class="statsLabel">Total Harvests</div>
+              <div class="statsValue" id="statsTotalHarvest">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Tulip Harvests</div>
+              <div class="statsValue" id="statsHarvestA">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Daisy Harvests</div>
+              <div class="statsValue" id="statsHarvestB">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Crimson Rose Harvests</div>
+              <div class="statsValue" id="statsHarvestC">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Violet Star Harvests</div>
+              <div class="statsValue" id="statsHarvestD">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Emberblossom Harvests</div>
+              <div class="statsValue" id="statsHarvestE">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Moonflower Harvests</div>
+              <div class="statsValue" id="statsHarvestF">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Total Coins Earned</div>
+              <div class="statsValue" id="statsTotalCoins">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Current Day</div>
+              <div class="statsValue" id="statsCurrentDay">1</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Total Bugs Fixed</div>
+              <div class="statsValue" id="statsTotalBugsFixed">0</div>
+            </div>
+
+          </div>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="statsTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="statsTerminalOutput" class="modalTerminalOutput"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Plant (Modal) -->
       <div id="modalBackdrop" class="modal-backdrop hidden">
         <div class="modal">
