@@ -17,7 +17,6 @@
 body {
   margin: 0;
   background: linear-gradient(180deg, #1b5e20, #81c784);
-  /* background: linear-gradient(180deg, #064e3b, #22c55e); */
   color: var(--text);
   min-height: 100vh;
 }
