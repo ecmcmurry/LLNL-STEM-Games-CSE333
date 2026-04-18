@@ -389,6 +389,33 @@ body {
   color: #ffffff;
 }
 
+/* help */
+.helpSection {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+}
+
+.helpTitle {
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+  color: #ffffff;
+}
+
+.helpText {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #e5e7eb;
+  font-family: "Press Start 2P", monospace;
+}
+
+.helpText strong {
+  color: #ffffff;
+}
+
 /* planting */
 .plantGrid {
   display: grid;
