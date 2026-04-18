@@ -416,6 +416,62 @@ body {
   color: #ffffff;
 }
 
+/* guide */
+.terminalGuide {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.guideArrow {
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 28px solid #facc15;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4));
+  animation: guideBounce 1s infinite;
+}
+
+.guideBox {
+  margin-bottom: 10px;
+  width: min(420px, 80vw);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 3px solid rgba(38, 25, 10, 0.9);
+  background: rgba(60, 42, 20, 0.95);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+
+.guideText {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #f3f4f6;
+  font-family: "Press Start 2P", monospace;
+}
+
+.guideText strong {
+  color: #fde68a;
+}
+
+@keyframes guideBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+
 /* planting */
 .plantGrid {
   display: grid;
