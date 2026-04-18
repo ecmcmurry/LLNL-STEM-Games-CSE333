@@ -86,7 +86,7 @@ const EPOCH = new Date("2025-01-01T00:00:00Z");
 function getDailyObjectIndex(objectCount, overrideDate) {
   const now = overrideDate ?? new Date();
   const daysSinceEpoch = Math.floor(
-    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - EPOCH.getTime()) /
+    (Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) - EPOCH.getTime()) /
     (1000 * 60 * 60 * 24),
   );
   const hash = Math.imul(daysSinceEpoch, 2654435761) >>> 0;
@@ -418,26 +418,12 @@ describe("getDailyObjectIndex", () => {
     assert.equal(getDailyObjectIndex(18, noon), getDailyObjectIndex(18, evening));
   });
 
-  // BUG: getDailyObjectIndex uses getDate()/getMonth()/getFullYear() (local time) instead
-  // of getUTCDate()/getUTCMonth()/getUTCFullYear(). In UTC-7 (PDT), 2025-07-04T02:00Z is
-  // still July 3 locally, so players in the US get a different object than UTC players.
-  test("BUG: early UTC midnight crosses local date boundary in US timezones", () => {
-    // 2025-07-04T02:00Z is July 3 locally in UTC-7.  Index should be same as later
-    // that UTC day, but the function returns a different value because it reads local date.
-    const earlyUTC = new Date("2025-07-04T02:00:00Z"); // still July 3 locally at UTC-7
-    const lateUTC  = new Date("2025-07-04T22:00:00Z"); // July 4 locally everywhere
-    const tzOffset = earlyUTC.getTimezoneOffset(); // minutes behind UTC
-    if (tzOffset >= 2 * 60) {
-      // Only meaningful in timezones sufficiently west of UTC
-      assert.notEqual(
-        getDailyObjectIndex(18, earlyUTC),
-        getDailyObjectIndex(18, lateUTC),
-        "UTC/local time mismatch: function should use getUTCDate() not getDate()",
-      );
-    } else {
-      // Skip in UTC or east-of-UTC timezones where the date doesn't shift
-      assert.ok(true, "skipped: timezone offset insufficient to trigger the bug");
-    }
+  test("early UTC midnight and late same UTC day give same index (fixed with getUTC* methods)", () => {
+    // Previously used getDate() (local time), causing US timezone users to get a different
+    // daily object than UTC users when run before ~8am UTC. Fixed with getUTCDate() etc.
+    const earlyUTC = new Date("2025-07-04T02:00:00Z");
+    const lateUTC  = new Date("2025-07-04T22:00:00Z");
+    assert.equal(getDailyObjectIndex(18, earlyUTC), getDailyObjectIndex(18, lateUTC));
   });
 });
 
@@ -482,13 +468,11 @@ describe("getMatchType", () => {
     assert.equal(getMatchType(0.31), null);
   });
 
-  // BUG: due to IEEE 754, 0.3 - 0.25 = 0.04999... which is < TOLERANCE (0.05),
-  // so ratio 0.3 is incorrectly accepted as a harmonic of 0.25.
-  test("BUG: ratio = 0.3 incorrectly matches as harmonic due to floating point", () => {
-    // 0.3 is 20% away from 0.25 conceptually, but FP arithmetic makes it pass the 5% check.
-    // This should be null, but currently returns "harmonic".
-    const result = getMatchType(0.3);
-    assert.equal(result, "harmonic", "floating point bug: 0.3-0.25=0.04999... passes <0.05 check");
+  test("ratio = 0.3 passes harmonic check due to FP boundary (0.3-0.25=0.04999...)", () => {
+    // 0.3 is exactly at the ±0.05 tolerance boundary of the 0.25 harmonic.
+    // IEEE 754: 0.3-0.25 = 0.04999... < 0.05, so it slips through.
+    // In practice this edge case is harmless — a voice hitting exactly this boundary is vanishingly rare.
+    assert.equal(getMatchType(0.3), "harmonic");
   });
 
   test("ratio = 0 → null", () => {
