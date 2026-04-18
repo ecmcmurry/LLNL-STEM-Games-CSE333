@@ -87,7 +87,7 @@ body {
   line-height: 1.2;
   color: #ffffff;
   font-family: "Press Start 2P", monospace;
-  text-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+  text-shadow: 10px 10px 0 rgba(0,0,0,0.35);
 }
 
 .homeButtons {
