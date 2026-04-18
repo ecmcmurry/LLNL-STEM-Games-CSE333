@@ -5,48 +5,60 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>There Is A Bug On The Flower!</title>
     <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   </head>
 
   <body>
     <!-- HOME -->
-    <main id="home" class="screen">
-      <div class="card">
-        <h1>THERE IS A BUG ON THE FLOWER!</h1>
-        <button id="startBtn" class="btn primary">START</button>
+    <main id="home" class="screen homeScreen">
+      <h1 class="gameTitle">There's a Bug in the Flower!</h1>
+      <div class="homeButtons">
+        <button id="startBtn" class="btn primary">START!</button>
         <button id="resetBtn" class="btn">RESET GAME</button>
       </div>
     </main>
 
     <!-- FARM -->
     <main id="farm" class="screen hidden">
-      <div class="topbar">
-        <div class="coins">🪙 Coins: <span id="coinsText">50</span></div>
-
-        <div class="rightControls">
-          <button id="editBtn" class="btn">Edit Plots</button>
-          <button id="nextDayBtn" class="btn primary">Next Day</button>
-        </div>
-      </div>
-
-      <div class="dayText">Day: <span id="dayText">1</span></div>
-
-      <div class="progressBox">
-        <div class="progressHeader">
-          <span>Harvest Progress</span>
-          <span id="progressText">0 / 5</span>
-        </div>
-
-        <div class="bar">
-          <div id="barFill" class="barFill"></div>
-        </div>
-
-        <div id="unlockText" class="unlockText">
-          Next unlock: Daisy at 5 harvests!
-        </div>
-      </div>
 
       <div id="farmStage" class="farm-stage">
         <img id="farmImg" src="assets/farm.jpg" alt="Farm background" />
+
+        <div class="farmTop">
+          <div class="dayBox">
+            Day <span id="dayText">1</span>
+          </div>
+
+          <div class="farmHudRow">
+            <div class="coinsBox">
+              <div class="hundLabel">
+                <span class="coinIcon">🪙</span>
+                <span class="coinText">Coins</span>
+              </div>
+              <div class="coinsValue" id="coinsText">50</div>
+            </div>
+
+            <div class="progressBox">
+              <div class="progressHeader">
+                <span class="progressText">Harvest Progress</span>
+                <span id="progressText" class="progressCount">0 / 5</span>
+              </div>
+
+              <div class="bar">
+                <div id="barFill" class="barFill"></div>
+              </div>
+
+              <div id="unlockText" class="unlockText">
+                Next unlock: Daisy at 5 harvests!
+              </div>
+            </div>
+
+            <button id="nextDayBtn" class="nextDayCard">
+              <span class="nextDayTop">Next Day</span>
+              <span class="nextDayArrow">→</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Terminal -->
         <div class="terminal">
@@ -60,6 +72,16 @@
           />
           <div id="terminalOutput" class="terminalOutput"></div>
         </div>
+
+        <div id="terminalGuide" class="terminalGuide hidden">
+          <div class="GuideBox">
+            <div class="guideText">
+              Type <strong>cd help</strong> in ther terminal to learn how to play!~
+            </div>
+          </div>
+          <div class="guideArrow"></div>
+        </div>
+        
       </div>
 
 
@@ -70,54 +92,56 @@
           <h2>Inventory</h2>
           <p>Your current seeds:</p>
 
-          <!-- <div class="choices">
-            <div>Flower A Seeds: <span id="inventoryA">0</span></div>
-            <div>Flower B Seeds: <span id="inventoryB">0</span></div>
-            <div>Flower C Seeds: <span id="inventoryC">0</span></div>
-            <div>Flower D Seeds: <span id="inventoryD">0</span></div>
-          </div> -->
-
           <div class="inventoryGrid">
             <div class="inventoryFlower">
               <img id="inventoryImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Tulip" />
-              <div>Tulip</div>
-              <div>Seeds: <span id="inventoryA">0</span></div>
+              <div class="SIFName">Tulip</div>
+              <div class="InvRemain">Remain: <span id="inventoryA" class="InvRemain">0</span></div>
             </div>
 
             <div class="inventoryFlower">
               <img id="inventoryImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Daisy" />
-              <div>Daisy</div>
-              <div>Seeds: <span id="inventoryB">0</span></div>
+              <div class="SIFName">Daisy</div>
+              <div class="InvRemain">Remain: <span id="inventoryB" class="InvRemain">0</span></div>
             </div>
 
             <div class="inventoryFlower">
               <img id="inventoryImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Crimson Rose" />
-              <div>Crimson Rose</div>
-              <div>Seeds: <span id="inventoryC">0</span></div>
+              <div class="SIFName">Crimson Rose</div>
+              <div class="InvRemain">Remain: <span id="inventoryC" class="InvRemain">0</span></div>
             </div>
 
             <div class="inventoryFlower">
               <img id="inventoryImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Violet Star" />
-              <div>Violet Star</div>
-              <div>Seeds: <span id="inventoryD">0</span></div>
+              <div class="SIFName">Violet Star</div>
+              <div class="InvRemain">Remain: <span id="inventoryD" class="InvRemain">0</span></div>
             </div>
 
             <div class="inventoryFlower">
               <img id="inventoryImageE" class="flowerImage" src="assets/flowerE_3.jpg" alt="Emberblossom" />
-              <div>Emberblossom</div>
-              <div>Seeds: <span id="inventoryE">0</span></div>
+              <div class="SIFName">Emberblossom</div>
+              <div class="InvRemain">Remain: <span id="inventoryE" class="InvRemain">0</span></div>
             </div>
 
             <div class="inventoryFlower">
               <img id="inventoryImageF" class="flowerImage" src="assets/flowerF_3.jpg" alt="Moonflower" />
-              <div>Moonflower</div>
-              <div>Seeds: <span id="inventoryF">0</span></div>
+              <div class="SIFName">Moonflower</div>
+              <div class="InvRemain">Remain: <span id="inventoryF" class="InvRemain">0</span></div>
             </div>
           </div>
 
-          <div class="modalFooter">
-            <button id="closeInventoryBtn" class="btn">Close</button>
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="invTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="invTerminalOutput" class="modalTerminalOutput"></div>
           </div>
+
         </div>
       </div>
 
@@ -126,56 +150,178 @@
         <div class="modal">
           <h2>Store</h2>
           <p>Buy seeds for your farms.</p>
-
-          <!-- <div class="choices">
-            <button id="buyA" class="btn">Buy Flower A seed (Cost 5)</button>
-            <button id="buyB" class="btn">Buy Flower B seed (Cost 7)</button>
-            <button id="buyC" class="btn">Buy Flower C seed (Cost 10)</button>
-            <button id="buyD" class="btn">Buy Flower D seed (Cost 20)</button>
-          </div> -->
           <div class="storeGrid">
             <div class="storeFlower">
               <img id="storeImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Tulip" />
-              <div>Tulip</div>
+              <div class="SIFName">Tulip</div>
               <button id="buyA" class="btn">Buy (Cost 5)</button>
             </div>
 
             <div class="storeFlower">
               <img id="storeImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Daisy" />
-              <div>Daisy</div>
+              <div class="SIFName">Daisy</div>
               <button id="buyB" class="btn">Buy (Cost 7)</button>
             </div>
 
             <div class="storeFlower">
               <img id="storeImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Crimson Rose" />
-              <div>Crimson Rose</div>
+              <div class="SIFName">Crimson Rose</div>
               <button id="buyC" class="btn">Buy (Cost 10)</button>
             </div>
 
             <div class="storeFlower">
               <img id="storeImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Violet Star" />
-              <div>Violet Star</div>
+              <div class="SIFName">Violet Star</div>
               <button id="buyD" class="btn">Buy (Cost 10)</button>
             </div>
 
             <div class="storeFlower">
               <img id="storeImageE" class="flowerImage" src="assets/flowerE_3.jpg" alt="Emberblossom" />
-              <div>Emberblossom</div>
+              <div class="SIFName">Emberblossom</div>
               <button id="buyE" class="btn">Buy (Cost 15)</button>
             </div>
 
             <div class="storeFlower">
               <img id="storeImageF" class="flowerImage" src="assets/flowerF_3.jpg" alt="Moonflower" />
-              <div>Moonflower</div>
+              <div class="SIFName">Moonflower</div>
               <button id="buyF" class="btn">Buy (Cost 20)</button>
             </div>
 
           </div>
 
           <p id="storeMessage"></p>
-          <div class="modalFooter">
-            <button id="closeStoreBtn" class="btn">Close</button>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="storeTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="storeTerminalOutput" class="modalTerminalOutput"></div>
           </div>
+
+        </div>
+      </div>
+
+      <!-- Statistics page -->
+      <div id="statsBackdrop" class="modal-backdrop hidden">
+        <div class="modal">
+          <h2>Statistics</h2>
+          <p>Your farm progress:</p>
+
+          <div class="statsGrid">
+            <div class="statsCard">
+              <div class="statsLabel">Total Harvests</div>
+              <div class="statsValue" id="statsTotalHarvest">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Tulip Harvests</div>
+              <div class="statsValue" id="statsHarvestA">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Daisy Harvests</div>
+              <div class="statsValue" id="statsHarvestB">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Crimson Rose Harvests</div>
+              <div class="statsValue" id="statsHarvestC">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Violet Star Harvests</div>
+              <div class="statsValue" id="statsHarvestD">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Emberblossom Harvests</div>
+              <div class="statsValue" id="statsHarvestE">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Moonflower Harvests</div>
+              <div class="statsValue" id="statsHarvestF">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Total Coins Earned</div>
+              <div class="statsValue" id="statsTotalCoins">0</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Current Day</div>
+              <div class="statsValue" id="statsCurrentDay">1</div>
+            </div>
+
+            <div class="statsCard">
+              <div class="statsLabel">Total Bugs Fixed</div>
+              <div class="statsValue" id="statsTotalBugsFixed">0</div>
+            </div>
+
+          </div>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="statsTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="statsTerminalOutput" class="modalTerminalOutput"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- help page -->
+      <div id="helpBackdrop" class="modal-backdrop hidden">
+        <div class="modal">
+          <h2>Help</h2>
+          <p>Game guide and terminal commands.</p>
+
+          <div class="helpSection">
+            <div class="helpTitle">How to Play?</div>
+            <div class="helpText">
+              1. Use <strong>cd store</strong> to open the store and buy flower seeds.<br />
+              2. Use <strong>cd inventory</strong> to check your seeds.<br />
+              3. Click an empty farm plot and plant a seed.<br />
+              4. Click <strong>Next Day</strong> to grow flowers.<br />
+              5. Sometimes a flower gets a bug...<br />
+              6. Fix the buggy code so the flower can keep growing!<br />
+              7. Harvest flowers when they are ready!<br />
+              8. Harvest more flowers to unlock new flower types!~
+            </div>
+          </div>
+
+          <div class="helpSection">
+            <div class="helpTitle">Commands</div>
+            <div class="helpText">
+              <strong>cd farm</strong> - go back to your farm<br />
+              <strong>cd farm/inventory</strong> - open your inventory<br />
+              <strong>cd store</strong> - open store<br />
+              <strong>cd farm/stats</strong> - open statistics page<br />
+              <strong>cd help</strong> - open help page
+            </div>
+          </div>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="helpTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="helpTerminalOutput" class="modalTerminalOutput"></div>
+          </div>
+
         </div>
       </div>
 
@@ -185,57 +331,44 @@
           <h2 id="modalTitle">Plant</h2>
           <p id="modalDesc"></p>
 
-          <div id="plantChoices" class="choices">
-            <button id="plantA" class="btn">
-              Plant Tulip
+          <div id="plantChoices" class="plantGrid">
+            <button id="plantA" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerA_3.jpg" alt="Tulip" />
+              <div class="SIFName">Tulip</div>
+              <div class="seedCountBox"><span id="plantSeedA">0</span></div>
             </button>
-            <button id="plantB" class="btn">
-              Plant Daisy
+
+            <button id="plantB" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerB_3.jpg" alt="Daisy" />
+              <div class="SIFName">Daisy</div>
+              <div class="seedCountBox"><span id="plantSeedB">0</span></div>
             </button>
-            <button id="plantC" class="btn">
-              Plant Crimson Rose
+
+            <button id="plantC" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerC_3.jpg" alt="Crimson Rose" />
+              <div class="SIFName">Crimson Rose</div>
+              <div class="seedCountBox"><span id="plantSeedC">0</span></div>
             </button>
-            <button id="plantD" class="btn">
-              Plant Violet Star
+
+            <button id="plantD" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerD_3.jpg" alt="Violet Star" />
+              <div class="SIFName">Violet Star</div>
+              <div class="seedCountBox"><span id="plantSeedD">0</span></div>
             </button>
-            <button id="plantE" class="btn">
-              Plant Emberblossom
+
+            <button id="plantE" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerE_3.jpg" alt="Emberblossom" />
+              <div class="SIFName">Emberblossom</div>
+              <div class="seedCountBox"><span id="plantSeedE">0</span></div>
             </button>
-            <button id="plantF" class="btn">
-              Plant Moonflower
+
+            <button id="plantF" class="plantFlowerBtn" type="button">
+              <img class="flowerImage" src="assets/flowerF_3.jpg" alt="Moonflower" />
+              <div class="SIFName">Moonflower</div>
+              <div class="seedCountBox"><span id="plantSeedF">0</span></div>
             </button>
           </div>
 
-          <!-- <div id="plantChoice" class="plantGrid">
-            <div class="plantFlower">
-              <img id="plantImageA" class="flowerImage" src="assets/flowerA_3.jpg" alt="Flower A" />
-              <div>Flower A</div>
-              <div>Seeds: <span id="plantSeedA">0</span></div>
-              <button id="plantA" class="btn">Plant</button>
-            </div>
-
-            <div class="plantFlower">
-              <img id="plantImageB" class="flowerImage" src="assets/flowerB_3.jpg" alt="Flower B" />
-              <div>Flower B</div>
-              <div>Seeds: <span id="plantSeedB">0</span></div>
-              <button id="plantB" class="btn">Plant</button>
-            </div>
-
-            <div class="plantFlower">
-              <img id="plantImageC" class="flowerImage" src="assets/flowerC_3.jpg" alt="Flower C" />
-              <div>Flower C</div>
-              <div>Seeds: <span id="plantSeedC">0</span></div>
-              <button id="plantC" class="btn">Plant</button>
-            </div>
-
-            <div class="plantFlower">
-              <img id="plantImageD" class="flowerImage" src="assets/flowerD_3.jpg" alt="Flower D" />
-              <div>Flower D</div>
-              <div>Seeds: <span id="plantSeedD">0</span></div>
-              <button id="plantD" class="btn">Plant</button>
-            </div>
-
-          </div> -->
 
           <div id="harvestChoice" class="choices hidden">
             <button id="harvestBtn" class="btn primary">Harvest</button>
