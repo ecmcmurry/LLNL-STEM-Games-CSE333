@@ -252,6 +252,7 @@ let state = {
 
     bugged: false,
     bugPuzzleId: null,
+    bugData: null,
     bugStartDay: null,
   })),
 };
@@ -271,6 +272,14 @@ function loadState() {
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object") {
       state = parsed;
+
+      if (Array.isArray(state.plots)) {
+        for (const plot of state.plots) {
+          if (!("bugData" in plot)) {
+            plot.bugData = null;
+          }
+        }
+      }
       
       if (typeof state.harCount !== "number") {
         state.harCount = 0;
@@ -728,7 +737,17 @@ function onPlotClicked(i) {
   const plot = state.plots[i];
 
   if (plot.planted && plot.bugged) {
-    const puzzle = PUZZLES[plot.bugPuzzleId];
+    const puzzle = plot.bugData;
+
+    if (!puzzle) {
+      modalTitle.textContent = "Bug Error";
+      modalDesc.textContent = "This bug puzzle failed to load.";
+      plantChoices.classList.add("hidden");
+      harvestChoice.classList.add("hidden");
+      codeBugArea.classList.add("hidden");
+      openModal();
+      return;
+    }
 
     modalTitle.textContent = puzzle.title;
     modalDesc.textContent = "A bug appeared! Fix the code to keep the flower growing.";
@@ -802,6 +821,7 @@ function plantFlower(type) {
 
   plot.bugged = false;
   plot.bugPuzzleId = null;
+  plot.bugData = null;
   plot.bugStartDay = null;
 
   saveState();
@@ -834,6 +854,7 @@ function harvest() {
 
   plot.bugged = false;
   plot.bugPuzzleId = null;
+  plot.bugData = null;
   plot.bugStartDay = null;
 
   saveState();
@@ -843,7 +864,27 @@ function harvest() {
   closeModalFn();
 }
 
-function nextDay() {
+async function fetchAIPuzzle(flowerType) {
+  const response = await fetch("http://localhost:3000/api/bug-puzzle", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ flowerType }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch AI puzzle");
+  }
+
+  return await response.json();
+}
+
+function isPuzzleCorrect(text, puzzle) {
+  return text.includes(puzzle.fixCheck);
+}
+
+async function nextDay() {
   state.day += 1;
   for (const plot of state.plots){
     if (!plot.planted) continue;
@@ -853,13 +894,21 @@ function nextDay() {
     if (stageNow >= 3) continue;
 
     if (Math.random() < 0.30) {
+      try {
+        const aiPuzzle = await fetchAIPuzzle(plot.flowerType);
+
         plot.bugged = true;
-        plot.bugPuzzleId = randomPuzzleId();
+        plot.bugPuzzleId = null;
+        plot.bugData = aiPuzzle;
         plot.bugStartDay = state.day;
+      } catch (error) {
+        console.error("Failed to fetch AI puzzle:", error);
+      }
     }
   }
   saveState();
   updateTopUI();
+  updateStatsUI();
   refreshCropsOnly();
 }
 
@@ -907,12 +956,18 @@ function init() {
     const plot = state.plots[activePlotIndex];
     if (!plot.bugged) return;
 
-    const puzzle = PUZZLES[plot.bugPuzzleId];
+    const puzzle = plot.bugData;
     const text = codeEditor.value;
 
-    if (puzzle.isCorrect(text)) {
+    if (!puzzle) {
+      bugHint.textContent = "Puzzle data is missing.";
+      return;
+    }
+
+    if (isPuzzleCorrect(text, puzzle)) {
         plot.bugged = false;
         plot.bugPuzzleId = null;
+        plot.bugData = null;
         plot.bugStartDay = null;
 
         state.totalBugsFixed += 1;
