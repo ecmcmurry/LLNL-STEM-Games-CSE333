@@ -84,6 +84,11 @@ const statsTotalBugsFixed = $("#statsTotalBugsFixed");
 const statsTerminalInput = $("#statsTerminalInput");
 const statsTerminalOutput = $("#statsTerminalOutput");
 
+// help
+const helpBackdrop = $("#helpBackdrop");
+const helpTerminalInput = $("#helpTerminalInput");
+const helpTerminalOutput = $("#helpTerminalOutput");
+
 // 9 plots
 const PLOT_COUNT = 9;
 
@@ -403,43 +408,64 @@ function runTerminal(command, outputEl = terminalOutput) {
     closeInventory();
     closeStore();
     closeStats();
+    closeHelp();
     terminalOutput.textContent = "Switched to farm.";
     storeTerminalOutput.textContent = "";
     invTerminalOutput.textContent = "";
     statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd farm/inventory') {
     closeStore();
     closeStats();
+    closeHelp();
     openInventory();
     invTerminalOutput.textContent = "Switched to inventory.";
     terminalOutput.textContent = "";
     storeTerminalOutput.textContent = "";
     statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd store') {
     closeInventory();
     closeStats();
+    closeHelp();
     openStore();
     storeTerminalOutput.textContent = "Switched to store.";
     terminalOutput.textContent = "";
     invTerminalOutput.textContent = "";
     statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd farm/stats') {
     closeInventory();
     closeStore();
+    closeHelp();
     openStats();
     statsTerminalOutput.textContent = "Switched to statistics.";
     terminalOutput.textContent = "";
     storeTerminalOutput.textContent = "";
     invTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
+    return;
+  }
+
+  if (text === 'cd help') {
+    closeInventory();
+    closeStore();
+    closeStats();
+    openHelp();
+    helpTerminalOutput.textContent = "Switched to help page.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
     return;
   }
 
@@ -560,6 +586,14 @@ function openStats() {
 
 function closeStats() {
   statsBackdrop.classList.add("hidden");
+}
+
+function openHelp() {
+  helpBackdrop.classList.remove("hidden");
+}
+
+function closeHelp() {
+  helpBackdrop.classList.add("hidden");
 }
 
 
@@ -914,6 +948,13 @@ function init() {
     if (e.key === "Enter") {
       runTerminal(statsTerminalInput.value, statsTerminalOutput);
       statsTerminalInput.value = "";
+    }
+  });
+
+  helpTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(helpTerminalInput.value, helpTerminalOutput);
+      helpTerminalInput.value = "";
     }
   });
 

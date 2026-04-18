@@ -269,6 +269,52 @@
         </div>
       </div>
 
+      <!-- help page -->
+      <div id="helpBackdrop" class="modal-backdrop hidden">
+        <div class="modal">
+          <h2>Help</h2>
+          <p>Game guide and terminal commands.</p>
+
+          <div class="helpSection">
+            <div class="helpTitle">How to Play?</div>
+            <div class="helpText">
+              1. Use <strong>cd store</strong> to open the store and buy flower seeds.<br />
+              2. Use <strong>cd inventory</strong> to check your seeds.<br />
+              3. Click an empty farm plot and plant a seed.<br />
+              4. Click <strong>Next Day</strong> to grow flowers.<br />
+              5. Sometimes a flower gets a bug...<br />
+              6. Fix the buggy code so the flower can keep growing!<br />
+              7. Harvest flowers when they are ready!<br />
+              8. Harvest more flowers to unlock new flower types!~
+            </div>
+          </div>
+
+          <div class="helpSection">
+            <div class="helpTitle">Commands</div>
+            <div class="helpText">
+              <strong>cd farm</strong> - go back to your farm<br />
+              <strong>cd farm/inventory</strong> - open your inventory<br />
+              <strong>cd store</strong> - open store<br />
+              <strong>cd farm/stats</strong> - open statistics page<br />
+              <strong>cd help</strong> - open help page
+            </div>
+          </div>
+
+          <div class="modalTerminal">
+            <div class="modalTerminalLabel">Terminal</div>
+            <input
+              id="helpTerminalInput"
+              class="modalTerminalInput"
+              type="text"
+              placeholder="Type command here"
+              autocomplete="off"
+            />
+            <div id="helpTerminalOutput" class="modalTerminalOutput"></div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Plant (Modal) -->
       <div id="modalBackdrop" class="modal-backdrop hidden">
         <div class="modal">
