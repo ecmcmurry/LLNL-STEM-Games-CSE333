@@ -10,11 +10,12 @@
 </head>
 <body>
 
+    <!--Device selection for the student-->
     <div id="device-selector">
         <div class="selector-box">
             <h2>SYSTEM INITIALIZATION</h2>
-            <button id="choose-mobile">📱 Mobile (Gyroscope)</button>
-            <button id="choose-pc">💻 PC (WASD/Arrows)</button>
+            <button id="choose-mobile">Mobile (Gyroscope)</button>
+            <button id="choose-pc">PC (WASD)</button>
         </div>
     </div>
 
@@ -67,26 +68,10 @@
             </div>
         </div>
 
-        <div id="game-stats" class="hidden">
-            <hr>
-            <div class="stat"><span>Timer:</span> <span id="timer">10.0</span>s</div>
-            <div class="stat"><span>Score:</span> <span id="score">0</span></div>
-        </div>
-
-        <div id="racing-stats" class="hidden">
-            <hr>
-            <div class="stat"><span>Time:</span> <span id="race-timer">0.0</span>s</div>
-            <div class="stat"><span>Laps:</span> <span id="lap-count">0</span>/3</div>
-        </div>
     </div>
 
     <div id="ui">
         <h1>PHYSICS LAB</h1>
-        <div class="mode-selection">
-            <button class="mode-btn active" id="mode-sandbox">🛠 Sandbox</button>
-            <button class="mode-btn" id="mode-challenge">🎯 Challenge</button>
-            <button class="mode-btn" id="mode-racing">🏎 Racing</button>
-        </div>
         <button id="start-button">INITIALIZE ENGINE</button>
     </div>
 
