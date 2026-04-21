@@ -86,14 +86,16 @@ async function generateWeakLevel(weakCategory) {
             category: weakCategory,
             categoryName: categoryNames[weakCategory],
             correct: stats.correct,
-            incorrect: stats.incorrect, accuracy
+            incorrect: stats.incorrect,
+            accuracy,
+            engine: 'sonnet'
         })
     });
     //possible generation of a new board correlating to the topic the student is the weakest at
 
     if(!response.ok) throw new Error('Generation failed');
     const data = await response.json();
-    return data.level;
+    return data;
 }
 //students will be able to access suported learning once they have attempted to get results from the freeplay mode
 async function supportedLearning() {
