@@ -1,5 +1,5 @@
 /* --- GLOBAL DATA & STATE --- */
-let scene, camera, renderer, ball, platformGroup, pillar, goalRing, finishLine, checkLine;
+let scene, camera, renderer, ball, platformGroup;
 let arrowG, arrowF, arrowN; 
 let px = 0, pz = 0, vx = 0, vz = 0; 
 let tiltX = 0, tiltY = 0, calibBeta = null, calibGamma = null;
@@ -17,17 +17,8 @@ let matchType = 'velocity';
 let matchTimerCount = 0;
 let ghostLineData = Array(40).fill(2.50);
 
-let controlMethod = 'pc'; 
-let currentMode = 'sandbox'; 
+let controlMethod = 'pc';
 let gameActive = false;
-
-let score = 0;
-let timeLeft = 10.0;
-let stayTimer = 0;
-let raceTime = 0;
-let laps = 0;
-let hasCheckpoint = false;
-let goalX = 5, goalZ = 5;
 
 const velocityTolerance = 0.20;
 const accelTolerance = 0.15; 
@@ -131,23 +122,6 @@ function initThree() {
     platformGroup.add(base);
     platformGroup.add(new THREE.GridHelper(22, 22, 0x4ade80, 0x1e293b));
 
-    pillar = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 4, 32), new THREE.MeshPhongMaterial({ color: 0x334155 }));
-    pillar.position.y = 2; pillar.castShadow = true;
-    platformGroup.add(pillar);
-
-    goalRing = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.1, 16, 100), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
-    goalRing.rotation.x = Math.PI/2; goalRing.position.y = 0.05;
-    platformGroup.add(goalRing);
-
-    // INTEGRITY FIX: Gates now span the width and are correctly oriented
-    finishLine = new THREE.Mesh(new THREE.PlaneGeometry(22, 1.5), new THREE.MeshBasicMaterial({ color: 0x4ade80, transparent: true, opacity: 0.5 }));
-    finishLine.rotation.x = -Math.PI/2; finishLine.position.set(0, 0.02, 9);
-    platformGroup.add(finishLine);
-
-    checkLine = new THREE.Mesh(new THREE.PlaneGeometry(22, 1.5), new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.5 }));
-    checkLine.rotation.x = -Math.PI/2; checkLine.position.set(0, 0.02, -9);
-    platformGroup.add(checkLine);
-
     ball = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), new THREE.MeshPhongMaterial({ color: 0xef4444, shininess: 80 }));
     ball.castShadow = true;
     platformGroup.add(ball);
@@ -176,23 +150,11 @@ function handleOrientation(e) {
     tiltY = e.beta - calibBeta;
 }
 
-function spawnGoal() {
-    goalX = (Math.random() - 0.5) * 16;
-    goalZ = (Math.random() - 0.5) * 16;
-    goalRing.position.set(goalX, 0.05, goalZ);
-}
-
 function resetGame() {
     px = 0; pz = 0; vx = 0; vz = 0;
-    laps = 0; hasCheckpoint = false; raceTime = 0;
-    score = 0; timeLeft = 10.0; stayTimer = 0; matchTimerCount = 0;
+    matchTimerCount = 0;
     ball.rotation.set(0, 0, 0);
-    pillar.visible = (currentMode === 'racing');
-    finishLine.visible = checkLine.visible = (currentMode === 'racing');
-    goalRing.visible = (currentMode === 'challenge');
-    checkLine.material.color.set(0xef4444);
-    if (currentMode === 'challenge') spawnGoal();
-    if (currentMode === 'sandbox') generateNewSandboxTarget();
+    generateNewSandboxTarget();
 }
 
 /* --- ANIMATION LOOP --- */
@@ -224,22 +186,8 @@ function animate() {
     px += vx; pz += vz;
 
     // Boundary Logic
-    if (currentMode === 'sandbox') {
-        if (Math.abs(px) > 11) px = -Math.sign(px) * 11;
-        if (Math.abs(pz) > 11) pz = -Math.sign(pz) * 11;
-    } else {
-        if (Math.abs(px) > 10.5) { px = Math.sign(px) * 10.5; vx *= -0.5; }
-        if (Math.abs(pz) > 10.5) { pz = Math.sign(pz) * 10.5; vz *= -0.5; }
-        if (pillar.visible) {
-            const dist = Math.sqrt(px*px + pz*pz);
-            if (dist < 3.5) {
-                let angle = Math.atan2(pz, px);
-                px = Math.cos(angle) * 3.5;
-                pz = Math.sin(angle) * 3.5;
-                vx *= -0.3; vz *= -0.3;
-            }
-        }
-    }
+    if (Math.abs(px) > 11) px = -Math.sign(px) * 11;
+    if (Math.abs(pz) > 11) pz = -Math.sign(pz) * 11;
 
     ball.position.set(px, 0.5, pz);
     ball.rotation.z -= vx / 0.5;
@@ -253,49 +201,20 @@ function animate() {
     document.getElementById('v-total').innerText = speed.toFixed(2);
     document.getElementById('a-total').innerText = accel.toFixed(2);
 
-    /* --- MODE LOGIC --- */
-    if (currentMode === 'sandbox') {
-        let diff = (matchType === 'velocity') ? Math.abs(speed - targetSpeed) : Math.abs(accel - targetAccel);
-        let tolerance = (matchType === 'velocity') ? velocityTolerance : accelTolerance;
-        
-        if (matchType === 'velocity') {
-            document.getElementById('v-total').style.color = (diff < tolerance) ? "#4ade80" : "var(--accent-cyan)";
-        } else {
-            document.getElementById('a-total').style.color = (diff < tolerance) ? "#ef4444" : "var(--text-main)";
-        }
+    /* --- SANDBOX LOGIC --- */
+    let diff = (matchType === 'velocity') ? Math.abs(speed - targetSpeed) : Math.abs(accel - targetAccel);
+    let tolerance = (matchType === 'velocity') ? velocityTolerance : accelTolerance;
 
-        if (diff < tolerance) matchTimerCount += 0.016;
-        else matchTimerCount = Math.max(0, matchTimerCount - 0.01);
-        document.getElementById('match-progress').style.width = (matchTimerCount / 3 * 100) + "%";
-        if (matchTimerCount >= 3) { matchTimerCount = 0; generateNewSandboxTarget(); score++; }
-    } 
-    else if (currentMode === 'challenge') {
-        timeLeft -= 0.016;
-        const distToGoal = Math.sqrt((px - goalX)**2 + (pz - goalZ)**2);
-        if (distToGoal < 1.2 && speed < 0.2) {
-            stayTimer += 0.016;
-            if (stayTimer >= 3) { score++; timeLeft = 10.0; stayTimer = 0; spawnGoal(); }
-        } else stayTimer = 0;
-        document.getElementById('timer').innerText = Math.max(0, timeLeft).toFixed(1);
-        document.getElementById('score').innerText = score;
-        if (timeLeft <= 0) { gameActive = false; alert("TIME EXPIRED! Final Score: " + score); location.reload(); }
-    } 
-    else if (currentMode === 'racing') {
-        raceTime += 0.016;
-        document.getElementById('race-timer').innerText = raceTime.toFixed(1);
-        
-        // REFINED LOGIC: Gates are now at Z = -9 and Z = 9
-        if (pz < -8.5 && pz > -9.5 && !hasCheckpoint) { 
-            hasCheckpoint = true; 
-            checkLine.material.color.set(0x4ade80); 
-        }
-        if (pz > 8.5 && pz < 9.5 && hasCheckpoint) {
-            laps++; hasCheckpoint = false; 
-            checkLine.material.color.set(0xef4444);
-            document.getElementById('lap-count').innerText = laps;
-            if (laps >= 3) { gameActive = false; alert(`RACE COMPLETE! Final Time: ${raceTime.toFixed(2)}s`); resetGame(); }
-        }
+    if (matchType === 'velocity') {
+        document.getElementById('v-total').style.color = (diff < tolerance) ? "#4ade80" : "var(--accent-cyan)";
+    } else {
+        document.getElementById('a-total').style.color = (diff < tolerance) ? "#ef4444" : "var(--text-main)";
     }
+
+    if (diff < tolerance) matchTimerCount += 0.016;
+    else matchTimerCount = Math.max(0, matchTimerCount - 0.01);
+    document.getElementById('match-progress').style.width = (matchTimerCount / 3 * 100) + "%";
+    if (matchTimerCount >= 3) { matchTimerCount = 0; generateNewSandboxTarget(); }
 
     if (chart) {
         chart.data.datasets[0].data.push(speed); chart.data.datasets[0].data.shift();
@@ -325,28 +244,11 @@ function updateArrow(arrow, fx, fz, pos, height) {
 }
 
 /* --- UI ACTIONS --- */
-const modeButtons = ['sandbox', 'challenge', 'racing'];
-modeButtons.forEach(mode => {
-    document.getElementById(`mode-${mode}`).onclick = () => {
-        currentMode = mode;
-        modeButtons.forEach(m => document.getElementById(`mode-${m}`).classList.remove('active'));
-        document.getElementById(`mode-${mode}`).classList.add('active');
-        const descriptions = {
-            sandbox: "🛠 Free Play: Match Target Speed (Yellow) or Target Accel (Red) for 3s!",
-            challenge: "🎯 Survival: Stay in the ring to survive the timer!",
-            racing: "🏎 Circuit: Pass the Red gate then the Green gate 3 times!"
-        };
-        document.getElementById('mode-description').innerText = descriptions[mode];
-    };
-});
-
 document.getElementById('start-button').onclick = () => {
     document.getElementById('ui').classList.add('hidden');
     document.getElementById('hud-left').classList.remove('hidden');
     document.getElementById('hud-right').classList.remove('hidden');
-    if (currentMode === 'sandbox') document.getElementById('match-hud').classList.remove('hidden');
-    document.getElementById('game-stats').classList.toggle('hidden', currentMode !== 'challenge');
-    document.getElementById('racing-stats').classList.toggle('hidden', currentMode !== 'racing');
+    document.getElementById('match-hud').classList.remove('hidden');
     if (controlMethod === 'mobile' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(res => { if (res === 'granted') initThree(); });
     } else initThree();
