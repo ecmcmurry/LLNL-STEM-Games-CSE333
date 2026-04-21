@@ -9,10 +9,11 @@ function loadLevel() {
     document.getElementById('circuitBoardImg').src = level.boardImg;
     //goals are displayed accordingly tot he levels needs and are dynamic based on the levels needs using itenary operators
     const goalText = document.getElementById('goalText');
+    const target = (typeof level.goal === 'number') ? level.goal : '?';
     if(level.goalType === 'current'){
-        goalText.innerHTML = `V: <span>${level.voltage ?? '?'}</span>V &nbsp;|&nbsp; R: <span>${level.resistance ?? '?'}</span>&Omega; &nbsp;|&nbsp; I: <span class="unknown">?</span>A`;
+        goalText.innerHTML = `V: <span>${level.voltage ?? '?'}</span>V &nbsp;|&nbsp; R: <span>${level.resistance ?? '?'}</span>&Omega; &nbsp;|&nbsp; Target I: <span class="unknown">${target}</span>A`;
     } else if(level.goalType === 'voltage'){
-        goalText.innerHTML = `I: <span>${level.fixedCurrent ?? '?'}</span>A &nbsp;|&nbsp; R: <span>${level.resistance ?? '?'}</span>&Omega; &nbsp;|&nbsp; V: <span class="unknown">?</span>V`;
+        goalText.innerHTML = `I: <span>${level.fixedCurrent ?? '?'}</span>A &nbsp;|&nbsp; R: <span>${level.resistance ?? '?'}</span>&Omega; &nbsp;|&nbsp; Target V: <span class="unknown">${target}</span>V`;
     } else if(level.goalType === 'series'){
         goalText.innerHTML = `Series: R_total = <span>${level.Answer}</span>&Omega;`;
     } else if(level.goalType === 'parallel'){
