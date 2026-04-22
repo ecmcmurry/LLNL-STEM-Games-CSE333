@@ -28,33 +28,67 @@
         
         <div class="hud-content">
             <div class="stat">
-                <label>μ (Friction):</label>
-                <input type="number" id="live-mu" value="0.15" step="0.01">
+                <label>μ Friction</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-mu',-0.05)">−</button>
+                    <input type="number" id="ctrl-mu" value="0.3" step="0.05" min="0" max="2">
+                    <button onclick="adj('ctrl-mu',0.05)">+</button>
+                </div>
             </div>
             <div class="stat">
-                <label>m (Mass kg):</label>
-                <input type="number" id="live-mass" value="0.5" step="0.1">
+                <label>m Mass (kg)</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-mass',-0.1)">−</button>
+                    <input type="number" id="ctrl-mass" value="0.5" step="0.1" min="0.1" max="20">
+                    <button onclick="adj('ctrl-mass',0.1)">+</button>
+                </div>
             </div>
             <div class="stat">
-                <label>g (Gravity):</label>
-                <input type="number" id="live-g" value="9.81" step="0.1">
+                <label>gY Gravity</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-gy',-1)">−</button>
+                    <input type="number" id="ctrl-gy" value="-9.81" step="0.5" min="-20" max="0">
+                    <button onclick="adj('ctrl-gy',1)">+</button>
+                </div>
             </div>
-            <button id="reset-ball-btn">🔄 RESET POSITION</button>
+            <div class="stat">
+                <label>Cd Drag</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-cd',-0.1)">−</button>
+                    <input type="number" id="ctrl-cd" value="0.47" step="0.1" min="0" max="2">
+                    <button onclick="adj('ctrl-cd',0.1)">+</button>
+                </div>
+            </div>
+            <div class="stat">
+                <label>ρ Air (kg/m³)</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-rho',-0.5)">−</button>
+                    <input type="number" id="ctrl-rho" value="1.225" step="0.5" min="0" max="20">
+                    <button onclick="adj('ctrl-rho',0.5)">+</button>
+                </div>
+            </div>
+            <div class="stat" style="gap:8px;">
+                <label>Force Arrows</label>
+                <input type="checkbox" id="ctrl-arrows" checked style="width:auto; cursor:pointer;">
+            </div>
+            <button id="reset-ball-btn">🔄 RESET BALL</button>
         </div>
     </div>
 
     <div id="hud-right" class="hud-panel hidden">
-        <div class="hud-header">ANALYTICS OVERLAY</div>
+        <div class="hud-header">ANALYTICS</div>
         <div class="graph-container">
             <canvas id="physicsChart"></canvas>
         </div>
         <div class="telemetry-grid">
-            <div class="stat">V: <span id="v-total">0.00</span> m/s</div>
-            <div class="stat">A: <span id="a-total">0.00</span> m/s²</div>
-            <div class="stat">θX: <span id="rot-x">0</span>°</div>
-            <div class="stat">θZ: <span id="rot-z">0</span>°</div>
+            <div class="stat">|v|: <span id="tel-speed">0.00</span> m/s</div>
+            <div class="stat">|a|: <span id="tel-accel">0.00</span> m/s²</div>
+            <div class="stat">θX: <span id="tel-tiltx">0.0</span>°</div>
+            <div class="stat">θZ: <span id="tel-tiltz">0.0</span>°</div>
+            <div class="stat">N: <span id="tel-normal">0.00</span> N</div>
+            <div class="stat">KE: <span id="tel-ke">0.000</span> J</div>
         </div>
-        <p id="mode-description" style="font-size: 0.65rem; color: #94a3b8; margin-top: 10px;"></p>
+        <div id="tel-state" class="state-badge">ON SURFACE</div>
     </div>
 
     <div id="match-hud" class="hud-panel hidden">
@@ -69,12 +103,49 @@
         </div>
 
     </div>
-
-    <div id="ui">
-        <h1>PHYSICS LAB</h1>
-        <button id="start-button">INITIALIZE ENGINE</button>
+    <!--new approach to the level objectives-->
+    <div id="level-hud" class="hud-panel hidden">
+        <div class="hud-header"><span id="level-badge-text">LEVEL</span></div>
+        <div id="level-task-text" style="font-size:0.75rem; color:#e2e8f0; margin:8px 0; min-height:2em;"></div>
+        <div class="progress-bar-bg" style="margin-top:6px;">
+            <div id="level-progress-bar" style="width:0%; height:100%; background:#22d3ee; border-radius:10px; box-shadow:0 0 10px #22d3ee; transition:width 0.2s;"></div>
+        </div>
+        <div id="level-score-text" style="font-size:0.7rem; color:#94a3b8; margin-top:6px;"></div>
     </div>
 
-    <script src="index.js"></script>
+    <button id="snapshot-btn" class="hidden">📸 SNAPSHOT</button>
+    <button id="jump-btn" class="hidden">⬆ JUMP</button>
+
+    <!--Legend for the vectors-->>
+    <div id="force-legend" class="hud-panel hidden">
+        <div style="color:#ef4444; margin:3px 0; font-size:0.65rem;">● Gravity (surface)</div>
+        <div style="color:#4ade80; margin:3px 0; font-size:0.65rem;">● Normal</div>
+        <div style="color:#3b82f6; margin:3px 0; font-size:0.65rem;">● Friction</div>
+        <div style="color:#fbbf24; margin:3px 0; font-size:0.65rem;">● Drag</div>
+    </div>
+    <!--preparation for the bloom model-->
+    <div id="bloom-modal" class="hidden">
+        <div class="modal-box">
+            <div id="bm-badge"></div>
+            <h3 id="bm-title"></h3>
+            <p id="bm-body"></p>
+            <div id="bm-choices"></div>
+            <div id="bm-explanation" class="hidden"></div>
+            <button id="bm-btn"></button>
+        </div>
+    </div>
+
+    <div id="ui">
+        <h1>Learn Kinematics by playing!</h1>
+        <div class="level-select-label">SELECT MODE</div>
+        <div class = "level-grid">
+            <button class="level-btn active" data-level="0">Sandbox</button>
+            <button class="level-btn" data-level="1">World 1 | Corridor</button>
+            <button class="level-btn" data-level="2">World 2 | Path vs Arrow</button>
+            <button class="level-btn" data-level="3">World 3 | Velocity</button>
+            <button class="level-btn" data-level="4">World 4 | Acceleration</button>
+        </div>    
+        <button id="start-button">INITIALIZE ENGINE</button>
+    </div>
 </body>
 </html>
