@@ -132,6 +132,9 @@ function gameLoop(timestamp) {
 
     if (currentLevel === 0) updateMatch(frameDt);
     if (currentLevel === 1) updateW1(frameDt);
+    if (currentLevel === 2) updateW2(frameDt);
+    if (currentLevel === 3) updateW3(frameDt);
+    if (currentLevel === 4) updateW4(frameDt);
 
     updateChart();
 
