@@ -54,3 +54,12 @@ let paramsOverride = null, tiltLocked = false;
 
 //W1 scene objects
 let w1Checkpoints = null, w1DispArrow = null;
+
+//W2 scene objects
+let w2StartMesh = null, w2GoalMesh = null, w2DispArrow = null;
+
+//W3 scene objects
+let w3GoalMesh = null, w3VelArrow = null, w3AimCone = null;
+
+//W4 trial data
+let w4Samples = [], w4StartT = 0;
