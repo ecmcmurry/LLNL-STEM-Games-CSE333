@@ -11,3 +11,24 @@ document.getElementById('gameAuthor').innerText = author;
 
 const backLink = document.getElementById('back-link');
 backLink.href = from ? from : 'index.html';
+
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const gameContainer = document.getElementById('gameContainer');
+
+fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        gameContainer.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+});
+
+document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) {
+        fullscreenBtn.textContent = '✕';
+        fullscreenBtn.title = 'Exit Fullscreen';
+    } else {
+        fullscreenBtn.innerHTML = '&#x26F6;';
+        fullscreenBtn.title = 'Fullscreen';
+    }
+});
