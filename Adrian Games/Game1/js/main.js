@@ -26,6 +26,14 @@ function handleOrientation(e) {
     tiltZ = THREE.MathUtils.clamp(e.beta  - calibBeta,  -MAX_TILT_DEG, MAX_TILT_DEG);
 }
 
+//real phone accelerometer — updates phoneAccelMag each sensor frame
+function handleMotion(e) {
+    const a = e.accelerationIncludingGravity;
+    if (a && a.x !== null && a.y !== null && a.z !== null) {
+        phoneAccelMag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    }
+}
+
 //Reads new constant changes that the user utilizes
 function readParams() {
     if (paramsOverride) return { ...paramsOverride };
@@ -43,32 +51,85 @@ function readParams() {
 document.getElementById('choose-mobile').onclick = () => { controlMethod = 'mobile'; hideSelector(); };
 document.getElementById('choose-pc').onclick    = () => { controlMethod = 'pc'; hideSelector(); };
 
+// How To Play open / back
+// #how-to-play is z-index 1001 so it covers everything instantly — no need to touch device-selector
+document.getElementById('htp-open-btn').onclick = () => {
+    document.getElementById('how-to-play').classList.remove('hidden');
+};
+document.getElementById('htp-back-btn').onclick = () => {
+    document.getElementById('how-to-play').classList.add('hidden');
+};
+
 function hideSelector() {
     const s = document.getElementById('device-selector');
     s.style.opacity = '0';
     setTimeout(() => s.classList.add('hidden'), 500);
 }
 
-//Jump method added to the game
-const jumpBtn = document.getElementById('jump-btn');
-if (jumpBtn) {
-    jumpBtn.addEventListener('click', () => { jumpQueued = true; });
-    jumpBtn.addEventListener('touchstart', e  => { e.preventDefault(); jumpQueued = true; }, { passive: false });
+// Level select → device selector
+// No need to hide #ui or #ui-bg — device-selector is z-index 1000 and covers them.
+// Leaving them intact means they're still there when the user picks a device and
+// the selector fades out, so the level select appears immediately underneath.
+document.getElementById('back-to-device-btn').onclick = () => {
+    const sel = document.getElementById('device-selector');
+    sel.style.opacity = '1';
+    sel.classList.remove('hidden');
+};
+
+// Shared helper — used by game-back-btn AND the level-complete menu
+function goToLevelSelect() {
+    gameActive = false;
+    ['hud-left', 'hud-right', 'force-legend', 'snapshot-btn', 'game-back-btn']
+        .forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    hideAllLevelPanels();
+    const uiBg = document.getElementById('ui-bg');
+    if (uiBg) {
+        uiBg.classList.remove('hidden');
+        uiBg.getBoundingClientRect(); // force reflow so CSS transition fires
+        uiBg.style.opacity = '1';
+    }
+    document.getElementById('ui').classList.remove('hidden');
 }
+
+// In-game → level select
+document.getElementById('game-back-btn').onclick = goToLevelSelect;
 
 document.getElementById('start-button').onclick = () => {
     document.getElementById('ui').classList.add('hidden');
     document.getElementById('hud-left').classList.remove('hidden');
     document.getElementById('hud-right').classList.remove('hidden');
     document.getElementById('force-legend').classList.remove('hidden');
-    document.getElementById('jump-btn')?.classList.remove('hidden');
 
-    if (controlMethod === 'mobile' &&
-        typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(r => { if (r === 'granted') boot(); });
+    if (renderer) {
+        // Scene already initialized — resume without re-booting
+        const uiBg = document.getElementById('ui-bg');
+        if (uiBg) { uiBg.style.opacity = '0'; setTimeout(() => uiBg.classList.add('hidden'), 420); }
+        gameActive = true;
+        lastTimestamp = null;
+        accumulator = 0;
+        requestAnimationFrame(gameLoop);
+        startLevel(selectedLevel);
+        return;
+    }
+
+    if (controlMethod === 'mobile') {
+        const needsPermission = typeof DeviceOrientationEvent !== 'undefined' &&
+                                typeof DeviceOrientationEvent.requestPermission === 'function';
+        if (needsPermission) {
+            //iOS 13+: request orientation + motion permissions from the same user-gesture call stack
+            const orientP = DeviceOrientationEvent.requestPermission();
+            const motionP = typeof DeviceMotionEvent !== 'undefined' &&
+                            typeof DeviceMotionEvent.requestPermission === 'function'
+                            ? DeviceMotionEvent.requestPermission()
+                            : Promise.resolve('granted');
+            Promise.all([orientP, motionP]).then(([oRes, mRes]) => {
+                if (oRes === 'granted') boot(mRes === 'granted');
+            });
+        } else {
+            boot(true); //Android / non-iOS — devicemotion fires without permission
+        }
     } else {
-        boot();
+        boot(false); //PC — no motion sensor
     }
 };
 
@@ -80,12 +141,26 @@ document.getElementById('snapshot-btn')?.addEventListener('click', e => {
 });
 
 //the initializer for the engine for both devices
-function boot() {
+function boot(motionGranted = false) {
+    // fade out the level-select background so the canvas shows through
+    const uiBg = document.getElementById('ui-bg');
+    if (uiBg) { uiBg.style.opacity = '0'; setTimeout(() => uiBg.classList.add('hidden'), 420); }
+
     initThreeScene();
     initTrail();
     initChart();
     generateTarget();
-    if (controlMethod === 'mobile') window.addEventListener('deviceorientation', handleOrientation);
+
+    if (controlMethod === 'mobile') {
+        window.addEventListener('deviceorientation', handleOrientation);
+        if (motionGranted) {
+            window.addEventListener('devicemotion', handleMotion);
+            //reveal the phone accelerometer row in the analytics HUD
+            const row = document.getElementById('tel-phone-row');
+            if (row) row.style.display = 'block';
+        }
+    }
+
     gameActive = true;
     lastTimestamp = null;
     accumulator = 0;
@@ -135,10 +210,13 @@ function gameLoop(timestamp) {
     if (currentLevel === 2) updateW2(frameDt);
     if (currentLevel === 3) updateW3(frameDt);
     if (currentLevel === 4) updateW4(frameDt);
+    if (currentLevel === 5) updateW5(frameDt);
+    if (currentLevel === 6) updateW6(frameDt);
 
     updateChart();
 
-    camera.lookAt(new THREE.Vector3(ballPos.x * 0.15, Math.max(ballPos.y * 0.1, 0), ballPos.z * 0.15));
+    // Soft-track the ball's height only — X/Z stay centred so the platform stays square
+    camera.lookAt(new THREE.Vector3(0, Math.max(ballPos.y * 0.08, 0), 0));
     renderer.render(scene, camera);
 }
 

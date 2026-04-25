@@ -17,10 +17,10 @@ function createBallTexture() {
 function initThreeScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
-    scene.fog = new THREE.Fog(0x020617, 50, 90);
+    scene.fog = new THREE.Fog(0x020617, 70, 120);
 
-    camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 200);
-    camera.position.set(18, 22, 18);
+    camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 250);
+    camera.position.set(0, 32, 30);   // pulled back to frame the larger platform; no X offset = square not diamond
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -69,8 +69,8 @@ function initThreeScene() {
     sun.position.set(15, 30, 15);
     sun.castShadow = true;
     sun.shadow.mapSize.set(1024, 1024);
-    sun.shadow.camera.left = -22; sun.shadow.camera.right = 22;
-    sun.shadow.camera.top  =  22; sun.shadow.camera.bottom = -22;
+    sun.shadow.camera.left = -30; sun.shadow.camera.right = 30;
+    sun.shadow.camera.top  =  30; sun.shadow.camera.bottom = -30;
     scene.add(sun);
 
     window.addEventListener('resize', () => {
@@ -97,7 +97,7 @@ function initTrail() {
     scene.add(trailMesh);
 }
 
-//trail utilized for the students to tell the difference between distance and 
+//trail utilized for the students to tell the difference between distance and
 function updateTrail() {
     const intensity = Math.min(ballVel.length() / 8, 1.0);
     for (let i = 0; i < TRAIL_LENGTH - 1; i++) {
@@ -142,7 +142,7 @@ function updateForceArrows() {
     setArrow(arrowFriction, F.friction.clone().add(F.rolling), pos, show && onSurface);
     setArrow(arrowDrag, F.drag, pos, show);
 }
-//organized into this file basic force vectors for the rigid body 
+//organized into this file basic force vectors for the rigid body
 function setArrow(arrow, forceVec, origin, show) {
     const len = forceVec.length() * FORCE_SCALE;
     if (!show || len < 0.03) { arrow.visible = false; return; }
