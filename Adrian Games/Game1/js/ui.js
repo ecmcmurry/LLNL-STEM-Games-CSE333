@@ -23,6 +23,20 @@ function updateTelemetry(P) {
         badge.textContent = onSurface ? 'ON SURFACE' : 'AIRBORNE';
         badge.className   = 'state-badge' + (onSurface ? '' : ' airborne');
     }
+
+    //live phone accelerometer — only active in mobile mode
+    if (controlMethod === 'mobile') {
+        const phoneValEl = document.getElementById('tel-phone-accel');
+        const phoneRowEl = document.getElementById('tel-phone-row');
+        if (phoneValEl) {
+            phoneValEl.textContent = phoneAccelMag.toFixed(2);
+            //color: green → near freefall, purple → active, dim handled by freefall class
+        }
+        if (phoneRowEl) {
+            //freefall class lights up green when phone reads near 0g
+            phoneRowEl.classList.toggle('freefall', phoneAccelMag < 1.5);
+        }
+    }
 }
 
 //chart utilized from char.js
@@ -57,7 +71,10 @@ function updateChart() {
     chartAccel.push(currentAccelMag); chartAccel.shift();
     chart.data.datasets[0].data = [...chartSpeed];
     chart.data.datasets[1].data = [...chartAccel];
-    chart.data.datasets[2].data = Array(CHART_LEN).fill(currentLevel === 0 ? targetSpeed : 0);
+    // Show target line in sandbox (level 0) and W4 speed ramp (level 4)
+    chart.data.datasets[2].data = Array(CHART_LEN).fill(
+        (currentLevel === 0 || currentLevel === 4) ? targetSpeed : 0
+    );
     const maxVal = Math.max(...chartSpeed, ...chartAccel, targetSpeed, 5);
     chart.options.scales.y.max = Math.ceil(maxVal * 1.3);
     chart.update('none');
@@ -100,10 +117,21 @@ function showModal({ badge, title, body, choices, onChoice, btnLabel = 'Continue
 
     if (choices && choices.length) {
         btn.classList.add('hidden');
+        const letters = 'ABCDEFGH';
         choices.forEach((c, i) => {
             const b = document.createElement('button');
-            b.className   = 'bm-choice-btn';
-            b.textContent = c;
+            b.className = 'bm-choice-btn';
+
+            const badge = document.createElement('span');
+            badge.className   = 'choice-letter';
+            badge.textContent = letters[i] ?? String(i + 1);
+
+            const text = document.createElement('span');
+            text.className   = 'choice-text';
+            text.textContent = c;
+
+            b.appendChild(badge);
+            b.appendChild(text);
             b.onclick = () => { if (onChoice) onChoice(i, b); };
             choicesEl.appendChild(b);
         });
