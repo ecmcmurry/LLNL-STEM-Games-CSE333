@@ -369,18 +369,18 @@ function updateReactionText() {
 function calculateReaction(volumes) {
 
     // calculate moles for each reactant
-    const moles = reactants.map((reactant, i) => ({
+    const reactionMoles = reactants.map((reactant, i) => ({
         name: reactant.name,
         moles: reactant.concentration * (volumes[i]/1000),
         ratio: reactant.molarRatio
     }));
 
     // calculate moles divided by ratio for each — the smallest value is the limiting reactant
-    const limitingValue = Math.min(...moles.map(r => r.moles / r.ratio));
+    const limitingValue = Math.min(...reactionMoles.map(r => r.moles / r.ratio));
 
     // calculate yield and excess
     return {
-        reactants: moles.map(r => ({
+        reactants: reactionMoles.map(r => ({
             name: r.name,
             molesAdded: r.moles,
             molesUsed: limitingValue * r.ratio,
@@ -930,6 +930,320 @@ function inVessel(x ,y) {
     }
 }
 
+//Onto the Analyze screen
+//Populates the analyze screen with the information from reacitons.js
+document.getElementById('toAnalyzeScreenBtn').addEventListener('click', () => {
+    const analyze = REACTIONS[reaction].analyze;
+
+    //General Observations:
+    const obsContainer = document.getElementById('observationsContainer');
+    obsContainer.innerHTML = '';
+
+    //creates the card that will hold the observation information
+    let obsCard = document.createElement('article');
+    obsCard.classList.add('card');
+    obsCard.classList.add('analyzeCard');
+
+    //creates the internal contianer that will hold the text
+    let obsContent = document.createElement('div');
+    obsContent.classList.add('content');
+    obsContent.classList.add('analyzeContent');
+
+    //creates the html string for the pH strip
+    let phStripHTML = `<span class="pHStrip" style="background-color:${analyze.pH.color};"></span>`;
+
+    //Adds temperature to the observation content
+    obsContent.appendChild(makeObservationRow(
+        'Temperature',
+        `Product solution: <strong>${analyze.temperature.product}°C</strong> <span style="color:#888; font-size:13px;">(room temperature was ${analyze.temperature.roomTemp}°C)</span>`,
+        analyze.temperature.note
+    ));
+
+    //Adds pH to the observation content
+    obsContent.appendChild(makeObservationRow(
+        'pH Strip',
+        `Reading: <strong>${analyze.pH.value}</strong>${phStripHTML} <strong style="color:#2a7a40;">${analyze.pH.label}</strong>`,
+        analyze.pH.note
+    ));
+
+    //Adds visals to the observation content
+    obsContent.appendChild(makeObservationRow(
+        'Visual Observation',
+        analyze.visual.text,
+        analyze.visual.note
+    ));
+
+    //Adds conductivity to the observation content
+    obsContent.appendChild(makeObservationRow(
+        'Conductivity',
+        `${analyze.conductivity.level}`,
+        analyze.conductivity.note
+    ));
+
+    //attaches the content to the card, then the card to the container
+    obsCard.appendChild(obsContent);
+    obsContainer.appendChild(obsCard);
+
+    //Yield Analysis
+    const yieldContainer = document.getElementById('yieldContainer');
+    yieldContainer.innerHTML = '';
+
+    //Calculates the theoretetical yield, defaulting to 0 if there isn't enough information
+    let theoreticalYield;
+    if (moles && moles.products && moles.products.length > 0) {
+        theoreticalYield = moles.products[0].molesProduced;
+    } else {
+        theoreticalYield = 0;
+    }
+
+    //Calculates the actual yield by introducing some minor error factor, just helps with realism
+    let actualYield = theoreticalYield * analyze.yield.errorFactor;
+
+    //Calculates the percent yield, defaulting to 0 if there isn't enough information
+    let percentYield;
+    if (theoreticalYield > 0) {
+        percentYield = ((actualYield / theoreticalYield) * 100).toFixed(1);
+    } else {
+        percentYield = '0.0';
+    }
+
+    //Creates the card to hold the yield content
+    let yieldCard = document.createElement('article');
+    yieldCard.classList.add('card');
+    yieldCard.classList.add('analyzeCard');
+
+    //Creates the container to hold the yield text
+    let yieldContent = document.createElement('div');
+    yieldContent.classList.add('content');
+    yieldContent.classList.add('analyzeContent');
+
+    //Creates the row of elements for Theoretical Yield, Actual Yield, and Percentage Yield
+    let instrRow = document.createElement('div');
+    instrRow.classList.add('instrumentRow');
+    instrRow.appendChild(makeInstrument('Theoretical yield', theoreticalYield.toFixed(3), `mol ${products[0].symbol}`));
+    instrRow.appendChild(makeInstrument('Actual yield', actualYield.toFixed(3), `mol ${products[0].symbol}`));
+    instrRow.appendChild(makeInstrument('Percentage yield', `${percentYield}%`, 'efficiency'));
+    yieldContent.appendChild(instrRow);
+
+    //Adds a note at the bottom to explain the <100% results
+    let yieldNote = document.createElement('p');
+    yieldNote.classList.add('yieldNote');
+    yieldNote.textContent = 'A yield below 100% reflects real-world losses from transfer, measurement imprecision, and the practical limits of any reaction. A yield above ~90% is considered good in a teaching lab.';
+    yieldContent.appendChild(yieldNote);
+
+    //Attaches the content to the card, and the card to the greater container
+    yieldCard.appendChild(yieldContent);
+    yieldContainer.appendChild(yieldCard);
+
+    //Liquid Products
+    //Creates a container to hold all liquid products
+    const liquidContainer = document.getElementById('liquidProductsContainer');
+    liquidContainer.innerHTML = '';
+    //For each product
+    products.forEach(product => {
+        //if it is aqueous or liquid
+        if (product.phase == "aqueous" || product.phase == "liquid") {
+            //create a product card for it
+            liquidContainer.appendChild(makeProductCard(product.name, product.symbol, product.attributes));
+        }
+    });
+    //if no liquid products exist, then inform the user
+    if (liquidContainer.innerHTML == '') {
+        liquidContainer.textContent = "No liquid products";
+    }
+
+    //Solid Products
+    //Creates a container to hold all solid products
+    const solidContainer = document.getElementById('solidProductsContainer');
+    solidContainer.innerHTML = '';
+    //For each product
+    products.forEach(product => {
+        //if it is solid
+        if (product.phase == "solid") {
+            //find the moles of the product
+            let productMolesObj = moles.products.find(p => p.symbol === product.symbol);
+            //calculate the moles produced using the error factor
+            solidActualMoles = productMolesObj.molesProduced * analyze.yield.errorFactor;
+            //TODO: check for bugs here
+
+            let amountHTML;
+            if (product.molarMass) {
+                let grams = (solidActualMoles * product.molarMass).toFixed(1);
+                amountHTML = `Amount: <strong>${solidActualMoles.toFixed(3)} mol</strong> <span style="color:#888;">(~${grams} g)</span>`;
+            } else {
+                amountHTML = `Amount: <strong>${solidActualMoles.toFixed(3)} mol</strong>`;
+            }
+
+            let headerText;
+            if (product.name) {
+                headerText = `${product.symbol} (${product.name})`;
+            } else {
+                headerText = product.symbol;
+            }
+
+            //create a product card for it
+            solidContainer.appendChild(makeProductCard(product.name, product.symbol, product.attributes));
+        }
+    });
+    //if no solid products exist, then inform the user
+    if (solidContainer.innerHTML == '') {
+        solidContainer.textContent = "No solid products";
+    }
+
+    // Reset evidence section each visit
+    document.getElementById('evidenceInput').value = '';
+    document.getElementById('evidenceFeedback').innerText = '';
+    document.getElementById('evidenceFeedback').style.color = '';
+    document.getElementById('analyzeScreen').querySelector('.toLabBtn').classList.add('hidden');
+});
+
+//A helper function that makes creating the list of general observations easier
+function makeObservationRow(labelText, valueHTML, noteText) {
+    //First it creates a row to hold the other elements
+    let row = document.createElement('div');
+    row.classList.add("observationRow");
+
+    //Creates a label, assigns the proper class, and populates with the proper text
+    let label = document.createElement('p');
+    label.classList.add("observationRowLabel");
+    label.textContent = labelText;
+
+    //Creates a value field, assigns the proper class, and populates with the proper html
+    let value = document.createElement('p');
+    value.classList.add("observationRowValue");
+    value.innerHTML = valueHTML;
+
+    //Creates a note field, assigns the proper class, and populates with the text
+    let note = document.createElement('p');
+    note.classList.add("observationRowNote");
+    note.textContent = noteText;
+
+    //attaches the created elements to the row and returns the row
+    row.appendChild(label);
+    row.appendChild(value);
+    row.appendChild(note);
+    return row;
+}
+
+//A helper function to create an instrument readout. Currently only used for displaying the yield
+function makeInstrument(labelText, readingText, unitText) {
+    let instrument = document.createElement('div');
+    instrument.classList.add("instrument");
+
+    let label = document.createElement('p');
+    label.classList.add("instrumentLabel");
+    label.textContent = labelText;
+
+    let reading = document.createElement('p');
+    reading.classList.add("instrumentReading");
+    reading.textContent = readingText;
+
+    let unit = document.createElement('p');
+    unit.classList.add("instrumentUnit");
+    unit.textContent = unitText;
+
+    instrument.appendChild(label);
+    instrument.appendChild(reading);
+    instrument.appendChild(unit);
+    return instrument;
+}
+
+//A helper function to create cards for the products, both solid and liquid
+function makeProductCard(nameText, headerSubText, attrList, amountHTML = null, footnoteText = null) {
+
+    //Creates the card which will hold the header and content
+    let card = document.createElement('article');
+    card.classList.add('card');
+    card.classList.add('analyzeCard');
+
+    //Creates the header
+    let header = document.createElement('header');
+    header.classList.add('analyzeHeader');
+
+    //Fills the header with the text
+    let h3 = document.createElement('h3');
+    header.classList.add('h3');
+    if (headerSubText) {
+        h3.textContent = `${nameText} — ${headerSubText}`;
+    } else {
+        h3.textContent = nameText;
+    }
+    header.appendChild(h3);
+
+    //Creates the content container
+    let content = document.createElement('div');
+    content.classList.add('content');
+    content.classList.add('analyzeContent');
+
+    //Creates an Unordered List of each "Attribute" field for the products
+    let ul = document.createElement('ul');
+    if (amountHTML) {
+        let amountLi = document.createElement('li');
+        amountLi.innerHTML = amountHTML;
+        ul.appendChild(amountLi);
+    }
+    attrList.forEach(attr => {
+        let li = document.createElement('li');
+        li.innerHTML = attr;
+        ul.appendChild(li);
+    });
+    content.appendChild(ul);
+
+    if (footnoteText) {
+        let footnote = document.createElement('p');
+        footnote.classList.add('footnote');
+        footnote.textContent = footnoteText;
+        content.appendChild(footnote);
+    }
+
+    card.appendChild(header);
+    card.appendChild(content);
+    return card;
+}
+
+//This function checks to ensure the user has engaged with the experiment before moving them to the AI Debrief
+//This should help improve learning and reduce token costs
+function checkEvidence() {
+    //Error handling: If there isn't a reaction or an analysis component to the reaction, then don't run this function
+    if (!REACTIONS[reaction] || !REACTIONS[reaction].analyze) {
+        return;
+    }
+
+    const input = document.getElementById('evidenceInput').value.toLowerCase().trim();
+    const feedback = document.getElementById('evidenceFeedback');
+
+    //If the input is too short, asks the user to expand;
+    if (input.length < 20) {
+        feedback.style.color = '#a03030';
+        feedback.innerText = 'Please write a more complete response before submitting.';
+        return;
+    }
+
+    const categories = REACTIONS[reaction].analyze.evidenceKeywords;
+    let matched = [];
+    //Searches through a set of keyword categories to find matches
+    categories.forEach(cat => {
+        let found = cat.keywords.some(kw => input.includes(kw));
+        if (found) matched.push(cat.label);
+    });
+
+    //If the user has referenced three pieces of information matching those keywords, allow them to move to the debrief
+    if (matched.length >= 3) {
+        feedback.style.color = '#2a7a40';
+        feedback.innerText = 'Good scientific reasoning! You cited evidence from: ' + matched.join(', ') + '. You may proceed.';
+        //TODO: change to move to the debrief screen
+        document.getElementById('analyzeScreen').querySelector('.toLabBtn').classList.remove('hidden');
+        visitedAnalyze = true;
+    //If there aren't enough matching keywords, ask the user to cite more
+    } else if (matched.length >= 1) {
+        feedback.style.color = '#b07020';
+        feedback.innerText = 'You identified some evidence (' + matched.join(', ') + '), but try to cite at least three different observations. Consider the temperature change, pH reading, and conductivity result.';
+    //Otherwise, ask the user to reference parts of the analysis
+    } else {
+        feedback.style.color = '#a03030';
+        feedback.innerText = 'Try to connect your answer to specific measurements from the analysis above — temperature, pH, conductivity, or visual observations.';
+    }
+} 
 
 //Verifies that the Disposal options chosen by the player line up with the reaction
 document.getElementById('verifyDisposal').addEventListener('click', () => {
