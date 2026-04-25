@@ -12,6 +12,9 @@ let tiltX = 0, tiltZ = 0;
 let controlMethod = 'pc';
 let calibBeta = null, calibGamma = null;
 
+//Real phone accelerometer magnitude (m/s²) — 0 on PC, ~9.81 at rest on mobile
+let phoneAccelMag = 9.81;
+
 //Game loop timing
 let gameActive = false;
 let lastTimestamp = null, accumulator = 0;
@@ -59,7 +62,19 @@ let w1Checkpoints = null, w1DispArrow = null;
 let w2StartMesh = null, w2GoalMesh = null, w2DispArrow = null;
 
 //W3 scene objects
-let w3GoalMesh = null, w3VelArrow = null, w3AimCone = null;
+let w3NegGate = null, w3PosGate = null, w3VelArrow = null, w3NumberLine = null, w3CircleRing = null;
 
-//W4 trial data
-let w4Samples = [], w4StartT = 0;
+//W4 scene objects
+let w4Group = null;
+
+//W5 tower & trial data
+let w5TowerGroup = null, w5PlatformRings = [];
+let w5Building = null, w5Elevator = null;
+let w5TrialLog = [], w5Falling = false, w5FallStart = 0;
+let w5AccelDisplay = 9.81, w5ScatterChart = null;
+let w5LaunchPads = [], w5ActivePad = null, w5PadDwellT = 0;
+
+//W6 create-mode scene objects + scenario config
+let w6Group = null, w6Elevator = null, w6GuideWire = null;
+let w6Scenario = null;
+let w6Falling = false, w6FallStart = 0;
