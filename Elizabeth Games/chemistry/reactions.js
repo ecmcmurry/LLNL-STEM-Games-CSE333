@@ -14,12 +14,12 @@ const REACTIONS = {
                 symbol: "HCl", 
                 state: "aqueous", 
                 concentration: 1.0,
-                appearance: "Clear, colorless liquid, but can yellow over time",
+                appearance: "Clear, colorless liquid",
                 pH: "~0 at 1.0 mol/L",
                 hazards: ["Corrosive", "Irritant"],
                 ghs: ["GHS05", "GHS07"],
                 molarRatio: 1,
-                color: "rgba(220,210,130,0.25)"
+                color: "rgba(202, 202, 202, 0.25)"
             },
             { 
                 name: "Sodium hydroxide solution", 
@@ -38,12 +38,24 @@ const REACTIONS = {
             { 
                 name: "Sodium chloride", 
                 symbol: "NaCl",
-                molarRatio: 1
+                molarRatio: 1,
+                phase: "solid",
+                appearance: "Not visible in solution. Outside of solution it appears as fine white crystals",
+                additionalNotes: [
+                    "Solubility: Highly soluble — 360 g/L at room temperature",
+                    "Note: Na+ and Cl- were spectator ions — they did not participate in the reaction itself",
+                    "Note: To isoolate the solid NaCl, the water would need to be evaportated, which is a step not included in this experiment"
+                ]
             },
             { 
                 name: "Water", 
                 symbol: "H₂O",
-                molarRatio: 1
+                molarRatio: 1,
+                phase: "aqueous",
+                appearance: "Clear, colorless liquid",
+                additionalNotes: [
+                    "Formed when H+ and OH- ions combined during neutralization"
+                ]
             }
         ],
         energyChange: "exothermic",
@@ -53,7 +65,31 @@ const REACTIONS = {
                 options: ["Release heat (exothermic)", "Absorb heat (endothermic)", "No energy change"],
                 correct: 0
             },
-            // add more later
+            {
+                question: "What do you expect the pH of the product solution to be?",
+                options: ["Acidic (pH below 7)", "Neutral (pH 7)", "Basic (pH above 7)"],
+                correct: 1
+            },
+            {
+                question: "Will a solid precipitate form during this reaction?",
+                options: ["Yes, a solid will form", "No, all products will remain in solution"],
+                correct: 1
+            },
+            {
+                question: "Will a gas be produced during this reaction?",
+                options: ["Yes, a gas will be evolved", "No, no gas will be produced"],
+                correct: 1
+            },
+            {
+                question: "What type of reaction is this?",
+                options: ["Acid-base neutralisation", "Combustion", "Redox reaction", "Decomposition"],
+                correct: 0
+            },
+            {
+                question: "After the reaction, which ions will remain in solution?",
+                options: [ "H⁺ and OH⁻ ions", "Na⁺ and Cl⁻ ions", "Na⁺ and OH⁻ ions", "No ions — all products are neutral molecules"],
+                correct: 1
+            },
         ],
         safety: {
             eyeAndFace: "Safety Goggles",
@@ -70,6 +106,49 @@ const REACTIONS = {
             solid: "None",
             gaseous: "None"
         },
+        analyze: {
+            temp: {
+                product: 27.3,
+                roomTemp: 20,
+                note: "The product is warmer than room temperature, this indicates that energy was released during the reaction."
+            },
+            pH: {
+                value: 7,
+                color: "#4caf50",
+                label: "Neutral",
+                note: "A pH value of 7 indicates a neutral solution."
+            },
+            visual: {
+                text: "Clear, colorless liquid with white crystals dissolved inside.",
+                note: "No precipitates or gasses were formed. The solution did not change colors during the reaction."
+            },
+            conductivity: {
+                level: "High",
+                note: "Na+ and Cl- ions dissolved in solution can carry electric charge."
+            },
+            evidenceKeywords: [
+                {
+                    label: "temperature / heat / exothermic",
+                    keywords: ["temperature", "warm", "heat", "exothermic", "energy", "27", "hotter"]
+                },
+                {
+                    label: "pH / neutral / neutralisation",
+                    keywords: ["ph", "neutral", "7", "neutrali"]
+                },
+                {
+                    label: "conductivity / ions",
+                    keywords: ["conduct", "ion", "electric", "na+", "cl-", "sodium", "chloride"]
+                },
+                {
+                    label: "visual observation / no precipitate / no gas",
+                    keywords: ["clear", "colour", "precipitate", "gas", "bubble", "visual", "appear"]
+                },
+                {
+                    label: "new product formed / NaCl / water",
+                    keywords: ["nacl", "salt", "water", "product", "formed", "h2o"]
+                }
+            ]
+        }
     },
     pb_no3_ki: {
         //populate for second reaction later
