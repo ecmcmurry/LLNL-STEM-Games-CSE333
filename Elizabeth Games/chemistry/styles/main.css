@@ -35,3 +35,21 @@ select, button {
     align-items: center;
     gap: 10px;
 }
+
+.canvas-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    position: relative;
+    display: block;
+}
+
+canvas {
+    border: 1px solid rgb(10, 60, 60);
+    border-radius: 4px;
+    background: rgb(255, 255, 255);
+    display: block;
+}
+
+.pourBtn {
+    position: absolute;
+}

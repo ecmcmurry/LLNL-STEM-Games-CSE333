@@ -223,15 +223,20 @@
     <!-- React Screen -->
      <!-- Placeholder for now -->
     <div id="reactScreen" class="screen" style="display: none;">
-        <!-- back button should redirect to the labScreen -->
-        <!-- See about giving them a class so they can all be queried to reduce the js code -->
         
         <h1 style="text-align: center;">React</h1>
 
-        <!-- This is where the magic happens, likely little to no user input -->
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+        <p id="reactionStatus" class = "bodytext" style="text-align: center;">
+            lorem ipsum dolor sit amet
         </p>
+
+        <div class="canvas-wrapper">
+            <canvas id="reactionCanvas" width="500" height="380"></canvas>
+            <!-- Currently only 2 options, could forsee having these be created by js in case of 3+ reactants -->
+             <!-- The button text will need to be updated using js though -->
+            <button class="pourBtn" id="pourReactant1" style="left: 0">Pour Reactant 1</button>
+            <button class="pourBtn" id="pourReactant2" style="right: 0">Pour Reactant 2</button>
+        </div>
 
         <p style="text-align: center;">
             <button class="toLabBtn hidden">Back to Lab</button>
