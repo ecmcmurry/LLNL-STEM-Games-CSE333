@@ -53,3 +53,32 @@ canvas {
 .pourBtn {
     position: absolute;
 }
+
+.analyzeHeader {
+    text-align: left;
+    border-bottom: 2px solid #5e9ca0;
+    padding-bottom: 4px;
+    margin: 24px 0 10px 0;
+    color: #000000;
+    font-size: 24px;
+}
+
+.analyzeNote {
+    font-size: 15px;
+    color: #555555;
+    font-style: italic;
+    margin: 0 0 12px 0;
+}
+
+.textInput {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid #c0d8e0;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+    box-sizing: border-box;
+    background: white;
+}
