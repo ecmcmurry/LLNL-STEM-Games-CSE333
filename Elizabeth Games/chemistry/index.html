@@ -185,7 +185,6 @@
     </div>
 
     <!-- Measure Screen -->
-     <!-- Placeholder for now -->
     <div id="measureScreen" class="screen" style="display: none;">
         
         <!-- Allows the user to go back and read the pre-lab before measuring -->
@@ -221,7 +220,7 @@
     </div>
 
     <!-- React Screen -->
-     <!-- Placeholder for now -->
+    <!-- In favor of time, I have increase the AI assistance in creating the game for this screne -->
     <div id="reactScreen" class="screen" style="display: none;">
         
         <h1 style="text-align: center;">React</h1>
@@ -244,17 +243,44 @@
     </div>
 
     <!-- Analyze Screen -->
-     <!-- Placeholder for now -->
+    <!-- In favor of time, I have increase the AI assistance in creating the game for this screne -->
     <div id="analyzeScreen" class="screen" style="display: none;">
-        <!-- back button should redirect to the labScreen -->
-        <!-- See about giving them a class so they can all be queried to reduce the js code -->
-        
+
         <h1 style="text-align: center;">Analyze</h1>
 
-        <!-- The user is able to inspect the product. They will be told some characteristics (clear liquid with suspended white crystals), but will need to test for others (pH, temperature) -->
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+        <p class="bodytext" style="text-align: center;">
+            Examine the products of your reaction. Record what you observe.
         </p>
+
+        <h2 class="analyzeHeader">General Observations</h2>
+        <p class="analyzeNote">These observations apply to the reaction and its products as a whole.</p>
+        <div id="observationsContainer"></div>
+
+        <h2 class="analyzeHeader">Yield Analysis</h2>
+        <p class="analyzeNote">Compares your actual product yield to the theoretical maximum.</p>
+        <div id="yieldContainer"></div>
+
+        <h2 class="analyzeHeader">Liquid Products</h2>
+        <p class="analyzeNote">Products that exist in the liquid phase at room temperature.</p>
+        <div id="liquidProductsContainer"></div>
+
+        <h2 class="analyzeHeader">Solid Products</h2>
+        <p class="analyzeNote">Products that are solid at room temperature, whether dissolved in solution or forming a visible precipitate.</p>
+        <div id="solidProductsContainer"></div>
+
+        <h2 class="analyzeHeader">What evidence tells you this reaction occurred?</h2>
+        <p class="analyzeNote">
+            Using your observations above, explain in your own words how you know a chemical reaction took place.
+            Aim to cite at least three pieces of evidence.
+        </p>
+
+        <textarea id="evidenceInput" class="textInput" placeholder="e.g. The temperature rose from 20°C to 27°C, which indicates energy was released..."></textarea>
+
+        <p style="text-align: center;" id="checkAnalysisBtn">
+            <button>Submit</button>
+        </p>
+
+        <p id="evidenceFeedback" class="bodytext" style="text-align: center;"></p>
 
         <p style="text-align: center;">
             <button class="toLabBtn hidden">Back to Lab</button>

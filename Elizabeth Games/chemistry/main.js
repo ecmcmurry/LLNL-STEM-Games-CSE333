@@ -452,6 +452,7 @@ document.getElementById('toReactScreenBtn').addEventListener('click', () => {
     document.getElementById('pourReactant2').innerText = "Pour " + reactants[1].symbol;
 });
 
+//when the appropriate button is pressed, pour the corresponding beaker
 document.getElementById('pourReactant1').addEventListener('click', () => {
     beakers[0].pouring = true;
     if (!animId) {
@@ -468,6 +469,7 @@ document.getElementById('pourReactant2').addEventListener('click', () => {
     document.getElementById('pourReactant2').classList.add('hidden');
 });
 
+//when the window resizes, resize ther canvas
 window.addEventListener('resize', () => {
     resizeCanvas();
 });
@@ -479,17 +481,15 @@ function resizeCanvas() {
     
     canvas.width  = w;
     canvas.height = Math.round(w * (380 / 500));
-    
-    ctx.scale(scale, scale); // scale context to match original coordinate space
+
+    //Scales context to match original coordinates
+    ctx.scale(scale, scale); 
 
     draw();
 }
 
 function draw() {
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.clearRect(0, 0, 500, 380);
-
-    //drawHotplate();
 
     //draws the stream while the beaker is pouring
     if (beakers[0].pouring == true) {
@@ -504,11 +504,6 @@ function draw() {
 
     drawVessel();
     drawStirTrail();
-    //drawStirProgress();
-    //drawRod();
-    //drawThermometer();
-    //drawLabels();
-    //drawBanner();
 }
 
 //This function draws the beakers for each reactant
@@ -609,10 +604,7 @@ function drawStream(pivotX, pivotY, angle, color, direction) {
         dir = -1;
     }
 
-    // the spout is the near top corner — the one that swings toward the vessel
-    // in beaker-local space this is always (0, -BEAKER_H) for both sides,
-    // because the pivot sits at that bottom corner and the near top corner
-    // is directly above it at x=0 in local coordinates
+    //Calculates where to draw the pour
     let rawX = 0;
     let rawY = -BEAKER_H;
 
@@ -683,10 +675,14 @@ function animate() {
     draw();
     animId = requestAnimationFrame(animate);
 
+    //if both beakers are idle
     if (idleCount == 2) {
+        //and we haven't stirred yet
         if (doneStirring == false) {
+            //tell the user to stir
             document.getElementById('reactionStatus').innerText = "Stir by clicking within the vessel and moving";
         }
+        //enables stirring
         stirMode = true;
     }
     
@@ -830,6 +826,7 @@ canvas.addEventListener('touchend', () => {
     stirring = false;
 });
 
+//Runs code necessary for when the reaction is finished
 function triggerReaction() {
     reactionComplete = true;
     stirMode = false;
@@ -842,12 +839,13 @@ function triggerReaction() {
 
     vesselColor = REACTIONS[reaction].finalColor;
 
-    
+    //stops animating to save resources
     cancelAnimationFrame(animId);
     animId = null;
     draw();
 }
 
+//Draws the trail created when stirring
 function drawStirTrail() {
     //if we aren't stirring, then we don't need to draw the trail
     if (!stirMode && !stirring) {
