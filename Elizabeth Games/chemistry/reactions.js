@@ -40,8 +40,8 @@ const REACTIONS = {
                 symbol: "NaCl",
                 molarRatio: 1,
                 phase: "solid",
-                appearance: "Not visible in solution. Outside of solution it appears as fine white crystals",
-                additionalNotes: [
+                attributes: [
+                    "Appearance: Not visible in solution. Outside of solution it appears as fine white crystals",
                     "Solubility: Highly soluble — 360 g/L at room temperature",
                     "Note: Na+ and Cl- were spectator ions — they did not participate in the reaction itself",
                     "Note: To isoolate the solid NaCl, the water would need to be evaportated, which is a step not included in this experiment"
@@ -49,11 +49,12 @@ const REACTIONS = {
             },
             { 
                 name: "Water", 
-                symbol: "H₂O",
+                symbol: "H2O",
                 molarRatio: 1,
-                phase: "aqueous",
-                appearance: "Clear, colorless liquid",
-                additionalNotes: [
+                phase: "liquid",
+                attributes: [
+                    "Appearance: Clear, colorless liquid",
+                    "pH: 7 — Neutral",
                     "Formed when H+ and OH- ions combined during neutralization"
                 ]
             }
@@ -107,7 +108,7 @@ const REACTIONS = {
             gaseous: "None"
         },
         analyze: {
-            temp: {
+            temperature: {
                 product: 27.3,
                 roomTemp: 20,
                 note: "The product is warmer than room temperature, this indicates that energy was released during the reaction."
@@ -147,7 +148,10 @@ const REACTIONS = {
                     label: "new product formed / NaCl / water",
                     keywords: ["nacl", "salt", "water", "product", "formed", "h2o"]
                 }
-            ]
+            ],
+            yield: {
+                errorFactor: 0.94
+            }
         }
     },
     pb_no3_ki: {

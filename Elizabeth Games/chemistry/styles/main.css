@@ -16,6 +16,12 @@ h2 {
     font-size: 24px;
 }
 
+h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #2a6a70;
+}
+
 select, button {
     padding: 8px 12px;
     font-size: 16px;
@@ -81,4 +87,105 @@ canvas {
     resize: vertical;
     box-sizing: border-box;
     background: white;
+}
+
+.observationRow {
+    padding: 10px 0;
+}
+
+.observationRowLabel {
+    font-weight: bold;
+    font-size: 15px;
+    color: #2a6a70;
+    margin: 0 0 4px 0;
+}
+
+.observationRowValue {
+    font-size: 15px;
+    color: #333333;
+    margin: 0 0 2px 0;
+}
+
+.observationRowNote {
+    font-size: 13px;
+    color: #666666;
+    font-style: italic;
+    margin: 2px 0 0 0;
+}
+
+.instrument {
+    background: #f8fcfe;
+    border: 1px solid #c0d8e0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.instrumentLabel {
+    font-size: 12px;
+    color: #666666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 6px 0;
+}
+
+.instrumentReading {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2a6a70;
+    margin: 0;
+}
+
+.instrumentUnit {
+    font-size: 12px;
+    color: #888; margin: 0;
+}
+
+.instrumentRow {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 8px 0;
+}
+
+.analyzeCard {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.analyzeContent {
+    padding: 12px 16px;
+}
+
+.analyzeHeader {
+    background-color: #d8eef4;
+    padding: 10px 16px;
+    border-bottom: 1px solid #c0d8e0;
+}
+
+.pHStrip {
+    display:inline-block;
+    width:40px;
+    height:14px;
+    border-radius:3px;
+    vertical-align:middle;
+    margin-left:6px;
+    border:1px solid #aaaaaa;
+}
+
+.yieldNote {
+    font-size: 13px;
+    color: #666666; 
+    margin-top: 6px;
+}
+
+.footnite {
+    font-size: 13px;
+    color: #888888;
+    margin-top: 8px;
+    font-style: italic;
 }
