@@ -14,14 +14,15 @@ const REACTIONS = {
                 symbol: "HCl", 
                 state: "aqueous", 
                 concentration: 1.0,
-                appearance: "Clear, colorless liquid",
+                appearance: "Clear, colorless liquid, but can yellow over time",
                 pH: "~0 at 1.0 mol/L",
                 hazards: ["Corrosive", "Irritant"],
                 ghs: ["GHS05", "GHS07"],
-                molarRatio: 1
+                molarRatio: 1,
+                color: "rgba(220,210,130,0.25)"
             },
             { 
-                name: "Sodium hydroxide", 
+                name: "Sodium hydroxide solution", 
                 symbol: "NaOH", 
                 state: "aqueous", 
                 concentration: 1.0,
@@ -29,7 +30,8 @@ const REACTIONS = {
                 pH: "~14 at 1.0 mol/L",
                 hazards: ["Corrosive"],
                 ghs: ["GHS05"],
-                molarRatio: 1
+                molarRatio: 1,
+                color: "rgba(202, 202, 202, 0.25)"
             }
         ],
         products: [
@@ -60,6 +62,9 @@ const REACTIONS = {
             foot: "Closed-toe Shoes",
             respiratory: "None"
         },
+        stirNeeded: 700,
+        finalColor: "rgba(202, 202, 202, 0.25)",
+        reactionFinishedText: "Neutralisation complete — NaCl + H₂O produced",
         disposal: {
             liquid: "Drain Disposal",
             solid: "None",

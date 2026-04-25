@@ -74,6 +74,8 @@ document.getElementById('toReactScreenBtn').addEventListener('click', () => {
         document.getElementById('labFeedback').innerText = "You have already performed the reaction.";
     } else if (visitedMeasure == true) {
         swapScreen("react");
+        resizeCanvas();
+        visitedReact = true;
         document.getElementById('labFeedback').innerText = "";
     } else {
         document.getElementById('labFeedback').innerText = "You must have the proper quantities before beginning the reaction.";
