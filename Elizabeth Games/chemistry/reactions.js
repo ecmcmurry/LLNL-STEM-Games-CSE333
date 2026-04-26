@@ -93,19 +93,43 @@ const REACTIONS = {
             },
         ],
         safety: {
-            eyeAndFace: "Safety Goggles",
-            hands: "Nitrile Gloves",
-            body: "Lab Coat",
-            foot: "Closed-toe Shoes",
-            respiratory: "None"
+            eyeAndFace: {
+                equipment: "Safety Goggles",
+                hint: "What protects eyes from splashes of corrosive liquids like HCl and NaOH."
+            },
+            hands: {
+                equipment: "Nitrile Gloves",
+                hint: "What protects skin contact with corrosive substances that can cause burns."
+            },
+            body: {
+                equipment: "Lab Coat",
+                hint: "What protects clothing and skin from accidental spills or splashes."
+            },
+            foot: {
+                equipment: "Closed-toe Shoes",
+                hint: "What protects feet from spills or dropped containers."
+            },
+            respiratory: {
+                equipment: "None",
+                hint: "No harmful gases are produced, so respiratory protection is not required."
+            }
         },
         stirNeeded: 700,
         finalColor: "rgba(202, 202, 202, 0.25)",
         reactionFinishedText: "Neutralisation complete — NaCl + H₂O produced",
         disposal: {
-            liquid: "Drain Disposal",
-            solid: "None",
-            gaseous: "None"
+            liquid: {
+                method: "Drain Disposal",
+                hint: "The liquid solution is neutral and contains no hazardous byproducts."
+            },
+            solid: {
+                method: "None",
+                hint: "No solid is formed in this reaction, so no solid disposal is required."
+            },
+            gaseous: {
+                method: "None",
+                hint: "No gas is produced during this reaction."
+            }
         },
         analyze: {
             temperature: {
@@ -160,7 +184,7 @@ const REACTIONS = {
             "What the neutral pH result tells us about the completeness of neutralisation"
         ]
     },
-    pb_no3_ki: {
+    NEXT_REACTION: {
         //populate for second reaction later
     }
 };
