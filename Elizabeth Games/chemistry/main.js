@@ -241,23 +241,33 @@ document.getElementById('toStorageScreenBtn').addEventListener('click', () => {
 //Takes in a list of answers and compares them to the correct responses
 //Refactored with support from Claude to enable easier testing
 function checkPPEAnswers(selected, reactionSafety) {
-    let correctSum = 0;
-    if (selected.eye == reactionSafety.eyeAndFace) {
-        correctSum++;
+    let checkArray = [];
+    if (selected.eye == reactionSafety.eyeAndFace.equipment) {
+        checkArray.push(true);
+    } else {
+        checkArray.push(false);
     }
-    if (selected.hands == reactionSafety.hands) {
-        correctSum++;
+    if (selected.hands == reactionSafety.hands.equipment) {
+        checkArray.push(true);
+    } else {
+        checkArray.push(false);
     }
-    if (selected.body == reactionSafety.body) {
-        correctSum++;
+    if (selected.body == reactionSafety.body.equipment) {
+        checkArray.push(true);
+    } else {
+        checkArray.push(false);
     }
-    if (selected.foot == reactionSafety.foot) {
-        correctSum++;
+    if (selected.foot == reactionSafety.foot.equipment) {
+        checkArray.push(true);
+    } else {
+        checkArray.push(false);
     }
-    if (selected.respiratory == reactionSafety.respiratory) {
-        correctSum++;
+    if (selected.respiratory == reactionSafety.respiratory.equipment) {
+        checkArray.push(true);
+    } else {
+        checkArray.push(false);
     }
-    return correctSum;
+    return checkArray;
 }
 
 //Verifies that the PPE options chosen by the player line up with the reaction
@@ -271,7 +281,13 @@ document.getElementById('verifyPPE').addEventListener('click', () => {
         respiratory: document.querySelector('input[name="respiratoryProtection"]:checked').value
     }
     //checks which of these answers are correct
-    let correctSum = checkPPEAnswers(selected, REACTIONS[reaction].safety);
+    let checkArray = checkPPEAnswers(selected, REACTIONS[reaction].safety);
+    let correctSum = 0;
+    checkArray.forEach((field, index) => {
+        if (checkArray[index] == true) {
+            correctSum++;
+        }
+    });
 
     if (correctSum == 5) {
         //if correct display this
@@ -281,7 +297,19 @@ document.getElementById('verifyPPE').addEventListener('click', () => {
         document.getElementById('verifyPPE').classList.add('hidden');
     } else {
         //if incorrect display this
-        document.getElementById('PPEFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
+        if (checkArray[0] == false) {
+            document.getElementById('PPEFeedback').innerText = REACTIONS[reaction].safety.eyeAndFace.hint;
+        } else if (checkArray[1] == false) {
+            document.getElementById('PPEFeedback').innerText = REACTIONS[reaction].safety.hands.hint;
+        } else if (checkArray[2] == false) {
+            document.getElementById('PPEFeedback').innerText = REACTIONS[reaction].safety.body.hint;
+        } else if (checkArray[3] == false) {
+            document.getElementById('PPEFeedback').innerText = REACTIONS[reaction].safety.foot.hint;
+        } else if (checkArray[4] == false) {
+            document.getElementById('PPEFeedback').innerText = REACTIONS[reaction].safety.respiratory.hint;
+        } else {
+            document.getElementById('PPEFeedback').innerText = "One of your pieces of PPE is incorrect.";
+        }
         //Redundancy
         document.getElementById('safetyScreen').querySelector('.toLabBtn').classList.add('hidden');
     }
@@ -1278,24 +1306,26 @@ function checkEvidence() {
 document.getElementById('verifyDisposal').addEventListener('click', () => {
     //pulls answer from each category
     //checks that against value in reaction
-    let correctSum = 0;
+    let correctLiquid = false;
+    let correctSolid = false;
+    let correctGas = false;
 
     const liquid = document.querySelector('input[name="liquidWaste"]:checked');
     const solid = document.querySelector('input[name="solidWaste"]:checked');
     const gas = document.querySelector('input[name="gaseousWaste"]:checked');
 
     //there is almost certainly a smarter way of doing this
-    if (liquid.value == REACTIONS[reaction].disposal.liquid) {
-        correctSum++;
+    if (liquid.value == REACTIONS[reaction].disposal.liquid.method) {
+        correctLiquid = true;
     }
-    if (solid.value == REACTIONS[reaction].disposal.solid) {
-        correctSum++;
+    if (solid.value == REACTIONS[reaction].disposal.solid.method) {
+        correctSolid = true;
     }
-    if (gas.value == REACTIONS[reaction].disposal.gaseous) {
-        correctSum++;
+    if (gas.value == REACTIONS[reaction].disposal.gaseous.method) {
+        correctGas = true;
     }
 
-    if (correctSum == 3) {
+    if (correctLiquid && correctSolid && correctGas) {
         //if correct display this
         document.getElementById('disposalFeedback').innerText = "Good job!";
         document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.remove('hidden');
@@ -1304,7 +1334,16 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
     } else {
         //if incorrect display this
         //Maybe include some canned responses just in case?
-        document.getElementById('disposalFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
+        if (!correctLiquid) {
+            document.getElementById('disposalFeedback').innerText = REACTIONS[reaction].disposal.liquid.hint;
+        } else if (!correctSolid) {
+            document.getElementById('disposalFeedback').innerText = REACTIONS[reaction].disposal.solid.hint;
+        } else if (!correctLiquid) {
+            document.correctGas('disposalFeedback').innerText = REACTIONS[reaction].disposal.gaseous.hint;
+        } else {
+            document.correctGas('disposalFeedback').innerText = "At least one disposal method is incorrect, please try again.";
+        }
+        
         //Redundancy
         document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.add('hidden');
     }
