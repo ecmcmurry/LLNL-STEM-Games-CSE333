@@ -1300,6 +1300,7 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
         document.getElementById('disposalFeedback').innerText = "Good job!";
         document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.remove('hidden');
         visitedDispose = true;
+        document.getElementById('verifyDisposal').classList.add('hidden');
     } else {
         //if incorrect display this
         //Maybe include some canned responses just in case?
@@ -1333,7 +1334,16 @@ function buildRunSummary() {
             correctAnswer: p.options[p.correct],
             correct:       playerPredictions[i] === p.options[p.correct]
         })),
-        debriefTargets: REACTIONS[reaction].debriefTargets
+        debriefTargets: REACTIONS[reaction].debriefTargets,
+        volumes: reactants.map((r, i) => ({
+            name:          r.name,
+            symbol:        r.symbol,
+            volumeML:      volumes[i],
+            molesAdded:    moles.reactants[i].molesAdded,
+            molesExcess:   moles.reactants[i].molesExcess,
+            isLimiting:    moles.reactants[i].molesExcess === 0
+        })),
+        equationBalanced: moles.reactants.every(r => r.molesExcess < 0.001)
     };
 }
 
@@ -1361,6 +1371,15 @@ function buildSystemPrompt(summary) {
         ? `\nYield note: the student's yield of ${summary.yieldPercent}% is excellent. Praise it and do not treat it as a problem.`
         : `\nYield note: the student's yield of ${summary.yieldPercent}% is acceptable for a teaching lab.`;
 
+    const volumeLines = summary.volumes.map(v =>
+        `  ${v.name}: ${v.volumeML}mL (${v.molesAdded.toFixed(3)} mol) — ${v.isLimiting
+        ? "limiting reactant"
+        : `excess by ${v.molesExcess.toFixed(3)} mol`}`
+    ).join("\n");
+
+const balanceNote = summary.equationBalanced
+    ? "The student balanced the equation correctly — both reactants were fully consumed."
+    : "The student did not balance the equation — one reactant was in excess and was wasted.";
     return `You are a Socratic chemistry tutor debriefing a student who has just completed a virtual lab experiment. Your role is to deepen their understanding through questions, not to lecture or provide answers directly.
 
 EXPERIMENT CONTEXT:
@@ -1374,6 +1393,8 @@ STUDENT PERFORMANCE:
 ${predictionLines}
 - Yield achieved: ${summary.yieldPercent}% — ${yieldLabel}
 - Evidence statement written by the student: "${summary.evidenceStatement}"
+- Volumes used: ${volumeLines}
+- Stoichiometry: ${balanceNote}
 
 YOUR BEHAVIOUR RULES:
 1. Never give answers directly. Always respond with a question or a prompt that guides the student toward the answer themselves.
