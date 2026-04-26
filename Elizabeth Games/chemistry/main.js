@@ -47,6 +47,8 @@ let stirTrail = [];
 let reactionComplete = false;
 
 let playerPredictions = [];
+let evidenceStatement = "";
+let yieldPercent = 0;
 
 //Changes from the Title Screen to the Pre-Lab Screen
 //This is included in main and NOT swapScreen because of the added functionality when you press the button
@@ -82,6 +84,9 @@ document.getElementById('titleToPreLabBtn').addEventListener('click', () => {
     reactionComplete = false;
 
     playerPredictions = [];
+    evidenceStatement = "";
+    yieldPercent = 0;
+    
 
 
     document.getElementById('preLabToPredictionsBtn').classList.remove('hidden');
@@ -1023,6 +1028,8 @@ document.getElementById('toAnalyzeScreenBtn').addEventListener('click', () => {
     } else {
         percentYield = '0.0';
     }
+    //Stores a copy of the yield as a number instead of a string
+    yieldPercent = parseFloat(percentYield);
 
     //Creates the card to hold the yield content
     let yieldCard = document.createElement('article');
@@ -1248,12 +1255,14 @@ function checkEvidence() {
         if (found) matched.push(cat.label);
     });
 
-    //If the user has referenced three pieces of information matching those keywords, allow them to move to the debrief
+    //If the user has referenced three pieces of information matching those keywords, allow them to move on
     if (matched.length >= 3) {
         feedback.style.color = '#2a7a40';
         feedback.innerText = 'Good scientific reasoning! You cited evidence from: ' + matched.join(', ') + '. You may proceed.';
         document.getElementById('analyzeScreen').querySelector('.toLabBtn').classList.remove('hidden');
         visitedAnalyze = true;
+        //stores the users evidence of the reaction occuring
+        evidenceStatement = document.getElementById('evidenceInput').value.trim();
     //If there aren't enough matching keywords, ask the user to cite more
     } else if (matched.length >= 1) {
         feedback.style.color = '#b07020';
@@ -1297,5 +1306,338 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
         document.getElementById('disposalFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
         //Redundancy
         document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.add('hidden');
+    }
+});
+
+//Moving onto the Debrief screen
+
+//TODO: move these variables to the top
+const MIN_EXCHANGES = 3;
+
+let conversationHistory = [];
+let exchangeCount = 0;
+let awaitingResponse = false;
+
+//Collects all of the relevant information from the play session to be sent as part of the AI debrief
+function buildRunSummary() {
+    return {
+        reactionName:      REACTIONS[reaction].name,
+        reactants:         reactants.map(r => r.name + " (" + r.symbol + ")"),
+        products:          products.map(p => p.name + " (" + p.symbol + ")"),
+        energyChange:      REACTIONS[reaction].energyChange,
+        yieldPercent:      yieldPercent,
+        evidenceStatement: evidenceStatement,
+        predictions:       predictions.map((p, i) => ({
+            question:      p.question,
+            studentAnswer: playerPredictions[i] || "No answer recorded",
+            correctAnswer: p.options[p.correct],
+            correct:       playerPredictions[i] === p.options[p.correct]
+        })),
+        debriefTargets: REACTIONS[reaction].debriefTargets
+    };
+}
+
+//Builds the full system prompt from the runSummary object
+function buildSystemPrompt(summary) {
+    const predictionLines = summary.predictions.map(p =>
+        `  Q: "${p.question}"\n  Student answered: "${p.studentAnswer}" — ${p.correct
+            ? "Correct"
+            : "Incorrect (correct answer: " + p.correctAnswer + ")"}`
+    ).join("\n");
+
+    const yieldLabel = summary.yieldPercent >= 90
+        ? "this is an excellent yield, treat it as a success and do not question it"
+        : summary.yieldPercent >= 80
+        ? "this is an acceptable yield for a teaching lab"
+        : "this yield is lower than expected and worth discussing";
+
+    const learningTargets = summary.debriefTargets.map((target, i) =>
+        `${i + 1}. ${target}`
+    ).join("\n");
+
+    const yieldNote = summary.yieldPercent < 80
+        ? `\nYield note: the student's yield of ${summary.yieldPercent}% is lower than expected and worth discussing.`
+        : summary.yieldPercent >= 90
+        ? `\nYield note: the student's yield of ${summary.yieldPercent}% is excellent. Praise it and do not treat it as a problem.`
+        : `\nYield note: the student's yield of ${summary.yieldPercent}% is acceptable for a teaching lab.`;
+
+    return `You are a Socratic chemistry tutor debriefing a student who has just completed a virtual lab experiment. Your role is to deepen their understanding through questions, not to lecture or provide answers directly.
+
+EXPERIMENT CONTEXT:
+- Reaction performed: ${summary.reactionName}
+- Reactants: ${summary.reactants.join(", ")}
+- Products: ${summary.products.join(", ")}
+- Energy change: ${summary.energyChange}
+
+STUDENT PERFORMANCE:
+- Predictions made before the experiment:
+${predictionLines}
+- Yield achieved: ${summary.yieldPercent}% — ${yieldLabel}
+- Evidence statement written by the student: "${summary.evidenceStatement}"
+
+YOUR BEHAVIOUR RULES:
+1. Never give answers directly. Always respond with a question or a prompt that guides the student toward the answer themselves.
+2. Ask only one question at a time. Wait for the student to respond before moving on.
+3. Start with what the student got right or noticed themselves before addressing gaps.
+4. When a student gives a wrong answer, do not say "wrong" or "incorrect". Instead ask a follow-up that exposes the flaw in their reasoning.
+5. Target the student's specific wrong predictions first.
+6. Keep your responses short — two to four sentences maximum. This is a conversation, not a lecture.
+7. Use plain language. Introduce technical terms only after the student has demonstrated the underlying concept in their own words.
+8. After covering the key learning targets, offer a brief closing summary of what the student demonstrated, then tell them they have completed the debrief.
+9. A yield above 90% is considered excellent in a teaching lab. If the student achieved this, acknowledge it as a success and do not treat it as a problem to investigate. Only explore yield as a learning topic if it fell below 80%.
+
+UNIVERSAL LEARNING TARGETS (apply to every reaction — cover these alongside the reaction-specific targets):
+- The role of the limiting reactant and how the student's volume choices affected yield
+- Why yield is rarely 100% in a real experiment — only raise this if yield was below 80%. A yield above 90% should be praised, not questioned.
+${yieldNote}
+
+REACTION-SPECIFIC LEARNING TARGETS (cover in order of priority):
+${learningTargets}
+
+OPENING MESSAGE:
+Begin by acknowledging one specific thing from the student's evidence statement, then ask one open question about it. Do not summarise the experiment back to them. Get straight into the discussion.`;
+}
+
+//Adds a message and bubble to the chat window
+function appendMessage(role, text) {
+    //finds the window
+    const chatWindow = document.getElementById('chatWindow');
+    //creates the bubble
+    const bubble = document.createElement('div');
+    bubble.classList.add('message');
+    //assigns the right visuals based on the role
+    bubble.classList.add(role === 'assistant' ? 'messageAI' : 'messagePlayer');
+    //adds text to the bubble
+    bubble.innerText = text;
+    //places the bubble in the chat window
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+//Shows a thinking animation while waiting on API response
+function showThinking() {
+    //finds the window
+    const chatWindow = document.getElementById('chatWindow');
+    //creates the bubble
+    const bubble = document.createElement('div');
+    //gives the bubble the right classes and text
+    bubble.classList.add('message', 'messageThinking');
+    bubble.id = 'thinkingIndicator';
+    bubble.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+//Removes the thinking animation
+function hideThinking() {
+    const indicator = document.getElementById('thinkingIndicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+//Allows the player to type and send a new message
+function setDebriefInputEnabled(enabled) {
+    document.getElementById('messageInput').disabled = !enabled;
+    document.getElementById('sendBtn').disabled      = !enabled;
+}
+
+//Increments the number of exchanges
+function updateExchangeCounter() {
+    document.getElementById('exchangeCounter').innerText =
+        `Exchanges: ${exchangeCount} / ${MIN_EXCHANGES} required before finishing`;
+    //If the player has sent enough messages then they are allowed to return to the title screen
+    if (exchangeCount >= MIN_EXCHANGES) {
+        document.getElementById('toTitleBtn').classList.remove('hidden');
+    }
+}
+
+//Displays an error message
+function showDebriefError(message) {
+    document.getElementById('apiError').innerText = message;
+}
+
+//Clears the error message
+function clearDebriefError() {
+    document.getElementById('apiError').innerText = "";
+}
+
+//Sends a message to the Claude API then displays the response
+async function sendDebriefMessage(userText) {
+    //Start of response clean-up
+    if (awaitingResponse) {
+        return;
+    }
+    clearDebriefError();
+
+    //If the user has a message, then include it in the conversation history
+    if (userText !== null) {
+        appendMessage('user', userText);
+        conversationHistory.push({ role: "user", content: userText });
+        document.getElementById('messageInput').value = "";
+    } else {
+        //The Claude API rejects if it is called with no message history, so a fake message from the player is generated for the first AI response
+        conversationHistory.push({ 
+            role: "user", 
+            content: "Please begin the debrief." 
+        });
+    }
+
+    //Show the user that the AI is thinking and prevent the user from sending another message while waiting
+    awaitingResponse = true;
+    setDebriefInputEnabled(false);
+    showThinking();
+
+    //Using try/catch to prevent any errors from crashing the game
+    try {
+        //builds the summary and system prompts for the AI
+        const summary      = buildRunSummary();
+        const systemPrompt = buildSystemPrompt(summary);
+
+        //Calls the API for a response
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type":      "application/json"
+            },
+            body: JSON.stringify({
+                model:      'claude-haiku-4-5-20251001',
+                max_tokens: 300,
+                system:     systemPrompt,
+                messages:   conversationHistory
+            })
+        });
+
+        //If there was an error, send it to the catch
+        if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error?.message || `API error ${response.status}`);
+        }
+
+        //Parses the AI's response and extracts the text
+        const data  = await response.json();
+        const reply = data.content[0].text;
+
+        //Stop thinking and display the new message
+        hideThinking();
+        appendMessage('assistant', reply);
+        conversationHistory.push({ role: "assistant", content: reply });
+
+        //Only increment the exchange count when the player sends a message
+        if (userText !== null) {
+            exchangeCount++;
+            updateExchangeCounter();
+        }
+
+        //Allows the player to send another message to the AI
+        setDebriefInputEnabled(true);
+        document.getElementById('messageInput').focus();
+
+    //If there is an error, stop thinking and tell the player
+    } catch (error) {
+        hideThinking();
+        showDebriefError("Could not reach the AI tutor — please check your connection and try again.");
+        setDebriefInputEnabled(true);
+        console.error("Debrief API error:", error);
+    }
+
+    awaitingResponse = false;
+}
+
+//Uses the summary to populate a card displaying the info to the player
+function buildSummaryCard() {
+    //builds the summary
+    const summary = buildRunSummary();
+    //displays the reaction's name
+    document.getElementById('summaryReactionName').innerText = summary.reactionName;
+
+    //clears the innerHTML of the card so it doesn't contain the previous reaction information
+    const content = document.getElementById('summaryContent');
+    content.innerHTML = "";
+
+    //Displays the yield
+    const yieldRow = document.createElement('div');
+    yieldRow.classList.add('summaryRow');
+    yieldRow.innerHTML = `<span class="summary-label">Yield achieved:</span> ${summary.yieldPercent}%`;
+    content.appendChild(yieldRow);
+
+    //Displays the energy change
+    const energyRow = document.createElement('div');
+    energyRow.classList.add('summaryRow');
+    energyRow.innerHTML = `<span class="summary-label">Energy change:</span> ${summary.energyChange}`;
+    content.appendChild(energyRow);
+
+    //For each of the predictions
+    summary.predictions.forEach(p => {
+        //Create the row
+        const row = document.createElement('div');
+        row.classList.add('summaryRow');
+        row.style.flexDirection = "column";
+        row.style.gap = "2px";
+
+        //Populates with the question
+        const q = document.createElement('span');
+        q.style.fontSize = "14px";
+        q.style.color = "#555";
+        q.innerText = p.question;
+
+        //Populates with the correct answer and the users' answer
+        const a = document.createElement('span');
+        a.classList.add(p.correct ? 'predictionCorrect' : 'predictionIncorrect');
+        a.style.fontSize = "14px";
+        a.innerText = p.correct
+            ? `Correct — "${p.studentAnswer}"`
+            : `Incorrect — you answered "${p.studentAnswer}" (correct: "${p.correctAnswer}")`;
+
+        //Attaches the question and answer to the row
+        row.appendChild(q);
+        row.appendChild(a);
+        content.appendChild(row);
+    });
+
+    //Displays the evidence statement created at the end of the analysis stage
+    const evidenceRow = document.createElement('div');
+    evidenceRow.classList.add('summary-row');
+    evidenceRow.style.flexDirection = "column";
+    evidenceRow.style.gap = "2px";
+    evidenceRow.innerHTML = `<span class="summary-label">Your evidence statement:</span>
+        <span style="font-size:14px;color:#555;font-style:italic;">"${summary.evidenceStatement}"</span>`;
+    content.appendChild(evidenceRow);
+}
+
+//Initialises the debrief screen
+function initDebrief() {
+    conversationHistory = [];
+    exchangeCount       = 0;
+    awaitingResponse    = false;
+    document.getElementById('chatWindow').innerHTML     = "";
+    document.getElementById('apiError').innerText       = "";
+    document.getElementById('messageInput').value       = "";
+    document.getElementById('toTitleBtn').classList.add('hidden');
+
+    buildSummaryCard();
+    updateExchangeCounter();
+    //By passing in null, we give the AI the opportunity to start first
+    sendDebriefMessage(null);
+}
+
+//Sends the users message to the AI
+document.getElementById('sendBtn').addEventListener('click', () => {
+    const text = document.getElementById('messageInput').value.trim();
+    if (text.length === 0) {
+        return;
+    }
+    sendDebriefMessage(text);
+});
+
+//Allows the user to press Enter to send the message, but keeps Shift+Enter to make a newline
+document.getElementById('messageInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const text = document.getElementById('messageInput').value.trim();
+        if (text.length === 0) {
+            return;
+        }
+        sendDebriefMessage(text);
     }
 });
