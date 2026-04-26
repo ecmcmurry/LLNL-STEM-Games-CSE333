@@ -46,6 +46,8 @@ let stirDistAccum = 0;
 let stirTrail = [];
 let reactionComplete = false;
 
+let playerPredictions = [];
+
 //Changes from the Title Screen to the Pre-Lab Screen
 //This is included in main and NOT swapScreen because of the added functionality when you press the button
 //Though I should probably be consistent and any time a button switches screens it should be in swapScreen
@@ -78,6 +80,8 @@ document.getElementById('titleToPreLabBtn').addEventListener('click', () => {
     stirDistAccum = 0;
     stirTrail = [];
     reactionComplete = false;
+
+    playerPredictions = [];
 
 
     document.getElementById('preLabToPredictionsBtn').classList.remove('hidden');
@@ -160,6 +164,19 @@ document.getElementById('preLabToPredictionsBtn').addEventListener('click', () =
 
         //add the card to the list of cards
         cards.appendChild(card);
+    });
+});
+
+//Changes from the Predictions Screen to the Lab Screen
+document.getElementById('predictionsToLabBtn').addEventListener('click', () => {
+    //stores the player's predictions for use in the debrief stage
+    predictions.forEach((prediction, index) => {
+        const checked = document.querySelector(`input[name="option${index}"]:checked`);
+        if (checked) {
+            playerPredictions.push(checked.value);
+        } else {
+            playerPredictions.push("No recorded answer");
+        }
     });
 });
 
@@ -1064,7 +1081,6 @@ document.getElementById('toAnalyzeScreenBtn').addEventListener('click', () => {
             let productMolesObj = moles.products.find(p => p.symbol === product.symbol);
             //calculate the moles produced using the error factor
             solidActualMoles = productMolesObj.molesProduced * analyze.yield.errorFactor;
-            //TODO: check for bugs here
 
             let amountHTML;
             if (product.molarMass) {
@@ -1201,6 +1217,11 @@ function makeProductCard(nameText, headerSubText, attrList, amountHTML = null, f
     return card;
 }
 
+//Runs checkEvidence after the player submits their analysis
+document.getElementById('checkAnalysisBtn').addEventListener('click', () => {
+    checkEvidence();
+});
+
 //This function checks to ensure the user has engaged with the experiment before moving them to the AI Debrief
 //This should help improve learning and reduce token costs
 function checkEvidence() {
@@ -1231,7 +1252,6 @@ function checkEvidence() {
     if (matched.length >= 3) {
         feedback.style.color = '#2a7a40';
         feedback.innerText = 'Good scientific reasoning! You cited evidence from: ' + matched.join(', ') + '. You may proceed.';
-        //TODO: change to move to the debrief screen
         document.getElementById('analyzeScreen').querySelector('.toLabBtn').classList.remove('hidden');
         visitedAnalyze = true;
     //If there aren't enough matching keywords, ask the user to cite more
@@ -1269,13 +1289,13 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
     if (correctSum == 3) {
         //if correct display this
         document.getElementById('disposalFeedback').innerText = "Good job!";
-        document.getElementById('disposalScreen').querySelector('.toLabBtn').classList.remove('hidden');
+        document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.remove('hidden');
         visitedDispose = true;
     } else {
         //if incorrect display this
         //Maybe include some canned responses just in case?
         document.getElementById('disposalFeedback').innerText = "Include an API call here so the AI can guide you to the right answers? Anyways, you got it wrong somehow";
         //Redundancy
-        document.getElementById('disposalScreen').querySelector('.toLabBtn').classList.add('hidden');
+        document.getElementById('disposeScreen').querySelector('.toLabBtn').classList.add('hidden');
     }
 });
