@@ -299,7 +299,7 @@ canvas {
     40%            { transform: translateY(-6px); opacity: 1;   }
 }
 
-.summary-row {
+.summaryRow {
     display: flex;
     gap: 8px;
     align-items: baseline;
@@ -308,18 +308,18 @@ canvas {
     color: #333;
 }
 
-.summary-label {
+.summaryLabel {
     font-weight: bold;
     color: #2a6a70;
     min-width: 160px;
 }
 
-.prediction-correct   { 
+.predictionCorrect   { 
     color: #2a7a40; 
     font-weight: bold; 
 }
 
-.prediction-incorrect { 
+.predictionIncorrect { 
     color: #a03030; 
     font-weight: bold; 
 }

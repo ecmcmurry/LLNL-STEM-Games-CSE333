@@ -152,7 +152,13 @@ const REACTIONS = {
             yield: {
                 errorFactor: 0.94
             }
-        }
+        },
+        debriefTargets: [
+            "Why the reaction is exothermic and what evidence from the experiment supported this",
+            "The role of the limiting reactant and how the student's volume choices affected yield",
+            "The difference between spectator ions (Na⁺ and Cl⁻) and the reactive ions (H⁺ and OH⁻) that actually drove the reaction",
+            "What the neutral pH result tells us about the completeness of neutralisation"
+        ]
     },
     pb_no3_ki: {
         //populate for second reaction later
