@@ -184,7 +184,560 @@ const REACTIONS = {
             "What the neutral pH result tells us about the completeness of neutralisation"
         ]
     },
-    NEXT_REACTION: {
-        //populate for second reaction later
+    
+    pb_no3_ki: {
+        name: "Lead nitrate + Potassium iodide",
+        type: "precipitation",
+        description: "A precipitation reaction producing a vivid yellow insoluble solid.",
+        prelab: "Lead nitrate + Potassium iodide<br>In this experiment you will combine lead nitrate (Pb(NO₃)₂) and potassium iodide (KI) in aqueous solution.<br>Lead nitrate is a soluble ionic compound. In water it dissociates into lead ions (Pb²⁺) and nitrate ions (NO₃⁻). The solution you will use is 0.5 mol/L.<br>Potassium iodide is also a soluble ionic compound. In water it dissociates into potassium ions (K⁺) and iodide ions (I⁻). The solution you will use is 1.0 mol/L.<br>When these two solutions are combined, the Pb²⁺ and I⁻ ions react to form lead iodide (PbI₂), which is insoluble in water and immediately precipitates as a bright yellow solid. The K⁺ and NO₃⁻ ions remain in solution as spectator ions.<br>The net ionic equation for this reaction is:<br><br>Pb²⁺(aq) + 2I⁻(aq) → PbI₂(s)<br><br>Before you begin, consider: will a solid form? What colour might it be? Will the solution change appearance during the reaction? Is lead iodide likely to be toxic?",
+        reactants: [
+            {
+                name: "Lead nitrate solution",
+                symbol: "Pb(NO₃)₂",
+                state: "aqueous",
+                concentration: 0.5,
+                appearance: "Clear, colorless liquid",
+                pH: "~5 at 0.5 mol/L",
+                hazards: ["Toxic", "Oxidiser", "Environmental hazard"],
+                ghs: ["GHS06", "GHS08", "GHS09"],
+                molarRatio: 1,
+                color: "rgba(202, 202, 202, 0.25)"
+            },
+            {
+                name: "Potassium iodide solution",
+                symbol: "KI",
+                state: "aqueous",
+                concentration: 1.0,
+                appearance: "Clear, colorless liquid",
+                pH: "~7 at 1.0 mol/L",
+                hazards: ["Irritant"],
+                ghs: ["GHS07"],
+                molarRatio: 2,
+                color: "rgba(202, 202, 202, 0.25)"
+            }
+        ],
+        products: [
+            {
+                name: "Lead iodide",
+                symbol: "PbI₂",
+                molarRatio: 1,
+                phase: "solid",
+                attributes: [
+                    "Appearance: Vivid yellow crystalline solid precipitate",
+                    "Solubility: Insoluble in cold water — precipitates immediately on mixing",
+                    "Note: This is the product visible as the yellow solid formed during the reaction",
+                    "Hazard: Lead iodide is toxic and must be disposed of as hazardous solid waste"
+                ]
+            },
+            {
+                name: "Potassium nitrate",
+                symbol: "KNO₃",
+                molarRatio: 2,
+                phase: "solid",
+                attributes: [
+                    "Appearance: Dissolved in solution — not visible",
+                    "Solubility: Highly soluble — remains in solution",
+                    "Note: K⁺ and NO₃⁻ are spectator ions — they did not participate in the reaction"
+                ]
+            }
+        ],
+        energyChange: "exothermic",
+        predictions: [
+            {
+                question: "Will a solid precipitate form during this reaction?",
+                options: ["Yes, a solid will form and settle out of solution", "No, all products will remain dissolved"],
+                correct: 0
+            },
+            {
+                question: "What colour do you expect the precipitate to be?",
+                options: ["White", "Yellow", "Blue", "No precipitate will form"],
+                correct: 1
+            },
+            {
+                question: "Will this reaction release or absorb heat?",
+                options: ["Release heat (exothermic)", "Absorb heat (endothermic)", "No energy change"],
+                correct: 0
+            },
+            {
+                question: "Will a gas be produced during this reaction?",
+                options: ["Yes, a gas will be evolved", "No, no gas will be produced"],
+                correct: 1
+            },
+            {
+                question: "What type of reaction is this?",
+                options: ["Precipitation", "Acid-base neutralisation", "Combustion", "Decomposition"],
+                correct: 0
+            },
+            {
+                question: "After the reaction, which ions will remain in solution?",
+                options: ["Pb²⁺ and I⁻ ions", "K⁺ and NO₃⁻ ions", "No ions — all products precipitate out", "Pb²⁺ and NO₃⁻ ions"],
+                correct: 1
+            }
+        ],
+        safety: {
+            eyeAndFace: {
+                equipment: "Safety Goggles",
+                hint: "Lead compounds are toxic and require full splash protection."
+            },
+            hands: {
+                equipment: "Nitrile Gloves",
+                hint: "Lead compounds are absorbed through skin — gloves are essential."
+            },
+            body: {
+                equipment: "Lab Coat",
+                hint: "Protects against spills of toxic lead solution."
+            },
+            foot: {
+                equipment: "Closed-toe Shoes",
+                hint: "Protects feet from spills of toxic solutions."
+            },
+            respiratory: {
+                equipment: "None",
+                hint: "No harmful gases are produced at these concentrations."
+            }
+        },
+        stirNeeded: 700,
+        finalColor: "rgba(220, 200, 80, 0.6)",
+        reactionFinishedText: "Precipitation complete — PbI₂ formed as a yellow solid",
+        disposal: {
+            liquid: {
+                method: "Aqueous Heavy Metal Waste Container",
+                hint: "The solution contains dissolved lead ions which are toxic and cannot be drain disposed."
+            },
+            solid: {
+                method: "Solid Chemical Waste Container",
+                hint: "Lead iodide is a toxic solid and must be treated as hazardous waste."
+            },
+            gaseous: {
+                method: "None",
+                hint: "No gas is produced during this reaction."
+            }
+        },
+        analyze: {
+            temperature: {
+                product: 22.1,
+                roomTemp: 20,
+                note: "The slight temperature increase indicates a mildly exothermic reaction. The energy change is much smaller than in a strong acid-base neutralisation."
+            },
+            pH: {
+                value: 5,
+                color: "#f0c040",
+                label: "Slightly acidic",
+                note: "The product solution is slightly acidic due to residual lead ions in solution."
+            },
+            visual: {
+                text: "Bright yellow solid suspended and settled in a cloudy solution.",
+                note: "A vivid yellow precipitate formed immediately on mixing. No gas was evolved."
+            },
+            conductivity: {
+                level: "Moderate",
+                note: "K⁺ and NO₃⁻ ions remain in solution and conduct electricity, though some ions were removed from solution as the precipitate formed."
+            },
+            evidenceKeywords: [
+                {
+                    label: "precipitate / solid formed / yellow",
+                    keywords: ["precipitate", "solid", "yellow", "settle", "cloudy", "formed"]
+                },
+                {
+                    label: "colour change / visual observation",
+                    keywords: ["colour", "color", "yellow", "visual", "appear", "bright"]
+                },
+                {
+                    label: "temperature / exothermic / energy",
+                    keywords: ["temperature", "warm", "heat", "exothermic", "energy"]
+                },
+                {
+                    label: "spectator ions / K+ / NO3-",
+                    keywords: ["spectator", "potassium", "nitrate", "k+", "no3", "remain"]
+                },
+                {
+                    label: "insoluble / solubility / precipitation",
+                    keywords: ["insoluble", "solubil", "precipit", "dissolv"]
+                }
+            ],
+            yield: {
+                errorFactor: 0.92
+            }
+        },
+        debriefTargets: [
+            "Why PbI₂ precipitates while KNO₃ stays in solution — what determines whether a product is soluble or insoluble",
+            "Why the colour of the precipitate is characteristic of the specific compound formed",
+            "The difference between spectator ions (K⁺ and NO₃⁻) and the reactive ions (Pb²⁺ and I⁻) that formed the precipitate",
+            "Why lead compounds require special disposal procedures compared to the NaCl produced in the previous reaction"
+        ]
+    },
+
+    na2co3_hcl: {
+        name: "Sodium carbonate + Hydrochloric acid",
+        type: "acid-carbonate",
+        description: "An acid-carbonate reaction that produces carbon dioxide gas.",
+        prelab: "Sodium carbonate + Hydrochloric acid<br>In this experiment you will combine sodium carbonate (Na₂CO₃) and hydrochloric acid (HCl) in aqueous solution.<br>Sodium carbonate is a mild base commonly known as washing soda. In water it dissociates into sodium ions (Na⁺) and carbonate ions (CO₃²⁻). The solution you will use is 0.5 mol/L.<br>Hydrochloric acid is a strong acid. In water it fully dissociates into hydrogen ions (H⁺) and chloride ions (Cl⁻). The solution you will use is 1.0 mol/L.<br>When these two solutions are combined, the H⁺ ions react with the CO₃²⁻ ions. This reaction occurs in two stages — first forming carbonic acid (H₂CO₃), which immediately decomposes into water and carbon dioxide gas. The CO₂ escapes as bubbles.<br>The overall equation is:<br><br>Na₂CO₃(aq) + 2HCl(aq) → 2NaCl(aq) + H₂O(l) + CO₂(g)<br><br>Before you begin, consider: will you see bubbling? What gas will be produced? Will this reaction require twice as much HCl as Na₂CO₃? Will the product solution be acidic, neutral, or basic?",
+        reactants: [
+            {
+                name: "Sodium carbonate solution",
+                symbol: "Na₂CO₃",
+                state: "aqueous",
+                concentration: 0.5,
+                appearance: "Clear, colorless liquid",
+                pH: "~11 at 0.5 mol/L",
+                hazards: ["Irritant"],
+                ghs: ["GHS07"],
+                molarRatio: 1,
+                color: "rgba(202, 202, 202, 0.25)"
+            },
+            {
+                name: "Hydrochloric acid",
+                symbol: "HCl",
+                state: "aqueous",
+                concentration: 1.0,
+                appearance: "Clear, colorless liquid",
+                pH: "~0 at 1.0 mol/L",
+                hazards: ["Corrosive", "Irritant"],
+                ghs: ["GHS05", "GHS07"],
+                molarRatio: 2,
+                color: "rgba(202, 202, 202, 0.25)"
+            }
+        ],
+        products: [
+            {
+                name: "Sodium chloride",
+                symbol: "NaCl",
+                molarRatio: 2,
+                phase: "solid",
+                attributes: [
+                    "Appearance: Dissolved in solution — not visible as a solid",
+                    "Solubility: Highly soluble — remains dissolved",
+                    "Note: Na⁺ and Cl⁻ are spectator ions in this reaction"
+                ]
+            },
+            {
+                name: "Water",
+                symbol: "H₂O",
+                molarRatio: 1,
+                phase: "liquid",
+                attributes: [
+                    "Appearance: Clear, colourless liquid — indistinguishable from the solution",
+                    "Formed as a byproduct of the decomposition of carbonic acid"
+                ]
+            },
+            {
+                name: "Carbon dioxide",
+                symbol: "CO₂",
+                molarRatio: 1,
+                phase: "gas",
+                attributes: [
+                    "Appearance: Colourless, odourless gas — visible as bubbles during the reaction",
+                    "Produced when carbonic acid (H₂CO₃) immediately decomposes after forming",
+                    "Escapes the vessel — cannot be collected without additional equipment",
+                    "Note: CO₂ production is why carbonates fizz when acid is added"
+                ]
+            }
+        ],
+        energyChange: "exothermic",
+        predictions: [
+            {
+                question: "Will a gas be produced during this reaction?",
+                options: ["Yes, a gas will be evolved", "No, no gas will be produced"],
+                correct: 0
+            },
+            {
+                question: "What do you expect the pH of the product solution to be?",
+                options: ["Acidic (pH below 7)", "Neutral (pH 7)", "Basic (pH above 7)"],
+                correct: 1
+            },
+            {
+                question: "Will this reaction release or absorb heat?",
+                options: ["Release heat (exothermic)", "Absorb heat (endothermic)", "No energy change"],
+                correct: 0
+            },
+            {
+                question: "How much HCl is needed to fully react with one mole of Na₂CO₃?",
+                options: ["0.5 moles of HCl", "1 mole of HCl", "2 moles of HCl", "3 moles of HCl"],
+                correct: 2
+            },
+            {
+                question: "Will a solid precipitate form during this reaction?",
+                options: ["Yes, a solid will form", "No, all products will remain in solution or escape as gas"],
+                correct: 1
+            },
+            {
+                question: "What type of reaction is this?",
+                options: ["Acid-carbonate reaction", "Acid-base neutralisation", "Precipitation", "Combustion"],
+                correct: 0
+            }
+        ],
+        safety: {
+            eyeAndFace: {
+                equipment: "Safety Goggles",
+                hint: "HCl is corrosive and CO₂ gas production can cause splashing."
+            },
+            hands: {
+                equipment: "Nitrile Gloves",
+                hint: "HCl is corrosive to skin — gloves protect against accidental contact."
+            },
+            body: {
+                equipment: "Lab Coat",
+                hint: "Protects against splashes from the vigorous fizzing reaction."
+            },
+            foot: {
+                equipment: "Closed-toe Shoes",
+                hint: "Protects feet from spills of corrosive acid solution."
+            },
+            respiratory: {
+                equipment: "None",
+                hint: "CO₂ is not toxic at the quantities produced in this experiment. Ensure the room is ventilated."
+            }
+        },
+        stirNeeded: 700,
+        finalColor: "rgba(202, 202, 202, 0.25)",
+        reactionFinishedText: "Reaction complete — CO₂ evolved, NaCl + H₂O produced",
+        disposal: {
+            liquid: {
+                method: "Drain Disposal",
+                hint: "The product solution is neutral and contains only dissolved NaCl — safe for drain disposal."
+            },
+            solid: {
+                method: "None",
+                hint: "No solid waste is produced in this reaction."
+            },
+            gaseous: {
+                method: "None",
+                hint: "CO₂ is released harmlessly to the atmosphere during the reaction."
+            }
+        },
+        analyze: {
+            temperature: {
+                product: 24.8,
+                roomTemp: 20,
+                note: "The product solution is warmer than room temperature, confirming that this is an exothermic reaction despite the vigorous visible gas production."
+            },
+            pH: {
+                value: 7,
+                color: "#4caf50",
+                label: "Neutral",
+                note: "A neutral pH confirms that the acid and carbonate have fully reacted, leaving neither excess acid nor base."
+            },
+            visual: {
+                text: "Clear, colourless solution. Vigorous bubbling was observed during the reaction.",
+                note: "Bubbling (CO₂ gas evolution) was the most prominent observation. No precipitate formed. The solution cleared completely after the reaction."
+            },
+            conductivity: {
+                level: "High",
+                note: "Na⁺ and Cl⁻ ions remain in solution and conduct electricity well."
+            },
+            evidenceKeywords: [
+                {
+                    label: "gas / bubbling / CO2 / carbon dioxide",
+                    keywords: ["gas", "bubble", "fizz", "co2", "carbon", "dioxide", "evolved"]
+                },
+                {
+                    label: "pH / neutral / complete reaction",
+                    keywords: ["ph", "neutral", "7", "complete", "neutrali"]
+                },
+                {
+                    label: "temperature / exothermic / energy",
+                    keywords: ["temperature", "warm", "heat", "exothermic", "energy", "24"]
+                },
+                {
+                    label: "molar ratio / stoichiometry / 2:1",
+                    keywords: ["ratio", "stoich", "2:1", "twice", "mole", "balanced"]
+                },
+                {
+                    label: "spectator ions / NaCl / sodium chloride",
+                    keywords: ["spectator", "nacl", "salt", "sodium", "chloride", "remain"]
+                }
+            ],
+            yield: {
+                errorFactor: 0.91
+            }
+        },
+        debriefTargets: [
+            "Why CO₂ gas is produced in this reaction but not in the HCl + NaOH reaction, despite both involving HCl",
+            "Why the molar ratio of HCl to Na₂CO₃ is 2:1 and what happens if the student did not account for this in their measurements",
+            "The two-step mechanism — why carbonic acid forms first and then immediately decomposes",
+            "Why the final solution is neutral despite starting with an acid and a base that is not a hydroxide"
+        ]
+    },
+
+    cuso4_naoh: {
+        name: "Copper sulfate + Sodium hydroxide",
+        type: "precipitation",
+        description: "A precipitation reaction producing a distinctive blue gelatinous solid.",
+        prelab: "Copper sulfate + Sodium hydroxide<br>In this experiment you will combine copper sulfate (CuSO₄) and sodium hydroxide (NaOH) in aqueous solution.<br>Copper sulfate is a soluble ionic compound. In water it dissociates into copper ions (Cu²⁺) and sulfate ions (SO₄²⁻). The solution you will use is 0.5 mol/L and has a distinctive blue colour due to the hydrated copper ions. The solution you will use is 0.5 mol/L.<br>Sodium hydroxide is a strong base. In water it dissociates completely into sodium ions (Na⁺) and hydroxide ions (OH⁻). The solution you will use is 1.0 mol/L.<br>When these solutions are combined, the Cu²⁺ ions react with the OH⁻ ions to form copper hydroxide (Cu(OH)₂), which is insoluble and precipitates as a pale blue gelatinous solid. The Na⁺ and SO₄²⁻ ions remain in solution as spectator ions.<br>The net ionic equation is:<br><br>Cu²⁺(aq) + 2OH⁻(aq) → Cu(OH)₂(s)<br><br>Before you begin, consider: will a precipitate form? What colour will it be? Notice that this reaction also requires a 2:1 molar ratio of NaOH to CuSO₄ — why might that be?",
+        reactants: [
+            {
+                name: "Copper sulfate solution",
+                symbol: "CuSO₄",
+                state: "aqueous",
+                concentration: 0.5,
+                appearance: "Clear, bright blue liquid",
+                pH: "~4 at 0.5 mol/L",
+                hazards: ["Harmful", "Irritant", "Environmental hazard"],
+                ghs: ["GHS07", "GHS09"],
+                molarRatio: 1,
+                color: "rgba(100, 180, 230, 0.5)"
+            },
+            {
+                name: "Sodium hydroxide solution",
+                symbol: "NaOH",
+                state: "aqueous",
+                concentration: 1.0,
+                appearance: "Clear, colorless liquid",
+                pH: "~14 at 1.0 mol/L",
+                hazards: ["Corrosive"],
+                ghs: ["GHS05"],
+                molarRatio: 2,
+                color: "rgba(202, 202, 202, 0.25)"
+            }
+        ],
+        products: [
+            {
+                name: "Copper hydroxide",
+                symbol: "Cu(OH)₂",
+                molarRatio: 1,
+                phase: "solid",
+                attributes: [
+                    "Appearance: Pale blue gelatinous precipitate",
+                    "Solubility: Insoluble in water — precipitates immediately on mixing",
+                    "Note: The blue colour of the precipitate is characteristic of Cu²⁺ compounds",
+                    "Hazard: Copper compounds are harmful to aquatic life and must not be drain disposed"
+                ]
+            },
+            {
+                name: "Sodium sulfate",
+                symbol: "Na₂SO₄",
+                molarRatio: 1,
+                phase: "solid",
+                attributes: [
+                    "Appearance: Dissolved in solution — not visible",
+                    "Solubility: Highly soluble — remains dissolved in the product solution",
+                    "Note: Na⁺ and SO₄²⁻ are spectator ions — they did not participate in forming the precipitate"
+                ]
+            }
+        ],
+        energyChange: "exothermic",
+        predictions: [
+            {
+                question: "Will a solid precipitate form during this reaction?",
+                options: ["Yes, a solid will form and settle out", "No, all products will remain dissolved"],
+                correct: 0
+            },
+            {
+                question: "What colour do you expect the precipitate to be?",
+                options: ["White", "Yellow", "Blue", "Red"],
+                correct: 2
+            },
+            {
+                question: "Will this reaction release or absorb heat?",
+                options: ["Release heat (exothermic)", "Absorb heat (endothermic)", "No energy change"],
+                correct: 0
+            },
+            {
+                question: "How much NaOH is needed to fully react with one mole of CuSO₄?",
+                options: ["0.5 moles of NaOH", "1 mole of NaOH", "2 moles of NaOH", "3 moles of NaOH"],
+                correct: 2
+            },
+            {
+                question: "Will a gas be produced during this reaction?",
+                options: ["Yes, a gas will be evolved", "No, no gas will be produced"],
+                correct: 1
+            },
+            {
+                question: "What type of reaction is this?",
+                options: ["Precipitation", "Acid-base neutralisation", "Combustion", "Acid-carbonate"],
+                correct: 0
+            }
+        ],
+        safety: {
+            eyeAndFace: {
+                equipment: "Safety Goggles",
+                hint: "NaOH is corrosive and causes serious eye damage on contact."
+            },
+            hands: {
+                equipment: "Nitrile Gloves",
+                hint: "Both NaOH and copper compounds are harmful to skin."
+            },
+            body: {
+                equipment: "Lab Coat",
+                hint: "Protects against spills of corrosive NaOH and the blue copper solution which stains."
+            },
+            foot: {
+                equipment: "Closed-toe Shoes",
+                hint: "Protects feet from spills of corrosive NaOH solution."
+            },
+            respiratory: {
+                equipment: "None",
+                hint: "No harmful gases are produced at these concentrations."
+            }
+        },
+        stirNeeded: 700,
+        finalColor: "rgba(100, 160, 210, 0.55)",
+        reactionFinishedText: "Precipitation complete — Cu(OH)₂ formed as a blue solid",
+        disposal: {
+            liquid: {
+                method: "Aqueous Heavy Metal Waste Container",
+                hint: "The solution contains dissolved copper ions which are toxic to aquatic life and cannot be drain disposed."
+            },
+            solid: {
+                method: "Solid Chemical Waste Container",
+                hint: "Copper hydroxide is harmful to the environment and must be treated as chemical waste."
+            },
+            gaseous: {
+                method: "None",
+                hint: "No gas is produced during this reaction."
+            }
+        },
+        analyze: {
+            temperature: {
+                product: 23.4,
+                roomTemp: 20,
+                note: "The slight temperature increase confirms the reaction is mildly exothermic. The energy released is smaller than in a strong acid-base neutralisation."
+            },
+            pH: {
+                value: 8,
+                color: "#60b060",
+                label: "Slightly basic",
+                note: "The solution is slightly basic because OH⁻ ions were consumed forming the precipitate rather than being neutralised by an acid."
+            },
+            visual: {
+                text: "Pale blue gelatinous solid suspended in a lighter blue solution.",
+                note: "A pale blue precipitate formed immediately on mixing. No gas was evolved. The solution became paler as Cu²⁺ ions were removed from solution."
+            },
+            conductivity: {
+                level: "Moderate",
+                note: "Na⁺ and SO₄²⁻ ions remain dissolved and conduct electricity, though the solution is less conductive than before as Cu²⁺ ions were removed."
+            },
+            evidenceKeywords: [
+                {
+                    label: "precipitate / solid / blue",
+                    keywords: ["precipitate", "solid", "blue", "gelatinous", "settle", "formed"]
+                },
+                {
+                    label: "colour / visual observation",
+                    keywords: ["colour", "color", "blue", "pale", "visual", "appear"]
+                },
+                {
+                    label: "temperature / exothermic / energy",
+                    keywords: ["temperature", "warm", "heat", "exothermic", "energy"]
+                },
+                {
+                    label: "molar ratio / 2:1 / stoichiometry",
+                    keywords: ["ratio", "2:1", "twice", "stoich", "mole", "balance"]
+                },
+                {
+                    label: "spectator ions / Na+ / SO4 / sodium sulfate",
+                    keywords: ["spectator", "sodium", "sulfate", "na+", "so4", "remain"]
+                }
+            ],
+            yield: {
+                errorFactor: 0.93
+            }
+        },
+        debriefTargets: [
+            "Why Cu(OH)₂ precipitates while Na₂SO₄ stays in solution — what determines solubility in ionic compounds",
+            "Why the molar ratio of NaOH to CuSO₄ is 2:1 and how this connects to the charge of the Cu²⁺ ion",
+            "Why the product solution became paler blue as the reaction proceeded — what does this tell us about where the colour comes from",
+            "Why copper compounds require special disposal compared to the NaCl produced in acid-base neutralisation"
+        ]
     }
 };
