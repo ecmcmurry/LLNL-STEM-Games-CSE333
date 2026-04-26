@@ -84,6 +84,7 @@
             <button id="toReactScreenBtn">React</button>
             <button id="toAnalyzeScreenBtn">Analyze</button>
             <button id="toDisposeScreenBtn">Dispose</button>
+            <button id="toDebriefScreenBtn">Debrief</button>
         </p>
 
         <p id="labFeedback" class = "bodytext" style="text-align: center;">
@@ -343,22 +344,45 @@
         </p>
     </div>
 
-    <!-- the Results screen -->
-     <!-- Just a placeholder for now, will get updated later -->
-    <div id="resultsScreen" class="screen" style="display: none;">
-        <!-- This back button should return you to the title -->
-        <p style="text-align: left;">
-            <button id="preLabToTitleBtn">Back</button>
-        </p>
-        <h1 style="text-align: center;">Pre-Lab</h1>
+    <!-- the Debrief screen -->
+    <div id="debriefScreen" class="screen" style="display: none;">
 
-        <p id="preLabBriefing" class = "bodytext" style="text-align: center;">
-            <label for="reactions">Lorem ipsum dolor sit amet</label>
+        <h1 style="text-align: center;">Reflection</h1>
+
+        <p class="bodytext" style="text-align: center;">
+            Discuss your experiment with your AI tutor.
         </p>
+
+        <!-- Run summary card — populated by buildSummaryCard() -->
+        <h2>Your Run Summary</h2>
+        <div class="card">
+            <header><h3 id="summaryReactionName"></h3></header>
+            <div class="content" id="summaryContent"></div>
+        </div>
+
+        <!-- Chat interface -->
+        <h2>Tutor Chat</h2>
+
+        <div id="chatWindow" class="chatWindow"></div>
+
+        <p id="apiError" class="apiError"></p>
+
+        <div class="debriefInputContainer">
+            <textarea
+                id="messageInput"
+                placeholder="Type your response..."
+                rows="1"
+                disabled
+                class="debriefScreen"></textarea>
+            <button id="sendBtn" disabled class="sendButton">Send</button>
+        </div>
+
+        <p id="exchangeCounter" class="exchangeCounter"></p>
 
         <p style="text-align: center;">
-            <button id="preLabToPredictionsBtn">Make Your Predictions</button>
+            <button id="toTitleBtn" class="hidden">Return to Title Screen</button>
         </p>
+
     </div>
 
     <script src="reactions.js"></script>
