@@ -50,6 +50,10 @@ let playerPredictions = [];
 let evidenceStatement = "";
 let yieldPercent = 0;
 
+document.getElementById('reactionDropdown').addEventListener('change', () => {
+    document.getElementById('reaction-description').innerText = REACTIONS[reactionDropdown.value].description;
+});
+
 //Changes from the Title Screen to the Pre-Lab Screen
 //This is included in main and NOT swapScreen because of the added functionality when you press the button
 //Though I should probably be consistent and any time a button switches screens it should be in swapScreen

@@ -1,19 +1,37 @@
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
     background-color: #f0f8ff;
     font-family: Arial, sans-serif;
+    font-size: clamp(14px, 3vw, 18px);
+    color: #333333;
+    margin: 0;
+    padding: 0;
 }
 
+/* === Screen Layout === */
+.screen {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* === Typography === */
 h1 {
     color: #5e9ca0;
     text-align: center;
-    font-size: 48px;
-    margin-bottom: 60px;
+    font-size: clamp(28px, 6vw, 48px);
+    margin-bottom: 24px;
+    margin-top: 12px;
 }
 
 h2 {
-    color: #000000;
-    text-align: center;
-    font-size: 24px;
+    color: #2a6a70;
+    font-size: clamp(16px, 4vw, 22px);
+    border-bottom: 2px solid #5e9ca0;
+    padding-bottom: 6px;
+    margin: 20px 0 12px 0;
 }
 
 h3 {
@@ -22,51 +40,397 @@ h3 {
     color: #2a6a70;
 }
 
-select, button {
-    padding: 8px 12px;
+/* Suppress h2 teal border inside card headers and volume controls */
+.card > header h2,
+.card > header h3,
+.volumeControls h2,
+.ppe-category-header {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin: 0;
+}
+
+select {
+    padding: 10px 12px;
     font-size: 16px;
-    margin-top: 10px;
+    font-family: Arial, sans-serif;
+    border: 1px solid #c0d8e0;
+    border-radius: 6px;
+    background: white;
+    min-height: 44px;
 }
 
-.bodytext {
-    font-size: 18px;
+/* === Utility === */
+.hidden { 
+    display: none; 
 }
 
-.hidden {
-    display: none;
+.bodytext { 
+    font-size: clamp(14px, 3vw, 18px); 
+}
+
+/* === Button System === */
+.btn-primary {
+    background-color: #5e9ca0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background-color 0.15s;
+}
+
+.btn-primary:hover:not(:disabled) { 
+    background-color: #4a7d80; 
+}
+.btn-primary:disabled { 
+    opacity: 0.6; 
+    cursor: default; 
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #5e9ca0;
+    border: 1px solid #5e9ca0;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background-color 0.15s;
+}
+
+.btn-secondary:hover:not(:disabled) { 
+    background-color: #d0e8f0; 
+}
+
+.btn-secondary:disabled { 
+    opacity: 0.6; cursor: default; 
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+.nav-back { 
+    margin: 8px 0 16px 0; 
+}
+
+/* === Card System === */
+.card {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.card > header {
+    background-color: #d8eef4;
+    padding: 10px 16px;
+    border-bottom: 1px solid #c0d8e0;
+}
+
+.card > .content { 
+    padding: 12px 16px; 
+}
+
+.cards {
+    display: grid;
+    gap: 12px;
+    margin: 12px 0;
+}
+
+/* === Title Screen === */
+.title-card {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 0 auto 20px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.reaction-dropdown {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    border: 1px solid #c0d8e0;
+    border-radius: 6px;
+    background: white;
+    min-height: 44px;
+    display: block;
+    margin: 0 auto 12px;
+}
+
+.reaction-hint {
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #666666;
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+/* === Pre-Lab Screen === */
+.briefing-card {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    max-width: 680px;
+    margin: 0 auto 20px;
+    line-height: 1.8;
+    text-align: left;
+}
+
+/* === Lab Overview === */
+.station-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+}
+
+@media (min-width: 560px) {
+    .station-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.station-btn {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    padding: 16px 12px;
+    min-height: 80px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: #2a6a70;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.station-btn:hover {
+    background-color: #d8eef4;
+    border-color: #5e9ca0;
+}
+
+.lab-feedback {
+    border-left: 4px solid #5e9ca0;
+    border-top: 1px solid #c0d8e0;
+    border-bottom: 1px solid #c0d8e0;
+    border-right: 1px solid #c0d8e0;
+    padding: 10px 14px;
+    background-color: white;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #333;
+}
+
+.lab-feedback:empty { 
+    display: none; 
+}
+
+/* === PPE / Disposal Radio Groups === */
+.ppe-category {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.ppe-category-header {
+    background-color: #d8eef4;
+    padding: 10px 16px;
+    border-bottom: 1px solid #c0d8e0;
+    color: #2a6a70;
+    font-size: clamp(14px, 3vw, 18px);
+    font-weight: bold;
+    display: block;
+}
+
+.ppe-options { 
+    padding: 4px 16px; 
+}
+
+.radio-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    min-height: 44px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f8ff;
+}
+
+.radio-row:last-child { 
+    border-bottom: none; 
+}
+
+.radio-row input[type="radio"] {
+    min-width: 18px;
+    min-height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.radio-row label {
+    flex: 1;
+    cursor: pointer;
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+.radio-row:hover { 
+    background-color: #f0f8ff; 
+    margin: 0 -16px; 
+    padding: 10px 16px; 
+}
+
+/* === Feedback States === */
+.feedback-success { 
+    color: #2a7a40; 
+    font-weight: bold; 
+}
+
+.feedback-error   { 
+    color: #a03030; 
+    font-weight: bold; 
+}
+
+/* === Measure Screen === */
+.equation-card {
+    background-color: white;
+    border: 1px solid #c0d8e0;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin: 12px 0;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #2a6a70;
+    overflow-x: auto;
+}
+
+/* Measure cards: h2 (reactant name) acts as card header */
+.card > .volumeControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.card > .volumeControls h2 {
+    flex: 1 0 100%;
+    background-color: #d8eef4;
+    padding: 10px 16px;
+    border-bottom: 1px solid #c0d8e0;
+    color: #2a6a70;
+    font-size: clamp(14px, 3vw, 18px);
+    text-align: center;
+    margin: 0;
+    border-radius: 0;
+}
+
+.card > .volumeControls button,
+.card > .volumeControls .volumeDisplay {
+    margin: 8px 4px;
 }
 
 .volumeControls {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
 }
 
+.volumeDisplay {
+    font-size: 16px;
+    color: #333;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* === Canvas / React Screen === */
 .canvas-wrapper {
     width: 100%;
-    max-width: 1000px;
+    max-width: 800px;
     position: relative;
     display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 canvas {
     border: 1px solid rgb(10, 60, 60);
-    border-radius: 4px;
     background: rgb(255, 255, 255);
     display: block;
+    width: 100%;
 }
 
 .pourBtn {
     position: absolute;
+    background-color: #5e9ca0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background-color 0.15s;
 }
 
-.analyzeHeader {
+.pourBtn:hover { 
+    background-color: #4a7d80; 
+}
+
+/* === Analyze Screen === */
+.section-intro {
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #555;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* Standalone h2.analyzeHeader (section dividers in analyze screen) */
+h2.analyzeHeader {
     text-align: left;
     border-bottom: 2px solid #5e9ca0;
     padding-bottom: 4px;
     margin: 24px 0 10px 0;
-    color: #000000;
-    font-size: 24px;
+    color: #2a6a70;
+    font-size: clamp(15px, 3vw, 20px);
+    background-color: transparent;
+}
+
+/* header.analyzeHeader inside dynamically-created analyzeCards */
+header.analyzeHeader {
+    background-color: #d8eef4;
+    padding: 10px 16px;
+    border-bottom: 1px solid #c0d8e0;
+    text-align: left;
+    color: #2a6a70;
+    border-top: none;
 }
 
 .analyzeNote {
@@ -87,30 +451,31 @@ canvas {
     resize: vertical;
     box-sizing: border-box;
     background: white;
+    display: block;
 }
 
-.observationRow {
-    padding: 10px 0;
+.observationRow        { 
+    padding: 10px 0; 
 }
 
-.observationRowLabel {
-    font-weight: bold;
-    font-size: 15px;
-    color: #2a6a70;
-    margin: 0 0 4px 0;
+.observationRowLabel   { 
+    font-weight: bold; 
+    font-size: 15px; 
+    color: #2a6a70; 
+    margin: 0 0 4px 0; 
 }
 
-.observationRowValue {
-    font-size: 15px;
-    color: #333333;
-    margin: 0 0 2px 0;
+.observationRowValue   { 
+    font-size: 15px; 
+    color: #333333; 
+    margin: 0 0 2px 0; 
 }
 
-.observationRowNote {
-    font-size: 13px;
-    color: #666666;
-    font-style: italic;
-    margin: 2px 0 0 0;
+.observationRowNote    { 
+    font-size: 13px; 
+    color: #666666; 
+    font-style: italic; 
+    margin: 2px 0 0 0; 
 }
 
 .instrument {
@@ -122,31 +487,32 @@ canvas {
     text-align: center;
 }
 
-.instrumentLabel {
-    font-size: 12px;
-    color: #666666;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 0 0 6px 0;
+.instrumentLabel   { 
+    font-size: 12px; 
+    color: #666666; 
+    text-transform: uppercase; 
+    letter-spacing: 0.05em; 
+    margin: 0 0 6px 0; 
 }
 
-.instrumentReading {
-    font-size: 20px;
-    font-weight: bold;
-    color: #2a6a70;
-    margin: 0;
+.instrumentReading { 
+    font-size: 20px; 
+    font-weight: bold; 
+    color: #2a6a70; 
+    margin: 0; 
 }
 
-.instrumentUnit {
-    font-size: 12px;
-    color: #888; margin: 0;
+.instrumentUnit    { 
+    font-size: 12px; 
+    color: #888; 
+    margin: 0; 
 }
 
-.instrumentRow {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin: 8px 0;
+.instrumentRow     { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    margin: 8px 0; 
 }
 
 .analyzeCard {
@@ -157,39 +523,67 @@ canvas {
     overflow: hidden;
 }
 
-.analyzeContent {
-    padding: 12px 16px;
-}
-
-.analyzeHeader {
-    background-color: #d8eef4;
-    padding: 10px 16px;
-    border-bottom: 1px solid #c0d8e0;
+.analyzeContent { 
+    padding: 12px 16px; 
 }
 
 .pHStrip {
-    display:inline-block;
-    width:40px;
-    height:14px;
-    border-radius:3px;
-    vertical-align:middle;
-    margin-left:6px;
-    border:1px solid #aaaaaa;
+    display: inline-block;
+    width: 40px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 6px;
+    border: 1px solid #aaaaaa;
 }
 
-.yieldNote {
-    font-size: 13px;
+.yieldNote  { 
+    font-size: 13px; 
     color: #666666; 
-    margin-top: 6px;
+    margin-top: 6px; 
 }
 
-.footnite {
-    font-size: 13px;
+.footnote   { 
+    font-size: 13px; 
     color: #888888;
-    margin-top: 8px;
-    font-style: italic;
+    margin-top: 8px; 
+    font-style: italic; 
 }
 
+/* Prediction radio option rows (generated by JS, no class on wrapper div) */
+.card .content div:has(input[type="radio"]) {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f8ff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+}
+
+.card .content div:has(input[type="radio"]):last-child { 
+    border-bottom: none; 
+}
+
+.card .content div:has(input[type="radio"]):hover { 
+    background-color: #f0f8ff;
+    margin: 0 -16px; 
+    padding: 10px 16px; 
+}
+
+.card .content div:has(input[type="radio"]) input[type="radio"] {
+    min-width: 18px;
+    min-height: 18px;
+    flex-shrink: 0;
+}
+
+.card .content div:has(input[type="radio"]) label {
+    flex: 1;
+    cursor: pointer;
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+/* === Debrief Screen === */
 .chatWindow {
     background-color: white;
     border: 1px solid #c0d8e0;
@@ -203,14 +597,45 @@ canvas {
     scroll-behavior: smooth;
 }
 
-.apiError {
-    color: #a03030;
-    font-size: 14px;
-    margin-top: 6px;
-    min-height: 18px;
+.apiError { 
+    color: #a03030; 
+    font-size: 14px; 
+    margin-top: 6px; 
+    min-height: 18px; 
 }
 
-.debriefInput {
+.debriefInputContainer { 
+    display: flex; 
+    gap: 8px; 
+    margin-top: 10px; 
+    align-items: flex-end; 
+}
+
+.sendButton {
+    background-color: #5e9ca0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 15px;
+    height: 44px;
+    white-space: nowrap;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.sendButton:hover:not(:disabled) { 
+    background-color: #4a7d80; 
+}
+
+.sendButton:disabled { 
+    opacity: 0.6; 
+    cursor: default; 
+}
+
+/* The debrief textarea uses class="debriefScreen" in the HTML */
+textarea.debriefScreen {
     flex: 1;
     padding: 10px 12px;
     font-size: 15px;
@@ -222,29 +647,17 @@ canvas {
     max-height: 120px;
     box-sizing: border-box;
     background: white;
+    width: 100%;
 }
 
-.debriefInputContainer {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    align-items: flex-end;
-}
-
-.sendButton {
-    padding: 10px 18px;
-    font-size: 15px;
-    height: 44px;
-    white-space: nowrap;
-}
-
-.exchangeCounter {
-    font-size: 13px;
-    color: #888888;
+.exchangeCounter { 
+    font-size: 13px; 
+    color: #888888; 
     text-align: right; 
-    margin-top: 4px;
+    margin-top: 4px; 
 }
 
+/* === Chat Messages === */
 .message {
     max-width: 78%;
     padding: 10px 14px;
@@ -254,7 +667,8 @@ canvas {
     word-wrap: break-word;
 }
 
-.messageAI {
+/* JS uses camelCase; spec lists kebab-case — both must work */
+.messageAI, .message-ai {
     align-self: flex-start;
     background-color: #d8eef4;
     border: 1px solid #c0d8e0;
@@ -262,14 +676,14 @@ canvas {
     border-bottom-left-radius: 3px;
 }
 
-.messagePlayer {
+.messagePlayer, .message-player {
     align-self: flex-end;
     background-color: #5e9ca0;
     color: white;
     border-bottom-right-radius: 3px;
 }
 
-.messageThinking {
+.messageThinking, .message-thinking {
     align-self: flex-start;
     background-color: #d8eef4;
     border: 1px solid #c0d8e0;
@@ -277,10 +691,11 @@ canvas {
     padding: 12px 18px;
 }
 
-.dots {
-    display: flex;
-    gap: 5px;
-    align-items: center;
+/* === Animated Dots === */
+.dots { 
+    display: flex; 
+    gap: 5px; 
+    align-items: center; 
 }
 
 .dot {
@@ -299,7 +714,8 @@ canvas {
     40%            { transform: translateY(-6px); opacity: 1;   }
 }
 
-.summaryRow {
+/* === Summary Rows (JS uses both camelCase and kebab-case) === */
+.summaryRow, .summary-row {
     display: flex;
     gap: 8px;
     align-items: baseline;
@@ -308,18 +724,52 @@ canvas {
     color: #333;
 }
 
-.summaryLabel {
+.summaryLabel, .summary-label {
     font-weight: bold;
     color: #2a6a70;
     min-width: 160px;
 }
 
-.predictionCorrect   { 
+/* === Prediction Feedback === */
+.predictionCorrect,   .prediction-correct   { 
     color: #2a7a40; 
     font-weight: bold; 
 }
 
-.predictionIncorrect { 
+.predictionIncorrect, .prediction-incorrect { 
     color: #a03030; 
     font-weight: bold; 
+}
+
+/* === Section Intro === */
+.section-intro {
+    font-size: clamp(13px, 2.5vw, 16px);
+    color: #555;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* === Demo Controls === */
+.demo-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+/* === Mobile Adjustments (375px — iPhone SE) === */
+@media (max-width: 600px) {
+    .chatWindow     { height: 300px; }
+    .message        { max-width: 92%; }
+    .summaryLabel, .summary-label { min-width: 100px; }
+    .debriefInputContainer { flex-direction: column; }
+    textarea.debriefScreen { max-height: 80px; flex: unset; width: 100%; }
+    .sendButton     { width: 100%; height: auto; }
+    .title-card     { padding: 16px; }
+    .briefing-card  { padding: 16px; }
+}
+
+.react-container {
+    justify-content: space-between;
 }
