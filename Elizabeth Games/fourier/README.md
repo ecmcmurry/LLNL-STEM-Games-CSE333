@@ -39,6 +39,19 @@ You manage the amplitude, frequency, and phase components of up to four waves, w
 ```
 fourier/
 ├── index.html
+├── jest.config.js           — Configuration for jest, used for unit testing
+├── playwright.config.js     — Configuration for playwright, used for end-to-end testing
+├── package-lock.json
+├── package.json
+├── coverage/                — Folder containing the unit test report from jest
+├── playwright-report/
+│   └── index.html           — End-to-End test results from playwright
+├── src/
+│   └── fourierGame.html     — A purely javascript version of the game to aid in jest testing
+├── test-results
+└── tests
+    ├── fourier.e2e.test.js          — A file containing all of the End-to-End tests
+    └── fourierGame.unit.test.js     — A file containing all of the unit tests
 ```
 
 ---
