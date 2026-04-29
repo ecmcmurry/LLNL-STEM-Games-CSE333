@@ -6,7 +6,7 @@
 <title>Fourier Demo</title>
 <style>
 
-  /* TODO: Update for light-mode toggle */
+  
   body {
     background: #0d0d14;
     display: flex;
@@ -17,9 +17,7 @@
     color: var(--text-primary);
   }
 
-  /* Used for the Score text. Used to include the title for the game, hence the name card-title
-  TODO: Update to match new purpose
-  TODO: Update for light-mode toggle*/
+  /* Used for the Score text. Used to include the title for the game, hence the name card-title*/
   .card-title {
     font-family: 'Space Mono', monospace;
     font-size: 15px;
@@ -28,8 +26,7 @@
     color: #7fefbd;
   }
 
-  /* Acts as a wrapper for the canvas. It rounds the corners and clips anything that extends out of bounds
-  TODO: Update for light-mode toggle*/
+  /* Acts as a wrapper for the canvas. It rounds the corners and clips anything that extends out of bounds*/
   .canvas-wrapper {
     position: relative;
     border-radius: 12px;
@@ -51,8 +48,7 @@
     gap: 8px;
   }
 
-  /* This determines the visuals of the actual row contianing the subwave sliders
-  TODO: Update for light-mode toggle */
+  /* This determines the visuals of the actual row contianing the subwave sliders*/
   .subwave-row {
     display: flex;
     align-items: center;
@@ -69,8 +65,7 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-  /* This controls the text containing the wave number
-  TODO: Update for light-mode toggle */
+  /* This controls the text containing the wave number*/
   .subwave-label {
     font-family: 'Space Mono', monospace;
     font-size: 25px;
@@ -84,8 +79,7 @@
     gap: 6px;
   }
 
-  /* Controls the display of the sliders, like their colors and background
-  TODO: Update for light-mode toggle */
+  /* Controls the display of the sliders, like their colors and background*/
   .chip {
     font-family: 'Space Mono', monospace;
     font-size: 18px;
@@ -106,7 +100,6 @@
     <div class="card-title" id="scoreDisplay">Score: 0</div>
   </div>
 
-  <!-- TODO: adjust sizing for mobile -->
   <div class="canvas-wrapper">
     <canvas id="waveCanvas" width="1240" height="420"></canvas>
   </div>
@@ -117,8 +110,6 @@
 
 <script>
   //Defines the subwaves and realwaves, consisitng of amplitude, frequency, phase, color, and whether the wave is enabled
-  //TODO: change enabled logic
-  //TODO: introduce color editing for subwaves
   let subwaves = [
     { amplitude: 0.5, frequency: 2.5,  phase: 0,   color: '#00ff2f',	enabled: 1 },
     { amplitude: 0.5, frequency: 2.5,  phase: 0,   color: '#fff200',	enabled: 0 },
@@ -475,8 +466,6 @@ function changeDifficulty() {
 	});
   //check score against stages
   //update waveCount and enable relevant variables
-  //TODO: More playtesting to refine difficulty curve
-  //TODO: Update to table-based instead of huge case statement
   switch(score) {
     case 1:
       //this is just redundant, but I want this to work right, even if it means having some redundancies
