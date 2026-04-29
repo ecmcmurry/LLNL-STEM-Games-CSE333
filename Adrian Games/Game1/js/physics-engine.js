@@ -12,7 +12,7 @@ function isWithinPlatformBounds(worldPos) {
 }
 
 function physicsStep(dt, P) {
-    const r = currentLevel === 0 ? BALL_RADIUS * Math.cbrt(P.mass / 0.5) : BALL_RADIUS;
+    const r = (currentLevel === 0 || currentLevel === 6) ? BALL_RADIUS * Math.cbrt(P.mass / 0.5) : BALL_RADIUS;
     const gravity = new THREE.Vector3(P.gx, P.gy, P.gz);
     const n = getPlatformNormal();
     F.gravity.copy(gravity).multiplyScalar(P.mass);
@@ -46,7 +46,17 @@ function physicsStep(dt, P) {
 
         if (dist < r) {
             ballPos.addScaledVector(n, r - dist);
-            if (vDotN < 0) ballVel.addScaledVector(n, -vDotN * (1 + RESTITUTION));
+            if (vDotN < 0) {
+                const res = P.restitution ?? RESTITUTION;
+                // Only apply restitution if the impact is strong enough to produce a real bounce.
+                // Soft grazes (< 0.15 m/s into the surface) just kill the normal velocity so
+                // the ball stays planted — no micro-hop, no acceleration spike on the chart.
+                if (-vDotN > 0.15 * (1 + res)) {
+                    ballVel.addScaledVector(n, -vDotN * (1 + res));
+                } else {
+                    ballVel.addScaledVector(n, -vDotN);   // absorb — zero out normal component
+                }
+            }
         }
     }
 
@@ -76,8 +86,8 @@ function physicsStep(dt, P) {
 }
 
 function resetBall() {
-    const mass = currentLevel === 0 ? Math.max(0.1, parseFloat(document.getElementById('ctrl-mass')?.value) || 0.5) : 0.5;
-    const r = currentLevel === 0 ? BALL_RADIUS * Math.cbrt(mass / 0.5) : BALL_RADIUS;
+    const mass = (currentLevel === 0 || currentLevel === 6) ? Math.max(0.1, parseFloat(document.getElementById('ctrl-mass')?.value) || 0.5) : 0.5;
+    const r = (currentLevel === 0 || currentLevel === 6) ? BALL_RADIUS * Math.cbrt(mass / 0.5) : BALL_RADIUS;
     ballPos.set(0, r + 0.01, 0);
     ballVel.set(0, 0, 0);
     tiltX = 0; tiltZ = 0;

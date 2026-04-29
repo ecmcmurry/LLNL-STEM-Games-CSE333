@@ -355,10 +355,28 @@ canvas { display: block; }
     background: rgba(34, 211, 238, 0.06);
 }
 
-/* Level select → device selector: sits flush left above the title */
+/* Level select → device selector: sits below the Play button, same width */
 #back-to-device-btn {
-    align-self: flex-start;
-    margin-bottom: 16px;
+    width: 100%;
+    max-width: 680px;
+    padding: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border-radius: 10px;
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    background: transparent;
+    color: var(--accent-cyan);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+#back-to-device-btn:hover {
+    background: rgba(34, 211, 238, 0.08);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
 }
 
 /* In-game → level select: fixed bottom-left corner */
