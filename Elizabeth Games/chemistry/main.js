@@ -50,13 +50,19 @@ let playerPredictions = [];
 let evidenceStatement = "";
 let yieldPercent = 0;
 
+//Variables used for the debrief with the AI tutor
+const MIN_EXCHANGES = 3;
+
+let conversationHistory = [];
+let exchangeCount = 0;
+let awaitingResponse = false;
+
+//Updates the description of the reaction based on the dropdown
 document.getElementById('reactionDropdown').addEventListener('change', () => {
     document.getElementById('reaction-description').innerText = REACTIONS[reactionDropdown.value].description;
 });
 
-//Changes from the Title Screen to the Pre-Lab Screen
-//This is included in main and NOT swapScreen because of the added functionality when you press the button
-//Though I should probably be consistent and any time a button switches screens it should be in swapScreen
+//Changes from the Title Screen to the Pre-Lab Screen and initializes the Pre-Lab screen
 document.getElementById('titleToPreLabBtn').addEventListener('click', () => {
     //resets variables
     reaction = null;
@@ -109,10 +115,7 @@ document.getElementById('titleToPreLabBtn').addEventListener('click', () => {
 //Changes from the Pre-Lab to the Predictions Screen
 document.getElementById('preLabToPredictionsBtn').addEventListener('click', () => {
     swapScreen("prediction");
-    //This is essentially the first-time-setup for the prediction screen. Maybe move to a specific file for screen management if this gets out of hand
-    //This runs here INSTEAD of the swapScreen function since that would undo player inputs I think?
-    //If this isn't the case, move this code there instead?
-
+    //This is the first-time-setup for the prediction screen.
     //uses the reaction to pull the prediction questionss from reactions.js
     predictions = REACTIONS[reaction].predictions;
     
@@ -450,28 +453,32 @@ function calculateReaction(volumes) {
 
 //Displays a hint on how to balance the reaction if the player is stuck
 document.getElementById('measureBalanceBtn').addEventListener('click', () => {
-    //Displays some canned feedback to the user based on their inputs
-    //First calculates 
-    //generated using Claude but I've taken the time to understand it. Will likely refactor later
+    //Displays some feedback to the user based on their inputs 
+    
     let isExcess = false;
 
+    //determines if there is an excess of one reactant
     reactants.forEach((reactant, index) => {
         if (moles.reactants[index].molesExcess != 0) {
             isExcess = true;
         }
     });
 
+    //calculates the total moles of product and if the reaction is low yield
     let totalProductMoles = moles.products.reduce((sum, p) => sum + p.molesProduced, 0);
     let isLowYield = totalProductMoles < 0.05;
 
+    //if excess
     if (isExcess) {
+        //tell the user they have an excess amount of said reactant
         let excessReactant = moles.reactants.find(r => r.molesExcess > 0);
         document.getElementById('measureFeedbackText').innerText = `You have excess ${excessReactant.name} — try reducing its volume or increasing the other reactant.`;
     } else if (isLowYield) {
+        //if they don't have an excess but are low yield, encourage them to increase the yield
         document.getElementById('measureFeedbackText').innerText = "The reaction is balanced, but you have a very low yield. Consider increasing the volume of all reactants.";
     } else {
+        //If they don't have an excess and are not low yield, then congratulate them on the balanced reaction
         document.getElementById('measureFeedbackText').innerText = "The reaction appears to be balanced!";
-        //document.getElementById('measureBalanceBtn').classList.add('hidden');
     }
 });
 
@@ -483,6 +490,7 @@ document.getElementById('toReactScreenBtn').addEventListener('click', () => {
 
     document.getElementById('reactScreen').querySelector('.toLabBtn').classList.add('hidden');
 
+    //defines the beakers and their associated variables
     beakers = [{
         fill: 80,
         angle: 0,
@@ -1309,11 +1317,11 @@ function checkEvidence() {
 //Verifies that the Disposal options chosen by the player line up with the reaction
 document.getElementById('verifyDisposal').addEventListener('click', () => {
     //pulls answer from each category
-    //checks that against value in reaction
     let correctLiquid = false;
     let correctSolid = false;
     let correctGas = false;
-
+    
+    //checks that against value in reaction
     const liquid = document.querySelector('input[name="liquidWaste"]:checked');
     const solid = document.querySelector('input[name="solidWaste"]:checked');
     const gas = document.querySelector('input[name="gaseousWaste"]:checked');
@@ -1337,7 +1345,6 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
         document.getElementById('verifyDisposal').classList.add('hidden');
     } else {
         //if incorrect display this
-        //Maybe include some canned responses just in case?
         if (!correctLiquid) {
             document.getElementById('disposalFeedback').innerText = REACTIONS[reaction].disposal.liquid.hint;
         } else if (!correctSolid) {
@@ -1354,14 +1361,6 @@ document.getElementById('verifyDisposal').addEventListener('click', () => {
 });
 
 //Moving onto the Debrief screen
-
-//TODO: move these variables to the top
-const MIN_EXCHANGES = 3;
-
-let conversationHistory = [];
-let exchangeCount = 0;
-let awaitingResponse = false;
-
 //Collects all of the relevant information from the play session to be sent as part of the AI debrief
 function buildRunSummary() {
     return {
