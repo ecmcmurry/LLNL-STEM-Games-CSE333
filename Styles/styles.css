@@ -243,7 +243,7 @@ nav a:hover {
         display: flex;
         gap: 10px;
         align-items: stretch;
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     /* ── Game card: height = row height, width derived from aspect ratio ── */
