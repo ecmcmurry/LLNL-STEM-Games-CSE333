@@ -12,12 +12,13 @@ function isWithinPlatformBounds(worldPos) {
 }
 
 function physicsStep(dt, P) {
+    const r = currentLevel === 0 ? BALL_RADIUS * Math.cbrt(P.mass / 0.5) : BALL_RADIUS;
     const gravity = new THREE.Vector3(P.gx, P.gy, P.gz);
     const n = getPlatformNormal();
     F.gravity.copy(gravity).multiplyScalar(P.mass);
 
     const dist = n.dot(ballPos);
-    onSurface = dist <= BALL_RADIUS + 0.01 && dist >= -BALL_RADIUS - 1.0 && isWithinPlatformBounds(ballPos);
+    onSurface = dist <= r + 0.01 && dist >= -r - 1.0 && isWithinPlatformBounds(ballPos);
 
     F.normal.set(0,0,0); F.friction.set(0,0,0); F.rolling.set(0,0,0); F.gravSurf.set(0,0,0);
 
@@ -43,8 +44,8 @@ function physicsStep(dt, P) {
             F.rolling.copy(vSurf).normalize().multiplyScalar(-ROLLING_MU * normalMag);
         }
 
-        if (dist < BALL_RADIUS) {
-            ballPos.addScaledVector(n, BALL_RADIUS - dist);
+        if (dist < r) {
+            ballPos.addScaledVector(n, r - dist);
             if (vDotN < 0) ballVel.addScaledVector(n, -vDotN * (1 + RESTITUTION));
         }
     }
@@ -75,7 +76,9 @@ function physicsStep(dt, P) {
 }
 
 function resetBall() {
-    ballPos.set(0, BALL_RADIUS + 0.01, 0);
+    const mass = currentLevel === 0 ? Math.max(0.1, parseFloat(document.getElementById('ctrl-mass')?.value) || 0.5) : 0.5;
+    const r = currentLevel === 0 ? BALL_RADIUS * Math.cbrt(mass / 0.5) : BALL_RADIUS;
+    ballPos.set(0, r + 0.01, 0);
     ballVel.set(0, 0, 0);
     tiltX = 0; tiltZ = 0;
     matchTimer = 0;

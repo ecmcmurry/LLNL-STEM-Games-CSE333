@@ -26,6 +26,8 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model:      'claude-haiku-4-5-20251001',
                 max_tokens: 1000,
+                //explicit max temperature so Haiku actually varies its numbers between calls
+                temperature: 1.0,
                 system:     buildSystemPrompt(),
                 messages: [
                     { role: 'user',      content: buildUserPrompt(spec, category, categoryName, correct, incorrect, accuracy, difficulty) },
@@ -423,6 +425,11 @@ You do NOT design the board. You only pick numbers (voltage, resistor values, go
 
 function buildUserPrompt(spec, category, categoryName, correct, incorrect, accuracy, difficulty) {
     const [vLo, vHi] = spec.voltageRange;
+    //Per-call randomization so Haiku sees a different prompt every request and produces
+    //different distractor sets, instead of collapsing to the same handful of numbers.
+    const nonce = Math.random().toString(36).slice(2, 10);
+    const hintV = randInt(vLo, vHi);
+    const hintR = randInt(2, 10);
 
     const topicInstructions = ({
         current: `Pick a voltage V in [${vLo}, ${vHi}] and a resistance R (positive integer) so that V / R is a small positive integer. The student will drop R. "goal" = V / R.`,
@@ -432,7 +439,10 @@ function buildUserPrompt(spec, category, categoryName, correct, incorrect, accur
         voltageDivider: `Pick V_in in [${vLo}, ${vHi}] and two resistor values R1, R2 (positive integers 2-10) such that V_in * R2 / (R1 + R2) is a small positive integer. "goal" = V_out.`
     })[spec.goalType];
 
-    return `Student performance:
+    return `Call id: ${nonce}
+Seed hints (lean toward FRESH values near these, do not reuse previous call numbers): V~${hintV}, R~${hintR}
+
+Student performance:
 - category:   ${category} (${categoryName})
 - correct:    ${correct}
 - incorrect:  ${incorrect}
@@ -457,7 +467,7 @@ Respond with this exact shape (fill the <...> slots with integers):
 Rules:
 - "answer" must be the exact integer result of the formula using your picked numbers.
 - "distractors" are 3 DIFFERENT wrong resistor values (not equal to any correct value).
-- Vary your numbers each call — do not always pick the same voltage or resistors.`;
+- Vary your numbers aggressively each call — do not repeat the same voltage or resistors.`;
 }
 
 
@@ -476,18 +486,21 @@ function assembleLevel(spec, modelValues, category) {
     let correctValue, goal;
     const components = [];
 
+    //Correct-answer values are picked FRESH on the server every call so the answer
+    //varies across calls regardless of whether Haiku keeps emitting the same numbers.
+    //Haikus values are used only as distractors below.
     switch(spec.goalType){
         case 'current': {
-            const R = pickDivisor(v) || Math.max(2, Math.round(v / randInt(2, 4)));
+            const [V, R] = pickCurrentPair(vLo, vHi);
+            voltage = V;
             resistance = null;
-            goal = Math.round(v / R);
+            goal = V / R;
             correctValue = R;
             components.push(resistor(R));
             break;
         }
         case 'voltage': {
-            const R = r1;
-            const I = i;
+            const [I, R] = pickVoltagePair(vLo, vHi);
             voltage = null;
             resistance = R;
             fixedCurrent = I;
@@ -497,19 +510,22 @@ function assembleLevel(spec, modelValues, category) {
             break;
         }
         case 'series': {
-            goal = r1 + r2;
-            components.push(resistor(r1), resistor(r2));
+            //two independent random draws so combinations like (4,6), (5,9), (7,3)... all appear
+            const R1 = randInt(2, 10);
+            const R2 = randInt(2, 10);
+            goal = R1 + R2;
+            components.push(resistor(R1), resistor(R2));
             break;
         }
         case 'parallel': {
-            const [a, b] = pickParallelPair(r1, r2);
+            const [a, b] = pickParallelPair();
             goal = (a * b) / (a + b);
             components.push(resistor(a), resistor(b));
             break;
         }
         case 'voltageDivider': {
-            const vin = v;
-            const [R1, R2] = pickDividerPair(vin, r1, r2);
+            const vin = randInt(vLo, vHi);
+            const [R1, R2] = pickDividerPair(vin);
             voltage = vin;
             goal = Math.round((vin * R2) / (R1 + R2));
             components.push(resistor(R1), resistor(R2));
@@ -566,19 +582,59 @@ function pickDivisor(v) {
     return options[Math.floor(Math.random() * options.length)];
 }
 
-function pickParallelPair(r1, r2) {
-    if(r1 === r2) return [r1, r2];
-    const even = r1 + (r1 % 2);
-    return [even, even];
-}
-
-function pickDividerPair(vin, r1, r2) {
-    for(let R1 = 2; R1 <= 10; R1++){
-        for(let R2 = 2; R2 <= 10; R2++){
-            if((vin * R2) % (R1 + R2) === 0) return [R1, R2];
+//Enumerate every valid (V, R) pair in the difficulty range where V/R is a small integer,
+//then pick one at random. Replaces the prior code that reused Haikus single voltage guess.
+function pickCurrentPair(vLo, vHi) {
+    const options = [];
+    for(let V = vLo; V <= vHi; V++){
+        for(let R = 2; R <= 12; R++){
+            if(V % R !== 0) continue;
+            const I = V / R;
+            if(I >= 1 && I <= 6) options.push([V, R]);
         }
     }
-    return [r1, r2];
+    if(options.length === 0) return [vLo, 2];
+    return options[Math.floor(Math.random() * options.length)];
+}
+
+//Enumerate every valid (I, R) pair whose product lands in the voltage range, pick random.
+function pickVoltagePair(vLo, vHi) {
+    const options = [];
+    for(let I = 1; I <= 5; I++){
+        for(let R = 2; R <= 10; R++){
+            const prod = I * R;
+            if(prod >= vLo && prod <= vHi) options.push([I, R]);
+        }
+    }
+    if(options.length === 0) return [1, vLo];
+    return options[Math.floor(Math.random() * options.length)];
+}
+
+//Enumerate EVERY (a, b) up to 12 whose parallel-sum is an integer, then pick random.
+//Old version always collapsed to (r1, r1) which made the answer = r1/2 every call.
+function pickParallelPair() {
+    const options = [];
+    for(let a = 2; a <= 12; a++){
+        for(let b = a; b <= 12; b++){
+            if((a * b) % (a + b) === 0) options.push([a, b]);
+        }
+    }
+    return options[Math.floor(Math.random() * options.length)];
+}
+
+//Enumerate EVERY valid (R1, R2) for the given V_in and pick random. Also require the
+//V_out to be strictly positive AND smaller than V_in so the problem isnt trivial.
+//Old version returned the FIRST match — for even V_in that was always (2, 2).
+function pickDividerPair(vin) {
+    const options = [];
+    for(let R1 = 2; R1 <= 10; R1++){
+        for(let R2 = 2; R2 <= 10; R2++){
+            const vout = (vin * R2) / (R1 + R2);
+            if(Number.isInteger(vout) && vout > 0 && vout < vin) options.push([R1, R2]);
+        }
+    }
+    if(options.length === 0) return [3, 2];
+    return options[Math.floor(Math.random() * options.length)];
 }
 
 function resistor(value) {

@@ -118,9 +118,54 @@ function dragMethod() {
     const dropZones = document.querySelectorAll('.dropZone');
     const slots = document.getElementById('componentSlots');
     let selectedComponent = null;
+
+    //One-time global plumbing so the custom drag ghost follows the cursor regardless of what
+    //element the pointer is currently over. Guarded so re-entering dragMethod() per-level
+    //doesnt stack listeners.
+    if(!window._dragGhostInit){
+        window._dragGhostInit = true;
+        document.addEventListener('dragover', function(e) {
+            if(window._dragGhostEl){
+                window._dragGhostEl.style.left = `${e.clientX - window._dragGhostEl.offsetWidth / 2}px`;
+                window._dragGhostEl.style.top  = `${e.clientY - window._dragGhostEl.offsetHeight / 2}px`;
+            }
+        });
+    }
+
     //this method allows the whole component card to pull the components respective value
+    //and builds a custom solid-opacity drag ghost so the part reads as being PULLED OUT
+    //of the tray rather than the browser default translucent full-card snapshot
     slots.ondragstart = function(e) {
         selectedComponent = e.target.closest('.slotDesign');
+        if(!selectedComponent || !e.dataTransfer) return;
+
+        //Kill the native (faded) drag image by pointing at a 1x1 transparent pixel
+        const blank = new Image();
+        blank.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        if(typeof e.dataTransfer.setDragImage === 'function'){
+            e.dataTransfer.setDragImage(blank, 0, 0);
+        }
+
+        //Spawn a fixed-position clone of just the component image so the border/label
+        //dont get dragged along and the whole thing stays at full opacity
+        const img = selectedComponent.querySelector('.component-img');
+        if(!img) return;
+        const ghost = img.cloneNode(true);
+        ghost.classList.add('component-dragGhost');
+        ghost.style.width  = `${img.offsetWidth}px`;
+        ghost.style.height = `${img.offsetHeight}px`;
+        ghost.style.left   = `${e.clientX - img.offsetWidth  / 2}px`;
+        ghost.style.top    = `${e.clientY - img.offsetHeight / 2}px`;
+        document.body.appendChild(ghost);
+        window._dragGhostEl = ghost;
+    };
+
+    //fires on the source when the drag finishes (dropped or cancelled) — guaranteed cleanup
+    slots.ondragend = function() {
+        if(window._dragGhostEl){
+            window._dragGhostEl.remove();
+            window._dragGhostEl = null;
+        }
     };
     //dropzones are the respective css spots that are made above or hardcoded from the levels data
     dropZones.forEach(dropZone => {

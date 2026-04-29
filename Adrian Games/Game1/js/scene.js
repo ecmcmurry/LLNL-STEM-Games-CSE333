@@ -129,7 +129,8 @@ function updateBallRolling(dt) {
     if (surfSpeed < 0.001) return;
     const axis = new THREE.Vector3().crossVectors(n, vSurf.normalize());
     if (axis.lengthSq() > 0.0001) {
-        ballMesh.rotateOnWorldAxis(axis.normalize(), (surfSpeed / BALL_RADIUS) * dt);
+        const r = currentLevel === 0 ? BALL_RADIUS * ballMesh.scale.x : BALL_RADIUS;
+        ballMesh.rotateOnWorldAxis(axis.normalize(), (surfSpeed / r) * dt);
     }
 }
 

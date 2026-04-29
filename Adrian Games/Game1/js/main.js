@@ -200,6 +200,7 @@ function gameLoop(timestamp) {
     }
 
     ballMesh.position.copy(ballPos);
+    ballMesh.scale.setScalar(currentLevel === 0 ? Math.cbrt(P.mass / 0.5) : 1);
     updateBallRolling(frameDt);
     updateTrail();
     updateForceArrows();
