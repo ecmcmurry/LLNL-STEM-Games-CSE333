@@ -42,6 +42,7 @@ You explore one of four chemical reactions in a simplified manner framed like my
 chemistry/
 ├── index.html
 ├── main.js                  — Contains most of the code including drawing, confirming responses, calculating reactions, etc.
+├── main.js                  — Contains functions that don't interact with DOM elements to aid in testing.
 ├── reactions.js             — Data object containing information on all included reactions
 ├── swapScreen.js            — Functions and Event Listeners for swapping screens
 ├── api/

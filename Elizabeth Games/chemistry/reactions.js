@@ -741,3 +741,8 @@ const REACTIONS = {
         ]
     }
 };
+
+//exports the data object for use in testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { REACTIONS };
+}
