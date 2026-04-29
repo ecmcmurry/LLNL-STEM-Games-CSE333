@@ -427,21 +427,18 @@ function reroll() {
     realwaves.forEach(wave => {
 		  if(ampEnabled) {
        	wave.amplitude = randomRounded(0.05, 1, 0.05) * wave.enabled;
-        //console.log(wave.amplitude);
       } else {
       	wave.amplitude = 0.5 * wave.enabled;
       }
       
       if(freEnabled) {
       	wave.frequency = randomRounded(0.5, 5, 0.1) * wave.enabled;
-        //console.log(wave.frequency);
       } else {
       	wave.frequency = 2.5 * wave.enabled;
       }
       
       if(phaEnabled) {
       	wave.phase = Math.PI*randomRounded(0, 2, 0.05) * wave.enabled;
-        //console.log(wave.phase);
       } else {
       	wave.phase = 0 * wave.enabled;
       }
