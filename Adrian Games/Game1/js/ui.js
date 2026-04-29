@@ -71,9 +71,9 @@ function updateChart() {
     chartAccel.push(currentAccelMag); chartAccel.shift();
     chart.data.datasets[0].data = [...chartSpeed];
     chart.data.datasets[1].data = [...chartAccel];
-    // Show target line in sandbox (level 0) and W4 speed ramp (level 4)
+    // Show target line in sandbox (level 0), W4 speed ramp (level 4), and W6 sandbox (level 6)
     chart.data.datasets[2].data = Array(CHART_LEN).fill(
-        (currentLevel === 0 || currentLevel === 4) ? targetSpeed : 0
+        (currentLevel === 0 || currentLevel === 4 || currentLevel === 6) ? targetSpeed : 0
     );
     const maxVal = Math.max(...chartSpeed, ...chartAccel, targetSpeed, 5);
     chart.options.scales.y.max = Math.ceil(maxVal * 1.3);

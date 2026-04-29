@@ -24,6 +24,11 @@ let onSurface = true, currentAccelMag = 0;
 const keys = { w: false, a: false, s: false, d: false };
 let jumpQueued = false;
 
+//Spring-jump charge state
+let spaceDown      = false;   // true while Space is physically held
+let jumpChargeTime = 0;       // seconds Space has been held (capped at MAX_CHARGE_TIME)
+let chargeRing     = null;    // Three.js Mesh — glowing ring that grows while charging
+
 //Force arrows (Three.js ArrowHelpers)
 let arrowGravSurf, arrowNormal, arrowFriction, arrowDrag;
 
@@ -51,8 +56,8 @@ let chartAccel = Array(CHART_LEN).fill(0);
 let targetSpeed = 2.5, matchTimer = 0;
 
 //Level system
-let selectedLevel = 0, currentLevel = 0;
-let levelPhase = 'sandbox', levelState = {};
+let selectedLevel = 1, currentLevel = 1;
+let levelPhase = 'intro', levelState = {};
 let paramsOverride = null, tiltLocked = false;
 
 //W1 scene objects

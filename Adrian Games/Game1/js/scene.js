@@ -129,7 +129,7 @@ function updateBallRolling(dt) {
     if (surfSpeed < 0.001) return;
     const axis = new THREE.Vector3().crossVectors(n, vSurf.normalize());
     if (axis.lengthSq() > 0.0001) {
-        const r = currentLevel === 0 ? BALL_RADIUS * ballMesh.scale.x : BALL_RADIUS;
+        const r = (currentLevel === 0 || currentLevel === 6) ? BALL_RADIUS * ballMesh.scale.x : BALL_RADIUS;
         ballMesh.rotateOnWorldAxis(axis.normalize(), (surfSpeed / r) * dt);
     }
 }
@@ -151,4 +151,44 @@ function setArrow(arrow, forceVec, origin, show) {
     arrow.setLength(Math.min(len, 6), Math.min(len * 0.25, 0.35), 0.12);
     arrow.position.copy(origin);
     arrow.visible = true;
+}
+
+// ── Spring-jump charge ring ──────────────────────────────────────────────────
+// A flat glowing ring that appears around the ball base and grows as Space is held.
+// Color shifts cyan → yellow → red as charge increases.
+
+function updateChargeRing(frac) {
+    // frac = 0 (no charge) … 1 (full charge)
+    if (frac <= 0) { hideChargeRing(); return; }
+
+    if (!chargeRing) {
+        const geo = new THREE.RingGeometry(0.55, 0.75, 48);
+        const mat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true });
+        chargeRing = new THREE.Mesh(geo, mat);
+        chargeRing.rotation.x = -Math.PI / 2;
+        scene.add(chargeRing);
+    }
+
+    chargeRing.visible = true;
+
+    // Scale ring outward with charge (1× to 2.5×)
+    const s = 1 + frac * 1.5;
+    chargeRing.scale.set(s, s, 1);
+
+    // Colour: cyan (0,1,1) → yellow (1,1,0) → red (1,0,0)
+    let r, g, b;
+    if (frac < 0.5) {
+        r = frac * 2; g = 1; b = 1 - frac * 2;   // cyan → yellow
+    } else {
+        r = 1; g = 1 - (frac - 0.5) * 2; b = 0;  // yellow → red
+    }
+    chargeRing.material.color.setRGB(r, g, b);
+    chargeRing.material.opacity = 0.5 + frac * 0.45;
+
+    // Snap to ball base position each frame
+    chargeRing.position.set(ballPos.x, ballPos.y - BALL_RADIUS + 0.05, ballPos.z);
+}
+
+function hideChargeRing() {
+    if (chargeRing) chargeRing.visible = false;
 }

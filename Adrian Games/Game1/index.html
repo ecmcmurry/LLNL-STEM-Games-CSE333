@@ -81,12 +81,12 @@
 
                 <div class="htp-card">
                     <div class="htp-card-badge">🌍 LEVELS</div>
-                    <p><strong>W1 Corridor</strong> — Position vs Time: place 8 snapshot points as you roll.</p>
+                    <p><strong>W1 Position</strong> — Position vs Time: place 8 snapshot points as you roll.</p>
                     <p><strong>W2 Path vs Arrow</strong> — Distance vs Displacement.</p>
                     <p><strong>W3 Velocity Aim</strong> — Velocity vs Speed: hit the target gate.</p>
                     <p><strong>W4 Accelerator</strong> — Constant acceleration: reach the speed zone.</p>
                     <p><strong>W5 Drop Tower</strong> — Free fall: measure g by rolling off a height.</p>
-                    <p><strong>W6 Create</strong> — Design your own drop experiment on any planet.</p>
+                    <p><strong>W6 Sandbox</strong> — Free play with full parameter control.</p>
                 </div>
 
                 <div class="htp-card">
@@ -153,6 +153,14 @@
                     <button onclick="adj('ctrl-rho',-0.5)">−</button>
                     <input type="number" id="ctrl-rho" value="1.225" step="0.5" min="0" max="20">
                     <button onclick="adj('ctrl-rho',0.5)">+</button>
+                </div>
+            </div>
+            <div class="stat">
+                <label>⚡ Bounciness</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-bounce',-0.05)">−</button>
+                    <input type="number" id="ctrl-bounce" value="0.3" step="0.05" min="0" max="1">
+                    <button onclick="adj('ctrl-bounce',0.05)">+</button>
                 </div>
             </div>
             <div class="stat" style="gap:8px;">
@@ -234,22 +242,13 @@
     <button id="game-back-btn" class="back-btn hidden">← LEVELS</button>
 
     <div id="ui">
-        <button id="back-to-device-btn" class="back-btn">← DEVICE</button>
         <h1>Learn Kinematics by playing!</h1>
         <div class="level-select-label">SELECT MODE</div>
         <div class="level-grid">
-            <button class="level-btn active" data-level="0">
-                <span class="lvl-num">S</span>
-                <span class="lvl-meta">
-                    <span class="lvl-title">Sandbox</span>
-                    <span class="lvl-topic">Free play · tune every parameter</span>
-                </span>
-                <span class="lvl-arrow">→</span>
-            </button>
-            <button class="level-btn" data-level="1">
+            <button class="level-btn active" data-level="1">
                 <span class="lvl-num">W1</span>
                 <span class="lvl-meta">
-                    <span class="lvl-title">Corridor</span>
+                    <span class="lvl-title">Position</span>
                     <span class="lvl-topic">Position vs Time</span>
                 </span>
                 <span class="lvl-arrow">→</span>
@@ -289,13 +288,14 @@
             <button class="level-btn" data-level="6">
                 <span class="lvl-num">W6</span>
                 <span class="lvl-meta">
-                    <span class="lvl-title">Create</span>
-                    <span class="lvl-topic">Design your own drop experiment</span>
+                    <span class="lvl-title">Sandbox</span>
+                    <span class="lvl-topic">Free play · tune every parameter</span>
                 </span>
                 <span class="lvl-arrow">→</span>
             </button>
         </div>
-        <button id="start-button">INITIALIZE ENGINE</button>
+        <button id="start-button">▶ PLAY</button>
+        <button id="back-to-device-btn">← BACK TO DEVICE SELECT</button>
     </div>
     <!--organized js files to work with the game-->
     <script src="js/constants.js"></script>

@@ -2,9 +2,22 @@
 window.addEventListener('keydown', e => {
     const k = e.key.toLowerCase();
     if (k in keys) keys[k] = true;
-    if (e.code === 'Space') { e.preventDefault(); jumpQueued = true; }
+    if (e.code === 'Space') {
+        e.preventDefault();
+        if (!spaceDown) {                   // first press — start charging
+            spaceDown      = true;
+            jumpChargeTime = 0;
+        }
+    }
 });
-window.addEventListener('keyup', e => { const k = e.key.toLowerCase(); if (k in keys) keys[k] = false; });
+window.addEventListener('keyup', e => {
+    const k = e.key.toLowerCase();
+    if (k in keys) keys[k] = false;
+    if (e.code === 'Space') {
+        spaceDown  = false;
+        jumpQueued = true;                  // release fires the jump with whatever charge built up
+    }
+});
 
 function updateKeyboardTilt(dt) {
     if (tiltLocked) return;
@@ -18,6 +31,31 @@ function updateKeyboardTilt(dt) {
     tiltX = THREE.MathUtils.clamp(tiltX, -MAX_TILT_DEG, MAX_TILT_DEG);
     tiltZ = THREE.MathUtils.clamp(tiltZ, -MAX_TILT_DEG, MAX_TILT_DEG);
 }
+// Touch hold = charge jump (mobile equivalent of holding Space)
+window.addEventListener('touchstart', e => {
+    if (controlMethod !== 'mobile' || !gameActive) return;
+    if (levelPhase === 'question') return;
+    e.preventDefault();
+    if (!spaceDown) {
+        spaceDown      = true;
+        jumpChargeTime = 0;
+    }
+}, { passive: false });
+
+window.addEventListener('touchend', e => {
+    if (controlMethod !== 'mobile' || !gameActive) return;
+    e.preventDefault();
+    spaceDown  = false;
+    jumpQueued = true;
+}, { passive: false });
+
+window.addEventListener('touchcancel', e => {
+    if (controlMethod !== 'mobile') return;
+    spaceDown  = false;
+    jumpQueued = false;
+    jumpChargeTime = 0;
+});
+
 //correct orientation handler for the ball moving in respect to other movement
 function handleOrientation(e) {
     if (tiltLocked) return;
@@ -43,7 +81,8 @@ function readParams() {
         mu: Math.max(0, v('ctrl-mu')   ?? 0.3),
         gx: 0, gy: v('ctrl-gy') ?? -9.81, gz: 0,
         cd: Math.max(0, v('ctrl-cd')   ?? 0.47),
-        rho: Math.max(0, v('ctrl-rho')  ?? 1.225)
+        rho: Math.max(0, v('ctrl-rho')  ?? 1.225),
+        restitution: Math.min(1, Math.max(0, v('ctrl-bounce') ?? 0.3))
     };
 }
 
@@ -183,12 +222,23 @@ function gameLoop(timestamp) {
     //Platform stays flat tiltX/tiltZ are used as force inputs, not visual rotation
     platformGroup.updateMatrixWorld(true);
 
-    //Apply jump impulse before physics ticks
-    if (jumpQueued && onSurface) {
-        ballVel.y = JUMP_IMPULSE;
-        jumpQueued = false;
-    } else {
-        jumpQueued = false; //clear if airborne (can't jump mid-air)
+    // ── Spring-jump charge ──
+    if (spaceDown && onSurface) {
+        jumpChargeTime = Math.min(jumpChargeTime + frameDt, MAX_CHARGE_TIME);
+    } else if (!onSurface) {
+        jumpChargeTime = 0;   // can't build charge in the air
+    }
+    updateChargeRing(jumpChargeTime / MAX_CHARGE_TIME);
+
+    // ── Apply jump impulse on Space release ──
+    if (jumpQueued) {
+        if (onSurface) {
+            const t = jumpChargeTime / MAX_CHARGE_TIME;       // 0 = tap, 1 = full charge
+            ballVel.y = JUMP_IMPULSE + (MAX_CHARGE_IMPULSE - JUMP_IMPULSE) * t;
+        }
+        jumpQueued    = false;
+        jumpChargeTime = 0;
+        hideChargeRing();
     }
 
     if (levelPhase !== 'question') {
@@ -200,7 +250,7 @@ function gameLoop(timestamp) {
     }
 
     ballMesh.position.copy(ballPos);
-    ballMesh.scale.setScalar(currentLevel === 0 ? Math.cbrt(P.mass / 0.5) : 1);
+    ballMesh.scale.setScalar((currentLevel === 0 || currentLevel === 6) ? Math.cbrt(P.mass / 0.5) : 1);
     updateBallRolling(frameDt);
     updateTrail();
     updateForceArrows();

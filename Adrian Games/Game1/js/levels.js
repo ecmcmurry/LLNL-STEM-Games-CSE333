@@ -1031,7 +1031,7 @@ function startW4() {
 
     // Low friction so the ball slides cleanly on all ramps
     // Default mu=0.3 would stop the ball at angles below ~17°
-    paramsOverride = { mass: 0.5, mu: 0.05, gx: 0, gy: -9.81, gz: 0, cd: 0.47, rho: 1.225 };
+    paramsOverride = { mass: 0.5, mu: 0.05, gx: 0, gy: -9.81, gz: 0, cd: 0, rho: 0 };
 
     levelState = {
         phase: 'intro', rIdx: 0, results: [],
@@ -1077,31 +1077,40 @@ function w4BeginRamp(idx) {
 function updateW4(dt) {
     if (!levelState || levelState.phase !== 'rolling' || levelState.done) return;
 
-    const ramp  = W4_RAMPS[levelState.rIdx];
-    const speed = ballVel.length();
+    const ramp = W4_RAMPS[levelState.rIdx];
 
     levelState.phaseTime += dt;
 
-    // Smoothed live acceleration estimate
+    // Project velocity onto the downhill slope direction (local +X in world space
+    // when tilted with rotation.z = −θ).  This gives the true along-slope speed
+    // rather than the full 3-D scalar speed which includes any lateral drift.
+    const rad       = THREE.MathUtils.degToRad(ramp.angleDeg);
+    const slopeHat  = new THREE.Vector3(Math.cos(rad), -Math.sin(rad), 0); // downhill world dir
+    const vSlope    = ballVel.dot(slopeHat);   // signed speed along slope (+ = downhill)
+    const speed     = Math.max(0, vSlope);     // only the downhill component
+
+    // Smoothed live acceleration estimate (along slope only)
     const rawA = dt > 0 ? (speed - levelState.prevSpeed) / dt : 0;
     levelState.aSmooth   = 0.9 * levelState.aSmooth + 0.1 * rawA;
     levelState.prevSpeed = speed;
 
     const t = levelState.phaseTime;
 
-    // Local position used for both progress bar and edge detection
+    // Local position — used for progress bar and edge detection
     const localPos  = ballPos.clone().applyMatrix4(
         new THREE.Matrix4().copy(platformGroup.matrixWorld).invert()
     );
     const boardFrac = Math.min(1, (localPos.x + 9) / (PLATFORM_HALF - 1 + 9));
     const prog      = (levelState.rIdx + boardFrac) / 3;
-    const theoryA   = 9.81 * Math.sin(THREE.MathUtils.degToRad(ramp.angleDeg)) / (1 + W4_K);
+    const theoryA   = 9.81 * Math.sin(rad) / (1 + W4_K);
 
+    // Distance cross-check: Δx = ½·a·t² (local X travelled)
+    const distLocal = localPos.x - (-9);  // metres from start along ramp
     setLevelHUD(
         `W4 · ${ramp.label}`,
         `Ball rolling down the ${ramp.angleDeg}° slope — watch the v(t) line rise`,
         Math.min(1, prog),
-        `θ = ${ramp.angleDeg}°  |  v: ${speed.toFixed(2)} m/s  |  a ≈ ${Math.abs(levelState.aSmooth).toFixed(2)} m/s²  |  theory: ${theoryA.toFixed(2)} m/s²`
+        `θ=${ramp.angleDeg}°  v=${speed.toFixed(2)} m/s  a≈${Math.abs(levelState.aSmooth).toFixed(2)} m/s²  Δx=${distLocal.toFixed(1)} m  theory=${theoryA.toFixed(2)} m/s²`
     );
 
     // Finish once the ball reaches the right edge of the board
@@ -1114,15 +1123,21 @@ function updateW4(dt) {
 
         const vEnd      = speed;
         const elapsed   = Math.max(0.1, t);
-        const measuredA = vEnd / elapsed;   // vStart = 0
+        const measuredA = vEnd / elapsed;   // vStart = 0, so a = Δv/t
+
+        // Cross-check distance: compare measured Δx to ½·a·t²
+        const dxMeasured  = distLocal.toFixed(1);
+        const dxFromKin   = (0.5 * measuredA * elapsed * elapsed).toFixed(1);
 
         levelState.results.push({
-            label:  ramp.label,
-            deg:    ramp.angleDeg,
-            vEnd:   vEnd.toFixed(2),
-            t:      elapsed.toFixed(2),
-            a:      measuredA.toFixed(2),
-            theory: theoryA.toFixed(2)
+            label:      ramp.label,
+            deg:        ramp.angleDeg,
+            vEnd:       vEnd.toFixed(2),
+            t:          elapsed.toFixed(2),
+            a:          measuredA.toFixed(2),
+            theory:     theoryA.toFixed(2),
+            dxMeasured,
+            dxFromKin
         });
 
         w4ShowResult(levelState.rIdx, measuredA, ramp);
@@ -1137,7 +1152,7 @@ function w4ShowResult(idx, a, ramp) {
     showModal({
         badge: `${ramp.num} ${ramp.label} COMPLETE`,
         title: `a = Δv/Δt = ${r.vEnd} / ${r.t} s = ${r.a} m/s²`,
-        body: `Measured:\n  vStart = 0,  vEnd = ${r.vEnd} m/s,  t = ${r.t} s\n  a = Δv/Δt = ${r.vEnd}/${r.t} = ${r.a} m/s²\n\nTheory  (rolling without slipping, k = 2/5):\n  a = 5 × 9.81 × sin(${r.deg}°) / 7 = ${r.theory} m/s²\n\n${ramp.slopeNote}`,
+        body: `Measured:\n  vStart = 0,  vEnd = ${r.vEnd} m/s,  t = ${r.t} s\n  a = Δv/Δt = ${r.vEnd} / ${r.t} = ${r.a} m/s²\n\nDistance cross-check:\n  Δx measured along ramp = ${r.dxMeasured} m\n  Δx from kinematics ½·a·t² = ${r.dxFromKin} m\n\nTheory  (rolling without slipping, k = 2/5):\n  a = 5 × 9.81 × sin(${r.deg}°) / 7 = ${r.theory} m/s²\n\n${ramp.slopeNote}`,
         btnLabel: isLast ? 'Summary →' : `${nextR.num} ${nextR.label} (${nextR.angleDeg}°) →`,
         onBtn: () => {
             if (isLast) {
@@ -1256,12 +1271,10 @@ function w5EnsureVisuals() {
     //build pads the first time only
     if (w5LaunchPads.length === 0) {
         const n = W5_HEIGHTS.length;
-        const r = 5.2; //distance from platform center — clears the elevator ride zone
         W5_HEIGHTS.forEach((h, i) => {
-            //evenly spaced around a pentagon
-            const angle = (i / n) * Math.PI * 2;
-            const x = Math.cos(angle) * r;
-            const z = Math.sin(angle) * r;
+            // Row of pads across the front half of the board (all at positive Z, fully visible)
+            const x = (i / (n - 1) - 0.5) * 20;  // spread from x=-10 to x=10
+            const z = 6;                            // front half of platform, near camera
 
             //flat glowing disc on the floor
             const padGeo = new THREE.CylinderGeometry(W5_PAD_RADIUS, W5_PAD_RADIUS, 0.04, 32);
@@ -1716,232 +1729,349 @@ function w5ShowScatter() {
     }, 50);
 }
 
-/* ─── WORLD 6 · CREATE (Design a drop experiment on any planet) ──
-   Capstone Bloom's level. Student picks a planet (custom g),
-   picks a drop height, predicts t = √(2h/g), watches the sim,
-   then reflects on how g affects fall time.
-   ---------------------------------------------------------------- */
+/* ─── WORLD 6 · SANDBOX — Endless random challenges ─── */
 
-//lazy-create the violet guide column + elevator used for the drop
-function w6EnsureVisuals() {
-    if (!w6Group) w6Group = new THREE.Group();
+// W6 challenge state (module-level so updateW6 can read it each frame)
+let w6Score        = 0;
+let w6Challenge    = null;   // current challenge object
+let w6TargetRing   = null;   // Three.js ring mesh — landing target
+let w6StartSquare  = null;   // Three.js Line mesh — launch zone outline
+let w6WasOnSurface = true;   // onSurface value from the previous frame
+let w6Busy         = false;  // true while a setTimeout is pending (prevents double-fire)
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function w6EnsureGroup() {
+    if (!w6Group) { w6Group = new THREE.Group(); scene.add(w6Group); }
     w6Group.visible = true;
-    if (!w6Group.parent) scene.add(w6Group);
-
-    if (!w6GuideWire) {
-        const geo = new THREE.CylinderGeometry(0.03, 0.03, 22, 6);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.3 });
-        w6GuideWire = new THREE.Mesh(geo, mat);
-        w6GuideWire.position.set(0, 11, 0);
-        w6Group.add(w6GuideWire);
-    }
-    w6GuideWire.visible = true;
-
-    if (!w6Elevator) {
-        const elGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.1, 32);
-        const elMat = new THREE.MeshStandardMaterial({
-            color: 0xa78bfa, emissive: 0xa78bfa, emissiveIntensity: 0.8,
-            metalness: 0.4, roughness: 0.3
-        });
-        w6Elevator = new THREE.Mesh(elGeo, elMat);
-        w6Group.add(w6Elevator);
-    }
-    w6Elevator.visible = false;
 }
 
-//hide W6 visuals, release physics overrides
+function w6ClearMesh(ref) {
+    if (ref) {
+        if (w6Group) w6Group.remove(ref);
+        ref.geometry.dispose();
+        ref.material.dispose();
+    }
+}
+
+function w6ClearRing()   { w6ClearMesh(w6TargetRing);  w6TargetRing  = null; }
+function w6ClearSquare() { w6ClearMesh(w6StartSquare); w6StartSquare = null; }
+
+function w6MakeRing(tx, tz, radius, color) {
+    w6EnsureGroup();
+    const geo  = new THREE.RingGeometry(radius - 0.22, radius, 64);
+    const mat  = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const ring = new THREE.Mesh(geo, mat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(tx, 0.06, tz);
+    w6Group.add(ring);
+    return ring;
+}
+
+// Glowing square outline (LineLoop) flat on the platform — marks the launch zone
+function w6MakeStartSquare(cx, cz, half, color) {
+    w6EnsureGroup();
+    const pts = [
+        new THREE.Vector3(-half, 0.07, -half),
+        new THREE.Vector3( half, 0.07, -half),
+        new THREE.Vector3( half, 0.07,  half),
+        new THREE.Vector3(-half, 0.07,  half),
+        new THREE.Vector3(-half, 0.07, -half),  // close it
+    ];
+    const geo  = new THREE.BufferGeometry().setFromPoints(pts);
+    const mat  = new THREE.LineBasicMaterial({ color });
+    const line = new THREE.Line(geo, mat);
+    line.position.set(cx, 0, cz);
+    w6Group.add(line);
+    return line;
+}
+
+// ── clear everything when leaving W6 ─────────────────────────────────────────
+
 function w6ClearVisuals() {
-    if (w6Group)    w6Group.visible    = false;
-    if (w6Elevator) w6Elevator.visible = false;
-    w6Falling      = false;
+    if (w6Group) w6Group.visible = false;
+    w6ClearRing();
+    w6ClearSquare();
     tiltLocked     = false;
     paramsOverride = null;
     w6Scenario     = null;
+    w6Challenge    = null;
+    w6Busy         = false;
 }
 
-//entry point — show the "design a scenario" intro
+// ── challenge generation ──────────────────────────────────────────────────────
+
+function w6GenChallenge() {
+    if (currentLevel !== 6) return;
+    w6ClearRing();
+    w6ClearSquare();
+    w6Busy = false;
+
+    const types = ['jump', 'bounce', 'height', 'speed'];
+    const type  = types[Math.floor(Math.random() * types.length)];
+    const c     = { type };
+
+    if (type === 'jump') {
+        // Start square — random position on the board (avoid centre & edges)
+        const sa  = Math.random() * Math.PI * 2;
+        const sd  = 4 + Math.random() * 5;
+        c.sx      = Math.cos(sa) * sd;
+        c.sz      = Math.sin(sa) * sd;
+        c.sHalf   = 1.8;   // half-size of the launch square
+
+        // Target ring — at least 5 m away from start, clamped inside the board
+        const ta  = sa + Math.PI * (0.4 + Math.random() * 0.8);  // roughly across
+        const td  = 5 + Math.random() * 5;
+        c.tx      = Math.max(-10, Math.min(10, Math.cos(ta) * td));
+        c.tz      = Math.max(-10, Math.min(10, Math.sin(ta) * td));
+        c.radius  = 2.2;
+        c.phase   = 'approach';   // approach → ready → airborne → (success / retry)
+
+        w6StartSquare = w6MakeStartSquare(c.sx, c.sz, c.sHalf, 0xfbbf24);  // yellow
+        w6TargetRing  = w6MakeRing(c.tx, c.tz, c.radius, 0xf97316);        // orange
+        c.desc = '🟡 GET TO THE YELLOW SQUARE\nThen JUMP to the orange ring!';
+
+    } else if (type === 'bounce') {
+        c.target     = Math.floor(Math.random() * 4) + 2;  // 2–5 bounces
+        c.count      = 0;
+        c.active     = false;
+        c.settleTimer = 0;
+        w6TargetRing = w6MakeRing(0, 0, 1.6, 0x22d3ee);
+        c.desc = `🏀 BOUNCE ${c.target} TIMES\nStand on the ring, press Space — bounce exactly ${c.target} times!`;
+
+    } else if (type === 'height') {
+        c.target = Math.floor(Math.random() * 4) + 2;  // 2–5 m
+        c.maxH   = 0;
+        c.active = false;
+        w6TargetRing = w6MakeRing(0, 0, 1.6, 0xa78bfa);
+        c.desc = `🚀 REACH ${c.target} m HIGH\nAdjust bounciness & gravity, then jump!`;
+
+    } else {  // speed
+        c.dir         = Math.random() < 0.5 ? 'over' : 'under';
+        // "over" picks a modest threshold (easy to exceed); "under" picks a low cap
+        c.targetSpeed = c.dir === 'over'
+            ? parseFloat((Math.random() * 4 + 1).toFixed(1))    // 1–5 m/s — roll faster than this
+            : parseFloat((Math.random() * 3 + 1).toFixed(1));   // 1–4 m/s — stay slower than this
+        c.holdTimer   = 0;
+        targetSpeed   = c.targetSpeed;
+        const el = document.getElementById('target-val');
+        if (el) el.textContent = c.targetSpeed.toFixed(1) + ' m/s';
+        c.desc = c.dir === 'over'
+            ? `⚡ GO FAST!\nHold OVER ${c.targetSpeed.toFixed(1)} m/s for 3 seconds!`
+            : `🐢 GO SLOW!\nHold UNDER ${c.targetSpeed.toFixed(1)} m/s for 3 seconds!`;
+    }
+
+    w6Challenge    = c;
+    w6WasOnSurface = onSurface;
+    setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, c.desc, 0, '');
+}
+
+// ── outcome helpers ───────────────────────────────────────────────────────────
+
+function w6OnSuccess(msg) {
+    if (w6Busy) return;
+    w6Busy = true;
+    w6Score++;
+    w6ClearRing();
+    w6ClearSquare();
+    w6Challenge = null;
+    setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, `✅ ${msg}`, 1, 'Next challenge in 2 s…');
+    setTimeout(w6GenChallenge, 2000);
+}
+
+function w6OnFail(msg) {
+    if (w6Busy) return;
+    w6Busy = true;
+    const c = w6Challenge;
+    setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, `❌ ${msg}`, 0, 'Try again!');
+    // Reset only the active-tracking fields so the player retries same challenge
+    setTimeout(() => {
+        w6Busy = false;
+        if (currentLevel !== 6 || !c) return;
+        if (c.type === 'bounce') { c.active = false; c.count = 0; c.settleTimer = 0; }
+        if (c.type === 'height') { c.active = false; c.maxH = 0; }
+        // jump: phase is already reset to 'approach' inside the update block
+        setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, c.desc, 0, '');
+    }, 2200);
+}
+
+// ── entry point ───────────────────────────────────────────────────────────────
+
 function startW6() {
-    w6EnsureVisuals();
-    w6Scenario     = {};
-    w6Falling      = false;
-    paramsOverride = { mass: 1.0, mu: 0, gx: 0, gy: 0, gz: 0, cd: 0, rho: 0 };
-    tiltLocked     = true;
-    tiltX = 0; tiltZ = 0;
-    levelState = { phase: 'authoring' };
+    w6ClearVisuals();
+    paramsOverride = null;
+    tiltLocked     = false;
+    w6Score        = 0;
+    w6Challenge    = null;
+    levelState     = { phase: 'sandbox' };
+
+    document.getElementById('hud-left').classList.remove('hidden');
+    document.getElementById('match-hud').classList.remove('hidden');
+    document.getElementById('level-hud').classList.remove('hidden');
 
     showModal({
-        badge: 'WORLD 6 · CREATE',
-        title: 'Design Your Own Experiment',
-        body: "You've learned the physics. Now flip roles: design a drop experiment for another planet.\n\n• Pick a world (different gravity)\n• Pick a drop height\n• Predict the fall time\n• Run your own experiment and compare",
-        btnLabel: 'Start Designing',
-        onBtn: () => { w6PickPlanet(); }
+        badge: 'W6 · SANDBOX',
+        title: 'Endless Sandbox Challenges',
+        body: 'Random challenges keep coming — score as many as you can!\n\n🟡 Get to the yellow square, then JUMP to the orange ring\n🏀 Bounce exactly N times from one jump\n🚀 Jump and reach a target height\n⚡ Hold a speed over / under a target for 3 s\n\nTweak friction, bounciness, gravity — anything goes!',
+        choices: [],
+        btnLabel: "LET'S GO!",
+        onBtn: () => { w6GenChallenge(); }
     });
 }
 
-//Step 1 — planet picker (drives gravity)
-function w6PickPlanet() {
-    showModal({
-        badge: 'STEP 1 · PLANET',
-        title: 'Pick a world',
-        body: 'Each world has a different acceleration of gravity g. Free-fall on low-g worlds takes longer than on high-g worlds.',
-        choices: W6_PLANETS.map(p => `${p.name}  ·  g = ${p.g} m/s²`),
-        onChoice: (i) => {
-            w6Scenario.planet  = W6_PLANETS[i];
-            w6Scenario.gravity = W6_PLANETS[i].g;
-            showExplanation(true,
-                `Chosen: ${W6_PLANETS[i].name} (g = ${W6_PLANETS[i].g} m/s²). Next — pick how tall a drop you want.`,
-                () => { w6PickHeight(); }
-            );
+// ── per-frame update ──────────────────────────────────────────────────────────
+
+function updateW6(dt) {
+    const c = w6Challenge;
+    if (!c || w6Busy) return;
+
+    const wasOn     = w6WasOnSurface;
+    w6WasOnSurface  = onSurface;
+    const justLanded = !wasOn && onSurface;
+    const justLeft   = wasOn && !onSurface;
+
+    // ── 🟡→🎯 JUMP ──
+    if (c.type === 'jump') {
+        const t = performance.now();
+
+        // Pulse both visuals
+        if (w6TargetRing)  w6TargetRing.material.opacity  = 0.65 + 0.35 * Math.sin(t / 280);
+        if (w6StartSquare) {
+            // Pulse yellow→white when ball is inside the square
+            const inSquare = Math.abs(ballPos.x - c.sx) < c.sHalf && Math.abs(ballPos.z - c.sz) < c.sHalf;
+            w6StartSquare.material.color.set(inSquare ? 0xffffff : 0xfbbf24);
         }
-    });
-}
 
-//Step 2 — drop-height picker
-function w6PickHeight() {
-    showModal({
-        badge: 'STEP 2 · HEIGHT',
-        title: 'Pick a drop height',
-        body: 'Taller drops give gravity more time to act. Pick a height you want to measure.',
-        choices: W6_HEIGHT_CHOICES.map(h => `${h} m`),
-        onChoice: (i) => {
-            w6Scenario.height = W6_HEIGHT_CHOICES[i];
-            w6PlaceBall();
-            w6Predict();
+        if (c.phase === 'approach') {
+            // Check if ball is inside the launch square
+            const inSq = Math.abs(ballPos.x - c.sx) < c.sHalf && Math.abs(ballPos.z - c.sz) < c.sHalf;
+            if (inSq && onSurface) {
+                c.phase = 'ready';
+                setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`,
+                            '✅ In position! Now JUMP to the orange ring!', 0.5, 'Hold Space to charge ↑');
+            } else {
+                const dSq = Math.hypot(ballPos.x - c.sx, ballPos.z - c.sz);
+                setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, c.desc, 0,
+                            `${dSq.toFixed(1)} m to start`);
+            }
         }
-    });
-}
 
-//park the ball on top of the elevator at the selected height (still frozen by gy=0)
-function w6PlaceBall() {
-    const h = w6Scenario.height;
-    if (w6Elevator) {
-        w6Elevator.position.set(0, h + 0.05, 0);
-        w6Elevator.visible = true;
+        if (c.phase === 'ready') {
+            // Still inside square?
+            const inSq = Math.abs(ballPos.x - c.sx) < c.sHalf && Math.abs(ballPos.z - c.sz) < c.sHalf;
+            if (!inSq && onSurface) {
+                // Rolled out without jumping — go back to approach
+                c.phase = 'approach';
+            }
+            if (justLeft) {
+                // Left the surface while inside (or just outside) the start zone — track landing
+                c.phase = 'airborne';
+            }
+        }
+
+        if (c.phase === 'airborne') {
+            setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`, '🎯 LAND ON THE RING!', 1, 'airborne…');
+            if (justLanded) {
+                const dist = Math.hypot(ballPos.x - c.tx, ballPos.z - c.tz);
+                if (dist < c.radius) {
+                    w6OnSuccess('PERFECT JUMP LANDING! 🎯');
+                } else {
+                    w6OnFail(`Missed by ${dist.toFixed(1)} m — get to the square and try again!`);
+                    c.phase = 'approach';
+                }
+            }
+        }
     }
-    if (w6GuideWire) {
-        w6GuideWire.scale.y = (h + 1) / 22;
-        w6GuideWire.position.set(0, (h + 1) / 2, 0);
-    }
-    ballPos.set(0, h + BALL_RADIUS + 0.1, 0);
-    ballVel.set(0, 0, 0);
-    ballMesh.position.copy(ballPos);
-}
 
-//Step 3 — prediction modal (multiple-choice; one value is the true √(2h/g))
-function w6Predict() {
-    const h = w6Scenario.height, g = w6Scenario.gravity;
-    const tTrue = Math.sqrt(2 * h / g);
-
-    //four shuffled options — correct plus common mistakes
-    const mults = [0.5, 0.85, 1.0, 1.5].sort(() => Math.random() - 0.5);
-    const opts  = mults.map(m => Math.max(0.05, tTrue * m));
-    const ci    = mults.indexOf(1.0);
-    w6Scenario.tTrue = tTrue;
-
-    showModal({
-        badge: 'STEP 3 · PREDICT',
-        title: `Fall time from ${h} m on ${w6Scenario.planet.name}?`,
-        body: `You chose  g = ${g} m/s²   and   h = ${h} m.\n\nFormula:   t = √(2h / g)\n\nCommit to a prediction before you run the sim.`,
-        choices: opts.map(t => `${t.toFixed(2)} s`),
-        onChoice: (i) => {
-            const ok = i === ci;
-            w6Scenario.predictedT = opts[i];
-            document.querySelectorAll('.bm-choice-btn').forEach((b, j) => {
-                b.style.borderColor = j === ci ? '#4ade80' : (j === i && !ok ? '#ef4444' : '');
-            });
-            showExplanation(ok,
-                `t = √(2 × ${h} / ${g}) = ${tTrue.toFixed(3)} s.  Drop the ball and verify.`,
-                () => { w6RunDrop(); }
-            );
+    // ── 🏀 BOUNCE ──
+    if (c.type === 'bounce') {
+        if (w6TargetRing) {
+            w6TargetRing.material.opacity = 0.5 + 0.5 * Math.sin(performance.now() / 350);
         }
-    });
-}
+        // Activate on the first time ball leaves the surface
+        if (justLeft && !c.active) { c.active = true; c.count = 0; c.settleTimer = 0; c.airborneT = 0; }
 
-//arm the drop: custom gravity, hide elevator, release ball
-function w6RunDrop() {
-    const { height: h, gravity: g } = w6Scenario;
-    levelState    = { phase: 'dropping' };
-    w6Falling     = true;
-    w6FallStart   = performance.now() / 1000;
-    paramsOverride = { mass: 1.0, mu: 0, gx: 0, gy: -g, gz: 0, cd: 0, rho: 0 };
+        if (c.active) {
+            if (!onSurface) c.airborneT = (c.airborneT || 0) + dt;
+            if (justLanded) {
+                // Only count if the ball was truly airborne (> 80 ms) — filters micro-hops
+                if ((c.airborneT || 0) > 0.08) { c.count++; }
+                c.airborneT  = 0;
+                c.settleTimer = 0;
+            }
 
-    if (w6Elevator) w6Elevator.visible = false;
-    ballPos.set(0, h + BALL_RADIUS, 0);
-    ballVel.set(0, 0, 0);
-    ballMesh.position.copy(ballPos);
+            // Settle = ball is on surface with near-zero vertical velocity (no more bouncing).
+            // Use ballVel.y instead of total speed so a rolling ball still counts as settled.
+            const vertSpd = Math.abs(ballVel.y);
+            if (onSurface && vertSpd < 0.25 && c.count > 0) c.settleTimer += dt;
+            else c.settleTimer = 0;
 
-    if (navigator.vibrate) navigator.vibrate(40);
+            setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`,
+                        `Bounces: ${c.count}  /  target ${c.target}`,
+                        Math.min(c.count / c.target, 1),
+                        onSurface ? (c.count > 0 ? 'settling…' : 'jump!') : 'airborne');
 
-    setLevelHUD(
-        'W6 · CREATE',
-        `Dropping from ${h} m on ${w6Scenario.planet.name}…`,
-        0,
-        `g = ${g} m/s²  ·  t = 0.000 s`
-    );
-}
+            if (c.settleTimer > 1.3) {
+                if (c.count === c.target)
+                    w6OnSuccess(`${c.count} BOUNCES — EXACT! 🎯`);
+                else
+                    w6OnFail(`Got ${c.count} bounces — needed exactly ${c.target}. Try again!`);
+            }
+        }
+    }
 
-//per-frame — track the drop and detect landing
-function w6UpdateVisuals(dt) {
-    if (!w6Falling || !levelState || levelState.phase !== 'dropping' || !w6Scenario) return;
+    // ── 🚀 HEIGHT ──
+    if (c.type === 'height') {
+        if (w6TargetRing) {
+            w6TargetRing.material.opacity = 0.5 + 0.5 * Math.sin(performance.now() / 350);
+        }
+        if (justLeft && !c.active) { c.active = true; c.maxH = 0; }
 
-    const elapsed = performance.now() / 1000 - w6FallStart;
-    setLevelHUD(
-        'W6 · CREATE',
-        `Dropping from ${w6Scenario.height} m on ${w6Scenario.planet.name}…`,
-        Math.min(1, elapsed / w6Scenario.tTrue),
-        `g = ${w6Scenario.gravity} m/s²  ·  t = ${elapsed.toFixed(3)} s`
-    );
+        if (c.active) {
+            if (!onSurface) {
+                const h = Math.max(0, ballPos.y - BALL_RADIUS);
+                if (h > c.maxH) c.maxH = h;
+            }
+            setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`,
+                        `Peak: ${c.maxH.toFixed(1)} m  /  target ${c.target} m`,
+                        Math.min(c.maxH / c.target, 1),
+                        onSurface ? '' : `${Math.max(0, ballPos.y - BALL_RADIUS).toFixed(1)} m`);
 
-    if (elapsed > 0.1 && ballPos.y <= BALL_RADIUS + 0.02) {
-        w6OnLand(elapsed);
+            if (justLanded) {
+                if (c.maxH >= c.target)
+                    w6OnSuccess(`REACHED ${c.maxH.toFixed(1)} m!`);
+                else
+                    w6OnFail(`Only ${c.maxH.toFixed(1)} m — need ${c.target} m. More bounce!`);
+            }
+        }
+    }
+
+    // ── ⚡ SPEED ──
+    if (c.type === 'speed') {
+        const spd      = ballVel.length();
+        // "under" requires the ball to actually be moving (> 0.4 m/s) — standing still doesn't count
+        const passing  = c.dir === 'over'
+            ? spd > c.targetSpeed
+            : (spd > 0.4 && spd < c.targetSpeed);
+
+        if (passing) c.holdTimer += dt;
+        else c.holdTimer = Math.max(0, c.holdTimer - dt * 0.8);
+
+        const prog = Math.min(c.holdTimer / MATCH_HOLD_TIME, 1);
+        const bar  = document.getElementById('match-progress');
+        if (bar) bar.style.width = (prog * 100) + '%';
+
+        const arrow = c.dir === 'over' ? '▲ OVER' : '▼ UNDER';
+        setLevelHUD(`W6 · SANDBOX  🏆 ${w6Score}`,
+                    `${c.desc}\nCurrent: ${spd.toFixed(2)} m/s  ${passing ? '✅' : '❌'}`,
+                    prog,
+                    prog > 0 ? `${(prog * 3).toFixed(1)} / 3.0 s` : `Need ${arrow} ${c.targetSpeed.toFixed(1)} m/s`);
+
+        if (c.holdTimer >= MATCH_HOLD_TIME)
+            w6OnSuccess(`${c.dir === 'over' ? 'FAST ENOUGH' : 'SLOW ENOUGH'} — ${spd.toFixed(2)} m/s!`);
     }
 }
 
-//game-loop hook
-function updateW6(dt) { w6UpdateVisuals(dt); }
-
-//result modal — prediction vs theory vs measured
-function w6OnLand(tMeas) {
-    w6Falling = false;
-    if (navigator.vibrate) navigator.vibrate([0, 30, 100]);
-
-    const { height: h, gravity: g, predictedT, tTrue, planet } = w6Scenario;
-    const pctErr = Math.abs(tMeas - tTrue) / tTrue * 100;
-
-    showModal({
-        badge: 'IMPACT',
-        title: `${h} m on ${planet.name}  →  ${tMeas.toFixed(3)} s`,
-        body: `Your prediction:    ${predictedT.toFixed(2)} s\nTheory (√(2h/g)):  ${tTrue.toFixed(3)} s\nMeasured (sim):     ${tMeas.toFixed(3)} s\n\nPlanet: ${planet.name}   ·   g = ${g} m/s²   ·   h = ${h} m\nModel error: ${pctErr.toFixed(1)}%`,
-        btnLabel: 'Reflect',
-        onBtn: () => { w6Reflect(); }
-    });
-}
-
-//Bloom reflection — student has to articulate the relationship between g and t
-function w6Reflect() {
-    showModal({
-        badge: 'REFLECT',
-        title: 'How does g affect fall time?',
-        body: 'You just watched your own designed experiment. Commit to a rule.',
-        choices: [
-            'Smaller g  →  shorter fall time',
-            'Smaller g  →  longer fall time',
-            'g has no effect on fall time'
-        ],
-        onChoice: (i) => {
-            const ok = i === 1;
-            document.querySelectorAll('.bm-choice-btn').forEach((b, j) => {
-                b.style.borderColor = j === 1 ? '#4ade80' : (j === i && !ok ? '#ef4444' : '');
-            });
-            showExplanation(ok,
-                't = √(2h/g). As g shrinks, the denominator shrinks, so t GROWS. A 10 m drop on the Moon (g ≈ 1.62) takes ≈ 3.5 s — about 2.5× longer than on Earth.',
-                () => { w6Finish(); }
-            );
-        }
-    });
-}
-
-//wrap-up — completion menu (nextLevel = 7 → triggers "all complete" path)
 function w6Finish() {
     showLevelComplete(w6ClearVisuals, 7);
 }

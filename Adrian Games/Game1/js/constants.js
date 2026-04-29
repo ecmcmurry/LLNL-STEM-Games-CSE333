@@ -37,4 +37,6 @@ const W6_PLANETS = [
 ];
 const W6_HEIGHT_CHOICES     = [2, 5, 10, 15, 20]; // drop heights available in Create mode
 const PLAYER_FORCE_SCALE = 10; //m/s² equivalent applied to ball from WASD
-const JUMP_IMPULSE = 7;  //m/s upward velocity applied on jump
+const JUMP_IMPULSE       = 7;  //m/s upward velocity — base (uncharged) jump
+const MAX_CHARGE_TIME    = 1.5; //seconds to fully charge the spring jump
+const MAX_CHARGE_IMPULSE = 22; //m/s upward velocity at full charge
