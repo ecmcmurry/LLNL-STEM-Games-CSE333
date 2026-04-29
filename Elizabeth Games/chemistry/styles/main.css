@@ -771,5 +771,6 @@ textarea.debriefScreen {
 }
 
 .react-container {
+    position: relative;
     justify-content: space-between;
 }
