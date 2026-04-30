@@ -91,6 +91,8 @@ const helpTerminalOutput = $("#helpTerminalOutput");
 // first-time help guide
 const terminalGuide = $("#terminalGuide");
 
+// loading page
+const loading = $("#loading");
 
 // 9 plots
 const PLOT_COUNT = 9;
@@ -884,7 +886,24 @@ function isPuzzleCorrect(text, puzzle) {
   return text.includes(puzzle.fixCheck);
 }
 
+function showLoadingPage() {
+  loading.classList.remove("hidden");
+  nextDayBtn.disabled = true;
+}
+
+function hideLoadingPage() {
+  loading.classList.add("hidden");
+  nextDayBtn.disabled = false;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function nextDay() {
+  showLoadingPage();
+  const lonadingStart = Date.now();
+
   state.day += 1;
   for (const plot of state.plots){
     if (!plot.planted) continue;
@@ -910,6 +929,13 @@ async function nextDay() {
   updateTopUI();
   updateStatsUI();
   refreshCropsOnly();
+
+  const elapsed = Date.now() - lonadingStart;
+  if (elapsed < 1200) {
+    await delay(1200 - elapsed);
+  }
+
+  hideLoadingPage();
 }
 
 

@@ -594,6 +594,38 @@ body {
   line-height: 1.5;
 }
 
+/* loading page */
+.loading {
+  position: fixed;
+  inset: 0;
+  background:rgba(0,0,0,0.65);
+  display: grid;
+  place-items: center;
+  z-index: 2000;
+
+  pointer-events: all;
+}
+
+.loadingBox {
+  background: rgba(60,42,20,0.95);
+  border: 3px solid rgba(38, 25, 10, 0.95);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45);
+}
+
+
+.loadingBox h2 {
+  font-size: 16px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.loadingBox p {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
 
 /*progress */
 .progressBox {
