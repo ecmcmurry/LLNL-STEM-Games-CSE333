@@ -7,6 +7,25 @@
 
 const JUICE_ENABLED = true;
 
+/* ── Portrait mobile scaling ──
+ * The briefcase is a fixed 620px wide. On a portrait phone we zoom it down
+ * so it fits the viewport without clipping. zoom (unlike transform:scale)
+ * affects layout so the tray below slots in naturally underneath it.        */
+function applyPortraitScale() {
+    const wrapper = document.querySelector('.briefcase-wrapper');
+    if (!wrapper) return;
+    const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth < 900;
+    if (isPortrait) {
+        wrapper.style.zoom = Math.min(1, (window.innerWidth * 0.95) / 620);
+    } else {
+        wrapper.style.zoom = '';
+    }
+}
+
+window.addEventListener('resize', applyPortraitScale);
+window.addEventListener('orientationchange', applyPortraitScale);
+document.addEventListener('DOMContentLoaded', applyPortraitScale);
+
 /* Glowing pulse around the circuit happens when the user correctly picks the answer */
 function juiceCorrectAnswer() {
     if(!JUICE_ENABLED) return 0;

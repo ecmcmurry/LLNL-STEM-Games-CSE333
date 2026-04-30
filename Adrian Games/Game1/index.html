@@ -70,7 +70,7 @@
                 <div class="htp-card">
                     <div class="htp-card-badge">🎮 CONTROLS</div>
                     <p><strong>Desktop:</strong> Hold <kbd>W A S D</kbd> to tilt the platform and roll the ball. Press <kbd>Space</kbd> to jump.</p>
-                    <p><strong>Mobile:</strong> Physically tilt your device — the gyroscope drives the ball.</p>
+                    <p><strong>Mobile:</strong> Physically tilt your device — the gyroscope drives the ball. Tap and hold the <kbd>↑ JUMP</kbd> button to charge, then release to jump.</p>
                 </div>
 
                 <div class="htp-card">
@@ -241,6 +241,12 @@
 
     <button id="game-back-btn" class="back-btn hidden">← LEVELS</button>
 
+    <!-- Mobile jump button — shown only during mobile gameplay -->
+    <button id="jump-btn" class="hidden" aria-label="Jump">
+        <span class="jump-icon">↑</span>
+        <span class="jump-label">JUMP</span>
+    </button>
+
     <div id="ui">
         <h1>Learn Kinematics by playing!</h1>
         <div class="level-select-label">SELECT MODE</div>
@@ -297,6 +303,12 @@
         <button id="start-button">▶ PLAY</button>
         <button id="back-to-device-btn">← BACK TO DEVICE SELECT</button>
     </div>
+    <!-- Mobile landscape prompt — CSS-only, shown only in portrait on small screens -->
+    <div id="rotate-prompt">
+        <div class="rotate-icon">&#8635;</div>
+        <p>Rotate your device<br>to landscape mode</p>
+    </div>
+
     <!--organized js files to work with the game-->
     <script src="js/constants.js"></script>
     <script src="js/state.js"></script>
