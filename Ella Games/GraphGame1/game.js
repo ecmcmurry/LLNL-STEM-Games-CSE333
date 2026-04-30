@@ -1,17 +1,29 @@
-// game.js -- main game loop, graph rendering, scoring, UI
+// game.js contains main game loop, graph rendering, scoring, UI
 
-import { getNextFunction, reportResult, pickFallback } from './ai.js';
+import {
+  getNextFunction,
+  reportResult,
+  pickFallback,
+  getPersonalizedHint,
+  getGameAnalysis,
+  getPerformanceLog,
+  resetPerformanceLog,
+} from './ai.js';
 
 const math = window.math;
 
-// ---- settings (read from title screen before game starts) ----
-let selectedTypes = ['linear', 'polynomial', 'rational', 'absolute', 'exponential', 'sine', 'cosine', 'signum'];
-let maxRounds = 0; // 0 = endless (timer only)
+// ---- settings ----
+let selectedTypes = [
+  'linear', 'polynomial', 'rational', 'absolute',
+  'exponential', 'sine', 'cosine', 'signum'
+];
+let maxRounds = 0; // 0 = endless
 let currentRound = 0;
 
 // ---- game state ----
 let currentDifficulty = 'novice';
 let currentTargetExpr = 'x^2';
+let currentTargetCategory = 'unknown';
 let currentAIHint = '';
 let currentScore = 0;
 let timerSeconds = 60;
@@ -22,12 +34,21 @@ let pastScores = [];
 
 // per-graph tracking
 let attemptCount = 0;
-let hintShown = false;
-let bestAccuracyThisGraph = 0;
+let revealed = false;            // set true after reveal at attempt 5
 let graphStartTime = null;
-let firstTryBonusUsed = false;
-let quickBonusUsed = false;
+let userGuessHistory = [];       // the normalized strings the user tried on this graph
 let lastUserExpr = null;
+
+// game-wide tracking (used for skill gauging + analysis)
+let gameStats = {
+  totalGraphs: 0,
+  solved: 0,
+  solvedFirstTry: 0,
+  revealedCount: 0,
+  byCategory: {}, //  [cat]: {seen, solved, firstTry, reveals, avgTimeSec}
+  skillScore: 0,   // numeric skill, drives difficulty
+  avgSolveTime: 0,
+};
 
 // AI preloading
 let pendingFunction = null;
@@ -37,56 +58,97 @@ let audioCtx = null;
 let soundEnabled = false;
 let audioInitialized = false;
 
-// ---- DOM refs: title screen ----
-const titleScreen = document.getElementById('titleScreen');
-const gameContainer = document.getElementById('gameContainer');
-const startBtn = document.getElementById('startBtn');
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsPanel = document.getElementById('settingsPanel');
-const settingsDoneBtn = document.getElementById('settingsDoneBtn');
-const roundBtns = document.querySelectorAll('.round-btn');
+// DOM refs
+const homeScreen       = document.getElementById('homeScreen');
+const settingsScreen   = document.getElementById('settingsScreen');
+const howToScreen      = document.getElementById('howToScreen');
+const gameScreen       = document.getElementById('gameScreen');
 
-// ---- DOM refs: game ----
-const canvas = document.getElementById('graphCanvas');
-const ctx = canvas.getContext('2d');
-const timerEl = document.getElementById('timer');
-const scoreEl = document.getElementById('score');
-const accuracyEl = document.getElementById('accuracyPercent');
-const earnedCoinsEl = document.getElementById('earnedCoins');
-const functionInput = document.getElementById('functionInput');
-const submitBtn = document.getElementById('submitBtn');
-const playAgainBtn = document.getElementById('playAgainBtn');
-const menuBtn = document.getElementById('menuBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const scoreHistoryDiv = document.getElementById('scoreHistory');
-const skillLevelText = document.getElementById('skillLevelText');
-const coinContainer = document.getElementById('coinContainer');
-const hintArea = document.getElementById('hintArea');
-const hintText = document.getElementById('hintText');
-const roundBlock = document.getElementById('roundBlock');
-const roundDisplay = document.getElementById('roundDisplay');
-const gameoverTab = document.getElementById('gameoverTab');
-const gameoverTitle = document.getElementById('gameoverTitle');
-const gameoverScoreSpan = document.getElementById('gameoverScore');
+const startBtn         = document.getElementById('startBtn');
+const settingsBtn      = document.getElementById('settingsBtn');
+const howToBtn         = document.getElementById('howToBtn');
+const settingsDoneBtn  = document.getElementById('settingsDoneBtn');
+const howToDoneBtn     = document.getElementById('howToDoneBtn');
+const roundBtns        = document.querySelectorAll('.round-btn');
+
+const canvas           = document.getElementById('graphCanvas');
+const ctx              = canvas.getContext('2d');
+const timerEl          = document.getElementById('timer');
+const scoreEl          = document.getElementById('score');
+const accuracyEl       = document.getElementById('accuracyPercent');
+const earnedCoinsEl    = document.getElementById('earnedCoins');
+const functionInput    = document.getElementById('functionInput');
+const submitBtn        = document.getElementById('submitBtn');
+const playAgainBtn     = document.getElementById('playAgainBtn');
+const menuBtn          = document.getElementById('menuBtn');
+const pauseBtn         = document.getElementById('pauseBtn');
+const scoreHistoryDiv  = document.getElementById('scoreHistory');
+const skillLevelText   = document.getElementById('skillLevelText');
+const coinContainer    = document.getElementById('coinContainer');
+const hintArea         = document.getElementById('hintArea');
+const hintText         = document.getElementById('hintText');
+const roundBlock       = document.getElementById('roundBlock');
+const roundDisplay     = document.getElementById('roundDisplay');
+const gameoverTab      = document.getElementById('gameoverTab');
+const gameoverTitle    = document.getElementById('gameoverTitle');
+const gameoverScoreSpan= document.getElementById('gameoverScore');
 const closeGameoverTab = document.getElementById('closeGameoverTab');
-const gameoverMenuBtn = document.getElementById('gameoverMenuBtn');
+const gameoverMenuBtn  = document.getElementById('gameoverMenuBtn');
 const gameoverRetryBtn = document.getElementById('gameoverRetryBtn');
-const bonusContainer = document.getElementById('bonusContainer');
+const aiAnalysisBtn    = document.getElementById('aiAnalysisBtn');
+const analysisTab      = document.getElementById('analysisTab');
+const analysisBody     = document.getElementById('analysisBody');
+const analysisDoneBtn  = document.getElementById('analysisDoneBtn');
+const closeAnalysisTab = document.getElementById('closeAnalysisTab');
+const bonusContainer   = document.getElementById('bonusContainer');
 
 
-// ===============================
-// TITLE SCREEN + SETTINGS
-// ===============================
+// BUTTON PRESS ANIMATION HELPER
 
-settingsBtn.addEventListener('click', () => {
-  settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
-});
+function pressAndRun(btn, handler) {
+  if (!btn) return;
+  const targetId = btn.dataset ? btn.dataset.target : null;
+  const animTarget = targetId ? document.getElementById(targetId) : btn;
 
-settingsDoneBtn.addEventListener('click', () => {
-  settingsPanel.style.display = 'none';
-});
+  const press = () => {
+    if (btn.disabled) return;
+    if (animTarget) animTarget.classList.add('pressed');
+  };
+  const release = () => {
+    if (animTarget) animTarget.classList.remove('pressed');
+  };
 
-// round selector buttons
+  btn.addEventListener('mousedown', press);
+  btn.addEventListener('touchstart', press, { passive: true });
+  btn.addEventListener('mouseleave', release);
+  btn.addEventListener('touchend', release);
+  btn.addEventListener('touchcancel', release);
+
+  btn.addEventListener('click', (e) => {
+    if (btn.disabled) return;
+    if (animTarget) animTarget.classList.add('pressed');
+    setTimeout(() => {
+      if (animTarget) animTarget.classList.remove('pressed');
+      try { handler(e); } catch (err) { console.error(err); }
+    }, 130);
+  });
+}
+
+
+// NAVIGATION
+function showScreen(screen) {
+  [homeScreen, settingsScreen, howToScreen, gameScreen].forEach(s => {
+    if (s) s.style.display = 'none';
+  });
+  if (screen) screen.style.display = 'flex';
+}
+
+pressAndRun(settingsBtn, () => showScreen(settingsScreen));
+pressAndRun(howToBtn, () => showScreen(howToScreen));
+pressAndRun(settingsDoneBtn, () => showScreen(homeScreen));
+pressAndRun(howToDoneBtn, () => showScreen(homeScreen));
+
+// round selector
 roundBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     roundBtns.forEach(b => b.classList.remove('active'));
@@ -94,45 +156,34 @@ roundBtns.forEach(btn => {
   });
 });
 
-// reads settings from the UI and starts the game
-startBtn.addEventListener('click', () => {
-  // gather selected types from checkboxes
+pressAndRun(startBtn, () => {
   const checked = document.querySelectorAll('.type-checkbox:checked');
   selectedTypes = Array.from(checked).map(cb => cb.value);
-
   if (selectedTypes.length === 0) {
-    // need at least one type
-    startBtn.textContent = 'pick at least one type';
-    setTimeout(() => { startBtn.textContent = 'START'; }, 1500);
+    showBonusMessage('PICK A TYPE IN SETTINGS');
     return;
   }
-
-  // read round count
   const activeRound = document.querySelector('.round-btn.active');
   maxRounds = activeRound ? parseInt(activeRound.dataset.rounds) || 0 : 0;
-
-  titleScreen.style.display = 'none';
-  gameContainer.style.display = 'block';
+  showScreen(gameScreen);
   startGame();
 });
 
-// back to title from game
-menuBtn.addEventListener('click', goToMenu);
-gameoverMenuBtn.addEventListener('click', goToMenu);
+pressAndRun(menuBtn, goToMenu);
+pressAndRun(gameoverMenuBtn, () => {
+  gameoverTab.style.display = 'none';
+  goToMenu();
+});
 
 function goToMenu() {
   if (timerInterval) clearInterval(timerInterval);
   gameActive = false;
-  gameContainer.style.display = 'none';
   gameoverTab.style.display = 'none';
-  titleScreen.style.display = 'flex';
+  analysisTab.style.display = 'none';
+  showScreen(homeScreen);
 }
 
-
-// ===============================
 // GRAPH RENDERING
-// ===============================
-
 function drawGraph(userExpr = null) {
   lastUserExpr = userExpr;
   const w = canvas.width, h = canvas.height;
@@ -145,7 +196,7 @@ function drawGraph(userExpr = null) {
     xs.push(xMin + (xMax - xMin) * i / SAMPLES);
   }
 
-  // evaluate target function
+  // target function evaluation
   let targetVals = [];
   let validIndices = [];
   xs.forEach((x, idx) => {
@@ -157,43 +208,51 @@ function drawGraph(userExpr = null) {
       } else {
         targetVals[idx] = NaN;
       }
-    } catch {
-      targetVals[idx] = NaN;
-    }
+    } catch { targetVals[idx] = NaN; }
   });
 
-  let validTargets = targetVals.filter(v => Number.isFinite(v));
+  const Y_VIEW_LIMIT = 4;
+  const Y_VIEW_MIN_RANGE = 6;
+  const validTargets = targetVals.filter(v => Number.isFinite(v));
   let minY = Math.min(...validTargets, -3);
   let maxY = Math.max(...validTargets, 3);
+  minY = Math.max(minY, -Y_VIEW_LIMIT);
+  maxY = Math.min(maxY,  Y_VIEW_LIMIT);
   let rangeY = maxY - minY;
-  if (rangeY < 1e-6) rangeY = 6;
-  const pad = rangeY * 0.15;
+  if (rangeY < Y_VIEW_MIN_RANGE) {
+    const mid = (minY + maxY) / 2;
+    minY = mid - Y_VIEW_MIN_RANGE / 2;
+    maxY = mid + Y_VIEW_MIN_RANGE / 2;
+    rangeY = Y_VIEW_MIN_RANGE;
+  }
+  const pad = rangeY * 0.10;
   minY -= pad;
   maxY += pad;
+  targetVals = targetVals.map(v => Number.isFinite(v) ? Math.max(minY, Math.min(maxY, v)) : v);
 
-  function mapX(x) { return (x - xMin) / (xMax - xMin) * w; }
-  function mapY(y) { return h - (y - minY) / (maxY - minY) * h; }
+  const mapX = x => (x - xMin) / (xMax - xMin) * w;
+  const mapY = y => h - (y - minY) / (maxY - minY) * h;
 
   // grid
-  ctx.lineWidth = 0.7;
+  ctx.lineWidth = 1;
   for (let i = -5; i <= 5; i++) {
     ctx.beginPath();
     ctx.moveTo(mapX(i), 0);
     ctx.lineTo(mapX(i), h);
-    ctx.strokeStyle = '#2d2d55';
+    ctx.strokeStyle = 'rgba(216, 204, 236, 0.28)';
     ctx.stroke();
   }
   for (let i = Math.floor(minY); i <= Math.ceil(maxY); i++) {
     ctx.beginPath();
     ctx.moveTo(0, mapY(i));
     ctx.lineTo(w, mapY(i));
-    ctx.strokeStyle = '#2d2d55';
+    ctx.strokeStyle = 'rgba(216, 204, 236, 0.28)';
     ctx.stroke();
   }
 
   // axes
   ctx.beginPath();
-  ctx.strokeStyle = '#5a5a80';
+  ctx.strokeStyle = 'rgba(230, 220, 245, 0.7)';
   ctx.lineWidth = 2.5;
   ctx.moveTo(mapX(0), 0);
   ctx.lineTo(mapX(0), h);
@@ -201,22 +260,18 @@ function drawGraph(userExpr = null) {
   ctx.lineTo(w, mapY(0));
   ctx.stroke();
 
-  // user guess (solid green) + error shading
+  // user guess in green with error-band shading
   if (userExpr && gameActive) {
     let userVals = [];
-    ctx.fillStyle = 'rgba(255, 60, 60, 0.15)';
-
     for (let i = 0; i <= SAMPLES; i++) {
-      let x = xs[i];
+      const x = xs[i];
       try {
-        let y = math.evaluate(userExpr, { x });
+        const y = math.evaluate(userExpr, { x });
         userVals[i] = Number.isFinite(y) ? y : NaN;
-      } catch {
-        userVals[i] = NaN;
-      }
+      } catch { userVals[i] = NaN; }
 
       if (Number.isFinite(userVals[i]) && Number.isFinite(targetVals[i])) {
-        let cx = mapX(x);
+        const cx = mapX(x);
         ctx.beginPath();
         ctx.moveTo(cx, mapY(targetVals[i]));
         ctx.lineTo(cx, mapY(userVals[i]));
@@ -232,26 +287,26 @@ function drawGraph(userExpr = null) {
     let started = false;
     for (let i = 0; i <= SAMPLES; i++) {
       if (!Number.isFinite(userVals[i])) continue;
-      let cx = mapX(xs[i]);
-      let cy = mapY(userVals[i]);
+      const cx = mapX(xs[i]);
+      const cy = mapY(userVals[i]);
       if (!started) { ctx.moveTo(cx, cy); started = true; }
       else { ctx.lineTo(cx, cy); }
     }
     ctx.stroke();
   }
 
-  // target line (dotted yellow)
+  // target line - dotted yellow (MainPageEx style)
   ctx.beginPath();
   ctx.strokeStyle = '#f0e68c';
   ctx.lineWidth = 3.5;
   ctx.setLineDash([8, 8]);
   let first = true;
   for (let idx of validIndices) {
-    let x = xs[idx];
-    let y = targetVals[idx];
+    const x = xs[idx];
+    const y = targetVals[idx];
     if (!Number.isFinite(y)) continue;
-    let cx = mapX(x);
-    let cy = mapY(y);
+    const cx = mapX(x);
+    const cy = mapY(y);
     if (first) { ctx.moveTo(cx, cy); first = false; }
     else { ctx.lineTo(cx, cy); }
   }
@@ -259,11 +314,7 @@ function drawGraph(userExpr = null) {
   ctx.setLineDash([]);
 }
 
-
-// ===============================
 // MATCH EVALUATION
-// ===============================
-
 function evaluateMatch(userExpr) {
   const SAMPLES = 200;
   const xMin = -5, xMax = 5;
@@ -271,80 +322,28 @@ function evaluateMatch(userExpr) {
   let count = 0;
 
   for (let i = 0; i <= SAMPLES; i++) {
-    let x = xMin + (xMax - xMin) * i / SAMPLES;
+    const x = xMin + (xMax - xMin) * i / SAMPLES;
     let targetVal, userVal;
     try {
       targetVal = math.evaluate(currentTargetExpr, { x });
       userVal = math.evaluate(userExpr, { x });
     } catch { continue; }
     if (Number.isFinite(targetVal) && Number.isFinite(userVal)) {
-      let diff = targetVal - userVal;
+      const diff = targetVal - userVal;
       errorSum += diff * diff;
       count++;
     }
   }
 
-  if (count < 10) return { accuracy: 0, coins: 0 };
+  if (count < 10) return { accuracy: 0 };
 
-  let rmse = Math.sqrt(errorSum / count);
+  const rmse = Math.sqrt(errorSum / count);
   let accuracy = Math.max(0, Math.min(100, 100 * Math.exp(-0.5 * rmse)));
   if (rmse < 0.05) accuracy = 100;
-  let coinsEarned = Math.floor(accuracy);
-  return {
-    accuracy: Math.round(accuracy * 10) / 10,
-    coins: coinsEarned
-  };
+  return { accuracy: Math.round(accuracy * 10) / 10 };
 }
 
-
-// ===============================
-// HINTS
-// ===============================
-
-function generateLocalHint(targetExpr, userExpr) {
-  try {
-    const targetNode = math.compile(targetExpr);
-    const userNode = math.compile(userExpr);
-
-    let targetY0 = targetNode.evaluate({ x: 0 });
-    let userY0 = userNode.evaluate({ x: 0 });
-
-    if (Number.isFinite(targetY0) && Number.isFinite(userY0)) {
-      let diff = targetY0 - userY0;
-      if (Math.abs(diff) > 0.1) {
-        return userY0 > targetY0
-          ? 'Too high at the center -- check your y-intercept.'
-          : 'Too low at the center -- check your y-intercept.';
-      }
-    }
-
-    let targetY1 = targetNode.evaluate({ x: 1 });
-    let userY1 = userNode.evaluate({ x: 1 });
-    if (Number.isFinite(targetY1) && Number.isFinite(userY1)) {
-      if (Math.abs(targetY1 + userY1) < 0.1 && Math.abs(targetY1) > 0.1) {
-        return 'Looks flipped -- double-check positive/negative signs.';
-      }
-    }
-
-    let targetY2 = targetNode.evaluate({ x: 2 });
-    let userY2 = userNode.evaluate({ x: 2 });
-    if (Number.isFinite(targetY2) && Number.isFinite(userY2) && userY2 !== 0 && targetY2 !== 0) {
-      let ratio = Math.abs(targetY2) / Math.abs(userY2);
-      if (ratio > 1.2) return 'Not steep enough -- try a larger coefficient.';
-      if (ratio < 0.8) return 'Too steep -- try a smaller coefficient.';
-    }
-
-    return 'Close -- check exponents or horizontal shifts.';
-  } catch {
-    return 'Keep adjusting.';
-  }
-}
-
-
-// ===============================
 // INPUT NORMALIZATION
-// ===============================
-
 function normalizeFunctionString(expr) {
   let s = expr.toLowerCase();
   s = s.replace(/\s+/g, '');
@@ -365,11 +364,12 @@ functionInput.addEventListener('input', (e) => {
   const rawExpr = e.target.value.trim();
   if (rawExpr === '') {
     functionInput.style.boxShadow = 'none';
+    submitBtn.disabled = false;
     return;
   }
   try {
     math.parse(normalizeFunctionString(rawExpr));
-    functionInput.style.boxShadow = '0 0 0 2px var(--green)';
+    functionInput.style.boxShadow = '0 0 0 2px var(--play)';
     submitBtn.disabled = false;
   } catch {
     functionInput.style.boxShadow = '0 0 0 2px #d44';
@@ -377,16 +377,11 @@ functionInput.addEventListener('input', (e) => {
   }
 });
 
-
-// ===============================
 // AUDIO
-// ===============================
-
 function initAudio() {
   if (audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
-
 function playSound(type) {
   if (!audioCtx) initAudio();
   if (audioCtx.state === 'suspended') {
@@ -410,22 +405,18 @@ function playSound(type) {
   osc.stop(audioCtx.currentTime + duration);
 }
 
-
-// ===============================
-// UI HELPERS
-// ===============================
-
+// COIN / BONUS FX
 function spawnCoins(amount, fromX = 300, fromY = 300) {
-  const coinCount = Math.min(12, Math.max(1, Math.floor(amount / 7) + 1));
+  const coinCount = Math.min(12, Math.max(1, amount));
   for (let i = 0; i < coinCount; i++) {
     const coin = document.createElement('div');
     coin.className = 'floating-coin';
     coin.textContent = '$';
     coin.style.left = (fromX + Math.random() * 60 - 30) + 'px';
-    coin.style.top = (fromY + Math.random() * 60 - 30) + 'px';
-    coin.style.animationDelay = (i * 0.03) + 's';
+    coin.style.top  = (fromY + Math.random() * 60 - 30) + 'px';
+    coin.style.animationDelay = (i * 0.05) + 's';
     coinContainer.appendChild(coin);
-    setTimeout(() => { if (coin.parentNode) coin.remove(); }, 800);
+    setTimeout(() => { if (coin.parentNode) coin.remove(); }, 900);
   }
   if (soundEnabled) playSound('collect');
 }
@@ -438,16 +429,17 @@ function showBonusMessage(text) {
   setTimeout(() => popup.remove(), 1900);
 }
 
+// UI UPDATERS
 function updateTimerDisplay() {
   timerEl.textContent = timerSeconds;
-  if (timerSeconds <= 15) timerEl.className = 'timer-critical';
-  else if (timerSeconds <= 30) timerEl.className = 'timer-warning';
-  else timerEl.className = '';
+  timerEl.classList.remove('timer-warning', 'timer-critical');
+  if (timerSeconds <= 15) timerEl.classList.add('timer-critical');
+  else if (timerSeconds <= 30) timerEl.classList.add('timer-warning');
 }
 
 function updateRoundDisplay() {
   if (maxRounds > 0) {
-    roundBlock.style.display = 'block';
+    roundBlock.style.display = 'flex';
     roundDisplay.textContent = (currentRound + 1) + ' / ' + maxRounds;
   } else {
     roundBlock.style.display = 'none';
@@ -460,44 +452,26 @@ function startTimer() {
     if (paused || !gameActive) return;
     timerSeconds = Math.max(0, timerSeconds - 1);
     updateTimerDisplay();
-
     if (timerSeconds <= 15 && timerSeconds > 0 && soundEnabled) playSound('tick');
-    if (timerSeconds <= 0) {
-      endGame("TIME'S UP");
-    }
+    if (timerSeconds <= 0) endGame("TIME'S UP");
   }, 1000);
 }
 
-function endGame(reason) {
-  gameActive = false;
-  if (timerInterval) clearInterval(timerInterval);
-  submitBtn.disabled = true;
-  if (currentScore > 0) pastScores.push(currentScore);
-  updateHistory();
-  updateSkillLevel();
-  playSound('wrong');
-  gameoverTitle.textContent = reason || 'GAME OVER';
-  gameoverScoreSpan.textContent = currentScore;
-  gameoverTab.style.display = 'block';
-}
-
 function updateHistory() {
-  scoreHistoryDiv.innerText = pastScores.length === 0
-    ? '—'
-    : pastScores.join('  ·  ');
+  scoreHistoryDiv.innerText = pastScores.length === 0 ? '—' : pastScores.join('  ·  ');
 }
 
+// Skill level is now driven by `gameStats.skillScore` which is adjusted by
+// answer correctness, speed, and whether the reveal was needed.
 function updateSkillLevel() {
-  let avg = pastScores.length > 0
-    ? pastScores.reduce((a, b) => a + b, 0) / pastScores.length
-    : currentScore;
-  if (avg < 250) {
+  const s = gameStats.skillScore;
+  if (s < 4) {
     currentDifficulty = 'novice';
     skillLevelText.innerText = 'Novice';
-  } else if (avg < 600) {
+  } else if (s < 10) {
     currentDifficulty = 'apprentice';
     skillLevelText.innerText = 'Apprentice';
-  } else if (avg < 1200) {
+  } else if (s < 20) {
     currentDifficulty = 'skilled';
     skillLevelText.innerText = 'Pro';
   } else {
@@ -506,24 +480,19 @@ function updateSkillLevel() {
   }
 }
 
-
-// ===============================
 // GAME FLOW
-// ===============================
-
 function resetForNewGraph() {
   attemptCount = 0;
-  hintShown = false;
-  bestAccuracyThisGraph = 0;
+  revealed = false;
   graphStartTime = performance.now();
-  firstTryBonusUsed = false;
-  quickBonusUsed = false;
+  userGuessHistory = [];
   hintArea.style.display = 'none';
   hintText.innerText = '';
   accuracyEl.textContent = '0%';
   earnedCoinsEl.textContent = '0';
   functionInput.value = '';
   functionInput.style.boxShadow = 'none';
+  submitBtn.disabled = false;
 }
 
 function preloadNext() {
@@ -543,11 +512,39 @@ async function advanceToNewTarget() {
   pendingFunction = null;
 
   currentTargetExpr = result.expression;
+  currentTargetCategory = result.category || 'unknown';
   currentAIHint = result.hint || '';
   resetForNewGraph();
   updateRoundDisplay();
   drawGraph(null);
   preloadNext();
+}
+
+function categoryStatsBucket(cat) {
+  if (!gameStats.byCategory[cat]) {
+    gameStats.byCategory[cat] = {
+      seen: 0, solved: 0, firstTry: 0, reveals: 0, totalTimeSec: 0
+    };
+  }
+  return gameStats.byCategory[cat];
+}
+
+/**
+ * Compute coins for this round based on the attempt number and time taken.
+ * Rules (per spec):
+ *   attempt 1 -> 5 coins (+ 1 bonus if within 2 sec)
+ *   attempt 2 -> 4 coins
+ *   attempt 3 -> 3 coins
+ *   attempt 4 -> 2 coins
+ *   attempt 5 -> 1 coin
+ *   after reveal -> 0 coins
+ */
+function computeCoins(attempt, timeTakenSec, wasRevealed) {
+  if (wasRevealed) return { coins: 0, bonus: 0 };
+  const table = { 1: 5, 2: 4, 3: 3, 4: 2, 5: 1 };
+  const base = table[attempt] ?? 0;
+  const bonus = (attempt === 1 && timeTakenSec <= 2.0) ? 1 : 0;
+  return { coins: base, bonus };
 }
 
 async function handleSubmit() {
@@ -557,79 +554,152 @@ async function handleSubmit() {
 
   const normalizedUser = normalizeFunctionString(rawExpr);
   attemptCount++;
+  userGuessHistory.push(normalizedUser);
 
-  const { accuracy, coins } = evaluateMatch(normalizedUser);
+  const { accuracy } = evaluateMatch(normalizedUser);
   accuracyEl.textContent = accuracy + '%';
-  earnedCoinsEl.textContent = coins;
-
-  if (attemptCount <= 5 && accuracy > bestAccuracyThisGraph) {
-    bestAccuracyThisGraph = accuracy;
-  }
 
   reportResult(accuracy);
-
-  // hint progression
-  if (attemptCount === 3 && currentAIHint) {
-    hintText.innerText = currentAIHint;
-    hintArea.style.display = 'block';
-  } else if (attemptCount === 4) {
-    const localHint = generateLocalHint(currentTargetExpr, normalizedUser);
-    hintText.innerText = localHint;
-    hintArea.style.display = 'block';
-  }
-
-  if (!hintShown && attemptCount >= 5) {
-    hintShown = true;
-    hintText.innerText = 'Answer: f(x) = ' + currentTargetExpr;
-    hintArea.style.display = 'block';
-  }
 
   const normalizedTarget = normalizeFunctionString(currentTargetExpr);
   const isExactMatch = normalizedUser === normalizedTarget || accuracy === 100;
 
+  // for correctness
   if (isExactMatch) {
     if (soundEnabled) playSound('correct');
-    let coinAward = Math.min(100, Math.max(0, Math.floor(bestAccuracyThisGraph)));
-    if (coinAward === 0 && accuracy === 100) coinAward = 100;
 
-    if (graphStartTime) {
-      const timeTaken = (performance.now() - graphStartTime) / 1000;
-      if (attemptCount === 1 && !firstTryBonusUsed) {
-        coinAward += 10;
-        showBonusMessage('First Try! +10');
-        firstTryBonusUsed = true;
-      }
-      if (timeTaken <= 5.0 && !quickBonusUsed) {
-        coinAward += 10;
-        showBonusMessage('Quick Try! +10');
-        quickBonusUsed = true;
-      }
-    }
+    const timeTaken = graphStartTime ? (performance.now() - graphStartTime) / 1000 : 99;
+    const { coins, bonus } = computeCoins(attemptCount, timeTaken, revealed);
+    const coinAward = coins + bonus;
 
     currentScore += coinAward;
     scoreEl.textContent = currentScore;
 
-    const rect = canvas.getBoundingClientRect();
-    spawnCoins(coinAward, rect.left + rect.width / 2, rect.top + rect.height / 3);
+    // pop the appropriate bonus message
+    if (attemptCount === 1 && bonus > 0) {
+      showBonusMessage(`First Try! +${coins}  (+${bonus} Quick)`);
+    } else if (attemptCount === 1) {
+      showBonusMessage(`First Try! +${coins}`);
+    } else if (!revealed && coinAward > 0) {
+      showBonusMessage(`+${coinAward}`);
+    } else if (revealed) {
+      showBonusMessage('Answer shown — 0 coins');
+    }
 
+    // coin visuals
+    const rect = canvas.getBoundingClientRect();
+    if (coinAward > 0) spawnCoins(coinAward, rect.left + rect.width / 2, rect.top + rect.height / 3);
+
+    // stats
+    gameStats.totalGraphs++;
+    gameStats.solved++;
+    if (attemptCount === 1) gameStats.solvedFirstTry++;
+    if (revealed) gameStats.revealedCount++;
+
+    const bucket = categoryStatsBucket(currentTargetCategory);
+    bucket.seen++;
+    bucket.solved++;
+    if (attemptCount === 1) bucket.firstTry++;
+    if (revealed) bucket.reveals++;
+    bucket.totalTimeSec += timeTaken;
+
+    // skill adjustment: reward correctness; weight by speed and attempts used
+    if (!revealed) {
+      const speedFactor = timeTaken <= 2 ? 1.5 : timeTaken <= 5 ? 1.2 : timeTaken <= 10 ? 1.0 : 0.7;
+      const attemptFactor = attemptCount === 1 ? 1.5 : attemptCount === 2 ? 1.1 : attemptCount === 3 ? 0.8 : 0.4;
+      gameStats.skillScore += speedFactor * attemptFactor;
+    } else {
+      // revealed: don't increase skill, but also don't tank it on first occurrence
+      gameStats.skillScore = Math.max(0, gameStats.skillScore - 0.5);
+    }
+
+    // refresh time bank
     timerSeconds = Math.min(60, timerSeconds + 15);
     updateTimerDisplay();
 
     currentRound++;
-
-    // check if round limit reached
     if (maxRounds > 0 && currentRound >= maxRounds) {
       endGame('ALL ROUNDS DONE');
       return;
     }
 
-    await advanceToNewTarget();
     updateSkillLevel();
+    await advanceToNewTarget();
     return;
   }
 
+  // if incorrect
   if (soundEnabled) playSound('wrong');
   drawGraph(normalizedUser);
+
+  // Hint progression:
+  //   attempt 1: nothing (give them a try)
+  //   attempt 2: personalized hint from AI (nudge toward target)
+  //   attempt 3: second personalized hint (progression aware)
+  //   attempt 4: another personalized hint (very targeted)
+  //   attempt 5 (this wrong guess was the 5th): reveal answer
+  if (attemptCount >= 2 && attemptCount <= 4) {
+    // call AI for personalized hint (previous hint + guess history goes in)
+    hintArea.style.display = 'block';
+    hintText.innerText = 'Thinking...';
+    try {
+      const hint = await getPersonalizedHint({
+        target: currentTargetExpr,
+        guesses: userGuessHistory,
+        skill: currentDifficulty,
+        attempt: attemptCount,
+        previousHint: currentAIHint,
+      });
+      if (hint) {
+        hintText.innerText = hint;
+        currentAIHint = hint;
+      } else {
+        hintText.innerText = 'Close ; look carefully at the shape.';
+      }
+    } catch {
+      hintText.innerText = 'Close ; look carefully at the shape.';
+    }
+  }
+
+  if (attemptCount >= 5 && !revealed) {
+    revealed = true;
+    hintArea.style.display = 'block';
+    hintText.innerText = `Answer: f(x) = ${currentTargetExpr}`;
+
+    // count the reveal in stats and force a skill adjustment
+    gameStats.totalGraphs++;
+    gameStats.revealedCount++;
+    const bucket = categoryStatsBucket(currentTargetCategory);
+    bucket.seen++;
+    bucket.reveals++;
+    gameStats.skillScore = Math.max(0, gameStats.skillScore - 1.0);
+    updateSkillLevel();
+
+    // give the user a moment, then advance
+    submitBtn.disabled = true;
+    setTimeout(async () => {
+      currentRound++;
+      if (maxRounds > 0 && currentRound >= maxRounds) {
+        endGame('ALL ROUNDS DONE');
+        return;
+      }
+      await advanceToNewTarget();
+      submitBtn.disabled = false;
+    }, 2600);
+  }
+}
+
+function endGame(reason) {
+  gameActive = false;
+  if (timerInterval) clearInterval(timerInterval);
+  submitBtn.disabled = true;
+  if (currentScore > 0) pastScores.push(currentScore);
+  updateHistory();
+  updateSkillLevel();
+  playSound('wrong');
+  gameoverTitle.textContent = reason || 'GAME OVER';
+  gameoverScoreSpan.textContent = currentScore;
+  gameoverTab.style.display = 'flex';
 }
 
 function startGame() {
@@ -639,23 +709,34 @@ function startGame() {
   timerSeconds = 60;
   gameActive = true;
   paused = false;
-  pauseBtn.textContent = '||';
+
+  // reset per-game stats
+  gameStats = {
+    totalGraphs: 0, solved: 0, solvedFirstTry: 0, revealedCount: 0,
+    byCategory: {}, skillScore: gameStats.skillScore ?? 0, avgSolveTime: 0,
+  };
+  resetPerformanceLog();
+
+  const pauseLabel = pauseBtn.querySelector('.btn-label');
+  if (pauseLabel) pauseLabel.textContent = '||';
+
   submitBtn.disabled = false;
   updateTimerDisplay();
   updateSkillLevel();
   updateRoundDisplay();
 
-  // load the first function from fallback (instant), AI takes over next round
+  // first function from fallback for instant display, AI takes over next
   currentTargetExpr = pickFallback(selectedTypes);
+  currentTargetCategory = 'unknown';
   resetForNewGraph();
   drawGraph(null);
   startTimer();
   updateHistory();
   gameoverTab.style.display = 'none';
+  analysisTab.style.display = 'none';
 
   preloadNext();
 
-  // enable audio on first click
   if (!audioInitialized) {
     document.body.addEventListener('click', function enableAudio() {
       if (!soundEnabled) {
@@ -677,24 +758,83 @@ async function resetGame() {
 function togglePause() {
   if (!gameActive) return;
   paused = !paused;
-  pauseBtn.textContent = paused ? '▶' : '||';
+  pauseBtn.classList.toggle('is-paused', paused);
+  pauseBtn.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
 }
 
+// =====================================================
+// AI GAME ANALYSIS
+// =====================================================
+async function runGameAnalysis() {
+  analysisTab.style.display = 'flex';
+  analysisBody.textContent = 'Analyzing your game...';
+  try {
+    const perfLog = getPerformanceLog();
+    const analysis = await getGameAnalysis({
+      finalScore: currentScore,
+      skillLevel: currentDifficulty,
+      skillScore: gameStats.skillScore,
+      selectedTypes,
+      byCategory: gameStats.byCategory,
+      perfLog,
+      totalGraphs: gameStats.totalGraphs,
+      solved: gameStats.solved,
+      solvedFirstTry: gameStats.solvedFirstTry,
+      revealed: gameStats.revealedCount,
+    });
+    analysisBody.textContent = analysis || buildLocalAnalysis();
+  } catch {
+    analysisBody.textContent = buildLocalAnalysis();
+  }
+}
 
-// ===============================
+// Simple local fallback so the analysis button never looks broken.
+function buildLocalAnalysis() {
+  const s = gameStats;
+  const lines = [];
+  lines.push(`Score: ${currentScore}   Skill: ${skillLevelText.innerText}`);
+  lines.push(`Graphs shown: ${s.totalGraphs}. Solved: ${s.solved}. First-try: ${s.solvedFirstTry}. Reveals: ${s.revealedCount}.`);
+  const cats = Object.entries(s.byCategory).filter(([, v]) => v.seen > 0);
+  if (cats.length) {
+    const scored = cats.map(([k, v]) => ({ k, rate: (v.solved - v.reveals) / v.seen }));
+    scored.sort((a, b) => b.rate - a.rate);
+    lines.push(`Strongest: ${scored.slice(0, 2).map(x => x.k).join(', ') || '-'}.`);
+    lines.push(`Needs work: ${scored.slice(-2).map(x => x.k).join(', ') || '-'}.`);
+    const weak = scored.filter(x => x.rate < 0.3).map(x => x.k);
+    if (weak.length) lines.push(`Consider removing from settings until ready: ${weak.join(', ')}.`);
+  }
+  lines.push(`Tip: Practice the types you reveal on most. Speed + first-try success pushes your skill up.`);
+  return lines.join('\n\n');
+}
+
+// =====================================================
 // EVENT LISTENERS
-// ===============================
-
-submitBtn.addEventListener('click', () => handleSubmit());
+// =====================================================
+pressAndRun(submitBtn, () => handleSubmit());
 functionInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && !submitBtn.disabled) {
     e.preventDefault();
-    handleSubmit();
+    submitBtn.classList.add('pressed');
+    setTimeout(() => { submitBtn.classList.remove('pressed'); handleSubmit(); }, 120);
   }
 });
-playAgainBtn.addEventListener('click', () => resetGame());
-gameoverRetryBtn.addEventListener('click', () => resetGame());
-pauseBtn.addEventListener('click', togglePause);
-closeGameoverTab.addEventListener('click', () => {
-  gameoverTab.style.display = 'none';
-});
+pressAndRun(playAgainBtn, () => resetGame());
+pressAndRun(gameoverRetryBtn, () => { gameoverTab.style.display = 'none'; resetGame(); });
+pressAndRun(pauseBtn, togglePause);
+pressAndRun(aiAnalysisBtn, runGameAnalysis);
+pressAndRun(analysisDoneBtn, () => { analysisTab.style.display = 'none'; });
+
+// Audio toggle (settings panel)
+const audioToggle = document.getElementById('audioToggle');
+if (audioToggle) {
+  audioToggle.addEventListener('change', () => {
+    soundEnabled = audioToggle.checked;
+    if (soundEnabled && !audioCtx) initAudio();
+  });
+}
+
+closeGameoverTab.addEventListener('click', () => { gameoverTab.style.display = 'none'; });
+closeAnalysisTab.addEventListener('click', () => { analysisTab.style.display = 'none'; });
+
+// initial screen
+showScreen(homeScreen);
