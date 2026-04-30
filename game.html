@@ -9,14 +9,25 @@
   </head>
   <body>
     <div class="top">
-      <a class="back" href="javascript:history.back()">&larr; Back</a>
+      <a class="back" id="back-link" href="index.html">&larr; Back</a>
       <h1 id="game-title"></h1>
+      <button class="fullscreen-btn" id="fullscreen-btn" title="Fullscreen">&#x26F6;</button>
     </div>
     <div class="gameAlign">
       <div id="gameContainer">
         <iframe id="game-frame" src="" frameborder="0" tabindex="0" allow="microphone; autoplay; fullscreen"></iframe>
       </div>
-      <p>Made by <span id="gameAuthor"></span></p>
+      <div class="author-badge">Made by <span id="gameAuthor"></span></div>
+
+      <div id="how-to-play" class="htp-section hidden">
+        <div class="htp-heading">
+          <span class="htp-heading-label">
+            <span class="htp-icon">?</span>
+            How to Play
+          </span>
+        </div>
+        <div id="htp-content" class="htp-grid"></div>
+      </div>
     </div>
   </body>
 </html>

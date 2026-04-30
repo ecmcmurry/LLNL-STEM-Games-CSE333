@@ -8,31 +8,22 @@
   </head>
   <body>
     <div id="sidebar" class="sidebar">
-      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()"
-        >&times;</a
-      >
+      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">&times;</a>
       <a href="index.html">Home</a>
       <a href="science.html">Science Games</a>
       <a href="technology.html">Technology Games</a>
       <a href="engineering.html">Engineering Games</a>
       <a href="math.html">Math Games</a>
       <a href="about.html">About</a>
-      <a href="chatbot.html">Chatbot</a>
     </div>
 
     <div class="top-bar">
       <h1 id="logo" onclick="toggleSidebar()">
         <span>&#9662;</span> STEM AI Games
       </h1>
-
-      <div class="search-container">
-        <input
-          type="text"
-          class="search-bar"
-          placeholder="Search with Chatbot"
-        />
-      </div>
     </div>
+
+    <!-- Mobile: four STEM nav buttons -->
     <nav id="main-nav">
       <a href="science.html">S &mdash; Science</a>
       <a href="technology.html">T &mdash; Technology</a>
@@ -40,30 +31,111 @@
       <a href="math.html">M &mdash; Math</a>
     </nav>
 
+    <!-- Desktop: STEM letters with games inline -->
+    <div class="desktop-games">
+
+      <!-- Science -->
+      <div class="stem-row">
+        <div class="stem-letter-box">
+          <img class="stem-bg-svg" src="assets/Images/science.svg" alt="" />
+          <span class="stem-char">S</span>
+        </div>
+        <div class="stem-games-row">
+          <a href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/PhysicsGameLab.png" class="dc-img" alt="Physics Game Lab"/>
+            </div>
+            <div class="dc-title">Physics Game Lab</div>
+            <div class="dc-author">By Adrian</div>
+          </a>
+          <a href="game.html?game=Eli Games/Sound and Valid/dist/index.html&title=Sound and Valid&author=Eli&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/SoundAndValid.svg" class="dc-img" alt="Sound and Valid" />
+            </div>
+            <div class="dc-title">Sound and Valid</div>
+            <div class="dc-author">By Eli</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Technology -->
+      <div class="stem-row">
+        <div class="stem-letter-box">
+          <img class="stem-bg-svg" src="assets/Images/technology.svg" alt="" />
+          <span class="stem-char">T</span>
+        </div>
+        <div class="stem-games-row">
+          <a href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/Farming Learning Game.png" class="dc-img" alt="There's a Bug in the Flower!" />
+            </div>
+            <div class="dc-title">There's a Bug in the Flower!</div>
+            <div class="dc-author">By Hao</div>
+          </a>
+          <a href="game.html?game=Adrian Games/Game2/Home.html&title=8 Bit Circuit&author=Adrian&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/8-BIT Circuit.png" class="dc-img" alt="8 Bit Circuit" />
+            </div>
+            <div class="dc-title">8 Bit Circuit</div>
+            <div class="dc-author">By Adrian</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Engineering -->
+      <div class="stem-row">
+        <div class="stem-letter-box">
+          <img class="stem-bg-svg" src="assets/Images/engineering.svg" alt="" />
+          <span class="stem-char">E</span>
+        </div>
+        <div class="stem-games-row">
+          <a href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune&author=Ella&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/Forge & Fortune.png" class="dc-img" alt="Forge &amp; Fortune" />
+            </div>
+            <div class="dc-title">Forge &amp; Fortune</div>
+            <div class="dc-author">By Ella</div>
+          </a>
+          <a href="game.html?game=Eli Games/StructureStrike/dist/index.html&title=StructureStrike&author=Eli&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/StructureStrike.svg" class="dc-img" alt="StructureStrike" />
+            </div>
+            <div class="dc-title">StructureStrike</div>
+            <div class="dc-author">By Eli</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Math -->
+      <div class="stem-row">
+        <div class="stem-letter-box">
+          <img class="stem-bg-svg" src="assets/Images/math_waves.png" alt="" style="object-fit: contain; transform: scale(1.5);" />
+          <span class="stem-char">M</span>
+        </div>
+        <div class="stem-games-row">
+          <a href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <img src="assets/Images/Fourier.png" class="dc-img" alt="What Wave" />
+            </div>
+            <div class="dc-title">What Wave</div>
+            <div class="dc-author">By Elizabeth</div>
+          </a>
+          <a href="game.html?game=Ella Games/GraphGame1/index.html&title=Feed The Function&author=Ella&from=index.html" class="desktop-card">
+            <div class="dc-img-wrapper">
+              <div class="dc-placeholder">Cover image coming soon</div>
+            </div>
+            <div class="dc-title">Feed The Function</div>
+            <div class="dc-author">By Ella</div>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
     <script>
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
-        if (sidebar.style.left === "0px") {
-          sidebar.style.left = "-250px";
-        } else {
-          sidebar.style.left = "0px";
-        }
-      }
-
-      function transitionToPage(event, url) {
-        event.preventDefault(); // pauses jump to screen
-
-        // fills screen with button color
-        document.body.style.backgroundColor = "#0A192F";
-
-        // fades from homepage
-        document.getElementById("main-nav").style.opacity = "0";
-        document.querySelector(".top-bar").style.opacity = "0";
-
-        // redirects after 400 ms.
-        setTimeout(() => {
-          window.location.href = url;
-        }, 400);
+        sidebar.style.left = sidebar.style.left === "0px" ? "-250px" : "0px";
       }
     </script>
   </body>

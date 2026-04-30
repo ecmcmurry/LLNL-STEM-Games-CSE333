@@ -1,0 +1,13 @@
+{
+  "name": "game1",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest --coverage --forceExit"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}

@@ -1,0 +1,135 @@
+/* ====== PORTRAIT MOBILE LAYOUT ====== */
+@media (max-width: 900px) and (orientation: portrait) {
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 10px 0 16px;
+        gap: 12px;
+    }
+
+    /* Briefcase scales down via JS zoom — origin top so it doesn't drift */
+    .briefcase-wrapper {
+        order: 1;
+        transform-origin: top center;
+        flex-shrink: 0;
+    }
+
+    /* Component tray becomes a horizontal scroll bar below the game */
+    .draggables {
+        order: 2;
+        flex-direction: column;
+        align-items: center;
+        width: 95vw;
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    /* Slots go horizontal and scroll if there are many */
+    #componentSlots {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* Shrink each slot slightly so more fit per row */
+    .slotDesign {
+        width: 58px;
+        margin-bottom: 0;
+    }
+}
+
+/* ====== JUICE ANIMATIONS ======
+ * All styling for in-game animation polish. Safe to delete this whole file
+ * plus its <link> tag in Home.html and js/juice.js — the game keeps working.
+ */
+
+/* current flowing along a wire cell on a correct answer */
+.boardOverlay > div.juice-currentFlow {
+    filter: brightness(1.8) drop-shadow(0 0 10px #ffd633) drop-shadow(0 0 18px #ffaa00);
+    transition: filter 0.12s ease-out;
+}
+
+/* wrong-answer short shake on the board area */
+@keyframes juice-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px) rotate(-0.5deg); }
+    40%      { transform: translateX(8px)  rotate(0.5deg); }
+    60%      { transform: translateX(-4px) rotate(-0.3deg); }
+    80%      { transform: translateX(4px)  rotate(0.3deg); }
+}
+.juice-shake { animation: juice-shake 0.42s ease-out; }
+
+/* big full-body shake for game over */
+@keyframes juice-bigshake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10%      { transform: translate(-14px, -8px) rotate(-1.2deg); }
+    20%      { transform: translate(12px,  8px)  rotate(1.2deg); }
+    30%      { transform: translate(-10px, 10px) rotate(-1deg); }
+    40%      { transform: translate(10px,  -10px) rotate(1deg); }
+    50%      { transform: translate(-8px, 6px); }
+    60%      { transform: translate(8px,  -6px); }
+    70%      { transform: translate(-6px, 8px); }
+    80%      { transform: translate(6px,  -8px); }
+    90%      { transform: translate(-3px, 3px); }
+}
+.juice-bigshake { animation: juice-bigshake 0.65s ease-out; }
+
+/* explosion particles: fly outward from an origin and fade */
+.juice-particle {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 2px;
+    box-shadow: 0 0 8px currentColor;
+    animation: juice-particle-fly 0.9s cubic-bezier(.17,.67,.55,1) forwards;
+}
+@keyframes juice-particle-fly {
+    0%   { transform: translate(0, 0) scale(1) rotate(0deg);   opacity: 1; }
+    60%  { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(180deg); opacity: 0; }
+}
+
+/* full-screen flash for impact */
+.juice-flash {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    pointer-events: none;
+    z-index: 9998;
+    animation: juice-flash-anim 0.45s ease-out forwards;
+}
+@keyframes juice-flash-anim {
+    0%   { opacity: 1; }
+    25%  { opacity: 0.55; }
+    100% { opacity: 0; }
+}
+
+/* center "BOOM!" text stamp on game over */
+.juice-boom {
+    position: fixed;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 64px;
+    color: #ff4422;
+    text-shadow: 4px 4px 0 #000, -2px -2px 0 #ffd633;
+    pointer-events: none;
+    z-index: 10000;
+    animation: juice-boom-anim 0.9s ease-out forwards;
+}
+@keyframes juice-boom-anim {
+    0%   { transform: translate(-50%, -50%) scale(0.2) rotate(-20deg); opacity: 0; }
+    30%  { transform: translate(-50%, -50%) scale(1.4) rotate(4deg);  opacity: 1; }
+    60%  { transform: translate(-50%, -50%) scale(1.0) rotate(-2deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.0) rotate(0deg);  opacity: 0; }
+}

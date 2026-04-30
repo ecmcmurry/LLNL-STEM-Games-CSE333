@@ -1,37 +1,44 @@
-body { 
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    margin: 0; 
+/* ── UCM Colors: Gold #dbaa00, Blue #0f2d52, Dark #071828 ── */
+
+@font-face {
+    font-family: 'PixelPurl';
+    src: url('../assets/PixelPurl.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
     padding: 40px 20px;
     box-sizing: border-box;
-    background-color: #0A192F; 
+    background-color: #071828;
     color: #ffffff;
     min-height: 100vh;
 }
 
-a.back { 
+a.back {
     align-self: flex-start;
-    color: #e6f1ff; 
-    text-decoration: none; 
-    font-size: 1.1rem; 
-    background: rgba(255, 255, 255, 0.1);
+    color: #dbaa00;
+    text-decoration: none;
+    font-size: 1.4rem;
+    background: rgba(219, 170, 0, 0.1);
     padding: 8px 16px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(219, 170, 0, 0.35);
     transition: background 0.2s;
     animation: fadeIn 1s ease forwards;
 }
+a.back:hover { background: rgba(219, 170, 0, 0.2); }
 
-a.back:hover { 
-    background: rgba(255, 255, 255, 0.2);
-}
-
-h1 { 
-    font-size: 3rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2); 
-    padding-bottom: 10px; 
+h1 {
+    font-size: 4rem;
+    color: #dbaa00;
+    border-bottom: 2px solid rgba(219, 170, 0, 0.3);
+    padding-bottom: 10px;
     margin-bottom: 40px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     animation: floatUp 0.6s ease-out forwards;
@@ -49,39 +56,34 @@ h1 {
 }
 
 .game {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.07);
     padding: 20px;
     border-radius: 12px;
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(219, 170, 0, 0.2);
     text-align: center;
     width: 250px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
     position: relative;
     cursor: pointer;
 }
-
-.game:hover { 
+.game:hover {
     transform: scale(1.05);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(219, 170, 0, 0.08);
+    border-color: rgba(219, 170, 0, 0.5);
 }
 
 .game a {
     display: block;
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     font-weight: bold;
     color: #fff;
     text-decoration: none;
     margin-bottom: 10px;
 }
-
-.game a::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-}
+.game a::after { content: ''; position: absolute; inset: 0; }
 
 .game img {
     width: 100%;
@@ -89,8 +91,8 @@ h1 {
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 15px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 .game-img-placeholder {
@@ -98,28 +100,23 @@ h1 {
     aspect-ratio: 16/9;
     border-radius: 8px;
     margin-bottom: 15px;
-    background-color: rgba(0, 0, 0, 0.25);
-    border: 1px dashed rgba(255, 255, 255, 0.25);
+    background-color: rgba(0,0,0,0.2);
+    border: 1px dashed rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255,255,255,0.3);
     font-size: 0.8rem;
     font-style: italic;
 }
 
-.game p { 
-    margin: 4px 0 0 0; 
-    font-size: 0.9rem; 
-    color: rgba(255, 255, 255, 0.7); 
-}
+.game p { margin: 4px 0 0 0; font-size: 1.1rem; color: rgba(255,255,255,0.65); }
 
 @keyframes floatUp {
     from { transform: translateY(80px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    to   { transform: translateY(0);    opacity: 1; }
 }
-
 @keyframes fadeIn {
     from { opacity: 0; }
-    to { opacity: 1; }
+    to   { opacity: 1; }
 }

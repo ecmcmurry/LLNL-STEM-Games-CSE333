@@ -1,9 +1,9 @@
 :root {
-  --bg: #0f172a;
+  --bg: #0f2a0f;
   --card: #111827;
   --text: #e5e7eb;
   --muted: #9ca3af;
-  --primary: #22c55e;
+  --primary: rgb(237, 135, 57);
   --primaryText: #052e16;
   --outline: rgba(255, 255, 255, 0.16);
 }
@@ -16,7 +16,7 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, #0b1023, #4061af);
+  background: linear-gradient(180deg, #1b5e20, #81c784);
   color: var(--text);
   min-height: 100vh;
 }
@@ -72,36 +72,50 @@ body {
   font-weight: 650;
 }
 
+.homeScreen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  text-align: center;
+}
+
+.gameTitle {
+  margin: 0;
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 1.2;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  text-shadow: 10px 10px 0 rgba(0,0,0,0.35);
+}
+
+.homeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.homeButtons .btn {
+  width: 300px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 16px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  border: 3px solid rgba(0,0,0,0.8);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.6);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.homeButtons .btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.6);
+}
+
 #farm.screen {
   display: block;
   padding: 18px;
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.coins {
-  font-size: 18px;
-  background: rgba(17, 24, 39, 0.8);
-  border: 1px solid var(--outline);
-  border-radius: 12px;
-  padding: 10px 12px;
-}
-
-.rightControls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.dayText {
-  color: var(--muted);
-  margin: 6px 0 12px;
 }
 
 .farm-stage {
@@ -125,16 +139,12 @@ body {
 /* Plot overlay */
 .plot {
   position: absolute;
-  border: 2px solid rgba(34, 197, 94, 0.6);
-  border-radius: 10px;
+  border: none;
   cursor: pointer;
   display: grid;
   place-items: center;
 }
 
-.plot:hover {
-  border-color: rgba(34, 197, 94, 0.95);
-}
 
 .plot .cropImg {
   width: 85%;
@@ -144,28 +154,111 @@ body {
   pointer-events: none;
 }
 
-/* Edit mode look */
-.editMode .plot {
-  background: rgba(34, 197, 94, 0.08);
-  cursor: move;
-}
-
-.handle {
+.farmTop {
   position: absolute;
-  right: -8px;
-  bottom: -8px;
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: rgba(34, 197, 94, 0.9);
-  border: 2px solid rgba(0, 0, 0, 0.35);
-  cursor: nwse-resize;
-  display: none;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84%;
+  max-width: 980px;
+  z-index: 10;
 }
 
-.editMode .handle {
-  display: block;
+.dayBox {
+  text-align: center;
+  margin-bottom: 12px;
+  color: #f3f4f6;
+  font-size: 20px;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.858);
+  font-family: "Press Start 2P", monospace;
 }
+
+.dayBox #dayText {
+  font-size: 32px;
+  margin-left: 8px;
+}
+
+.farmHudRow {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.coinsBox {
+  width: 120px;
+  height: 96px;
+  border-radius: 16px;
+  background: rgba(17, 21, 39, 0.78);
+  border: 2px solid rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
+}
+
+.hudLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.coinText {
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.coinsValue {
+  font-size: 28px;
+  font-family: "Press Start 2P", monospace;
+  color: #ffffff;
+}
+
+.nextDayCard {
+  width: 120px;
+  height: 96px;
+  border-radius: 16px;
+  border: 2px solid rgba(17, 17, 17, 0.85);
+  background: rgb(237, 135, 57);
+  color: var(--primaryText);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-weight: 700;
+  transition: transform 0.05s ease, filter 0.15s ease;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
+}
+
+.nextDayCard:hover {
+  filter: brightness(1.03);
+}
+
+.nextDayCard:active {
+  transform: translateY(2px);
+}
+
+.nextDayTop {
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.nextDayArrow {
+  font-size: 22px;
+  margin-top: -4px;
+  line-height: 1;
+  font-weight: 800;
+}
+
 
 /* Modal */
 .modal-backdrop {
@@ -180,19 +273,32 @@ body {
 
 .modal {
   width: min(520px, 94vw);
-  background: rgba(17, 24, 39, 0.95);
-  border: 1px solid var(--outline);
+  background: rgba(60, 42, 20, 0.9);
+  border: 3px solid rgba(38, 25, 10, 0.85);
+  /* border: 1px solid var(--outline); */
   border-radius: 16px;
   padding: 18px;
 }
 
 .modal h2 {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-family: "Press Start 2P", monospace;
 }
 
 .modal p {
   margin: 0 0 14px;
   color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  font-family: "Press Start 2P", monospace;
+}
+
+.modal button {
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  line-height: 1.4;
 }
 
 .choices {
@@ -201,10 +307,20 @@ body {
   margin-bottom: 12px;
 }
 
+.SIFName {
+  font-size: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.InvRemain {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
 /* inventory */
 .inventoryGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
@@ -222,7 +338,7 @@ body {
 /* store */
 .storeGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
@@ -243,25 +359,167 @@ body {
   cursor: not-allowed;
 }
 
-/* planting */
-.plantGrid {
+/* stats */
+.statsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-top: 12px;
 }
 
-.plantFlower {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 10px;
+.statsCard {
+  padding: 12px;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   background: rgba(255,255,255,0.1);
+  text-align: center;
+}
 
-  gap: 6px;
+.statsLabel {
+  font-size: 9px;
+  font-family: "Press Start 2P", monospace;
+  color: #d6d3d1;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.statsValue {
+  font-size: 16px;
+  font-family: "Press Start 2P", monospace;
+  color: #ffffff;
+}
+
+/* help */
+.helpSection {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+}
+
+.helpTitle {
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+  color: #ffffff;
+}
+
+.helpText {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #e5e7eb;
+  font-family: "Press Start 2P", monospace;
+}
+
+.helpText strong {
+  color: #ffffff;
+}
+
+/* guide */
+.terminalGuide {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.guideArrow {
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 28px solid #facc15;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.4));
+  animation: guideBounce 1s infinite;
+}
+
+.guideBox {
+  margin-bottom: 10px;
+  width: min(420px, 80vw);
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 3px solid rgba(38, 25, 10, 0.9);
+  background: rgba(60, 42, 20, 0.95);
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+
+.guideText {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #f3f4f6;
+  font-family: "Press Start 2P", monospace;
+}
+
+.guideText strong {
+  color: #fde68a;
+}
+
+@keyframes guideBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+
+/* planting */
+.plantGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.plantFlowerBtn {
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  background:rgba(255,255,255,0.1);
+  color: inherit;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+}
+
+.plantFlowerBtn:hover {
+  background: rgba(255,255,255,0.16);
+  transform: translateY(-1px);
+}
+
+.plantFlowerBtn:active {
+  transform: translateY(1px);
+}
+
+.plantFlowerBtn .flowerImage {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.seedCountBox {
+  min-width: 48px;
+  padding: 6px 10px;
+  border: 1px solid #ffffff;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.2;
+  box-shadow: 0 3px 0 #000;
 }
 
 .flowerImage {
@@ -291,14 +549,97 @@ body {
   resize: vertical;
 }
 
+.modalTerminal {
+  margin-top: 16px;
+  border: 1px solid rgb(244, 245, 247);
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
+  padding: 10px;
+}
+
+.modalTerminalLabel {
+  font-size: 10px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.modalTerminalInput::placeholder {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.65);
+}
+
+.modalTerminalInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgb(244, 245, 247);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  color: rgb(255, 255, 255);
+  outline: none;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.modalTerminalOutput {
+  margin-top: 8px;
+  min-height: 20px;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* loading page */
+.loading {
+  position: fixed;
+  inset: 0;
+  background:rgba(0,0,0,0.65);
+  display: grid;
+  place-items: center;
+  z-index: 2000;
+
+  pointer-events: all;
+}
+
+.loadingBox {
+  background: rgba(60,42,20,0.95);
+  border: 3px solid rgba(38, 25, 10, 0.95);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45);
+}
+
+
+.loadingBox h2 {
+  font-size: 16px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.loadingBox p {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
+
 /*progress */
 .progressBox {
-  width: min(980px, 96vw);
-  margin: 0 auto 14px;
+  flex: 1;
+  min-width: 0;
+  height: 96px;
   padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(17, 24, 39, 0.7);
-  border: 1px solid var(--outline);
+  border-radius: 16px;
+  background: rgba(60, 42, 20, 0.85);
+  border: 2px solid rgba(38, 25, 10, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
 }
 
 .progressHeader {
@@ -307,6 +648,16 @@ body {
   align-items: center;
   margin-bottom: 8px;
   font-size: 15px;
+}
+
+.progressText {
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.progressCount {
+  font-size: 14px;
+  font-family: "Press Start 2P", monospace;
 }
 
 .bar {
@@ -320,14 +671,15 @@ body {
 .barFill {
   height: 100%;
   width: 0%;
-  background: var(--primary);
+  background: #8b5a2b;
   transition: width 0.25s ease;
 }
 
 .unlockText {
   margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
+  color: rgb(212, 206, 203);
+  font-size: 10px;
+  font-family: "Press Start 2P", monospace;
 }
 
 /*terminal */
@@ -338,15 +690,26 @@ body {
   transform: translateX(-50%);
   width: 80%;
   max-width: 700px;
-  background: rgba(138, 212, 119, 1);
+  background: rgba(8, 70, 6, 0.2);
   padding: 10px;
   z-index: 10;
+  border: 1px solid rgba(10, 72, 15, 0.85);
+  border-radius: 12px;
+  box-shadow: -2px 4px 0 rgba(0,0,0,0.25);
 }
 
 .terminalLabel {
-  font-size: 14px;
+  font-size: 12px;
   color: #1a1b1b;
   margin-bottom: 8px;
+  font-family: "Press Start 2P", monospace;
+}
+
+.terminalInput::placeholder {
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(80, 76, 76, 0.7);
 }
 
 .terminalInput {
@@ -354,14 +717,19 @@ body {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid rgb(28, 75, 17);
-  background: rgb(170, 196, 164);
-  color: #ffffff;
+  background: rgba(239, 255, 238, 0.4);
+  color: rgb(72, 141, 66);
   outline: none;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
 }
 
 .terminalOutput {
   margin-top: 8px;
   min-height: 20px;
   color: #ffffff;
-  font-size: 14px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
 }

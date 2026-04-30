@@ -88,15 +88,17 @@ export function createHistoryPostIt(level) {
     el('div', { class: 'history-postit__expand-hint' }, 'click to enlarge'),
   );
 
-  postit.addEventListener('click', () => _openHistoryLightbox(ref.photo, ref.name, captionText));
+  postit.addEventListener('click', () => _openHistoryLightbox(ref.photo, ref.name, captionText, ref.note));
 
   return postit;
 }
 
-function _openHistoryLightbox(src, alt, caption) {
+function _openHistoryLightbox(src, alt, caption, note) {
   if (document.querySelector('.history-lightbox')) return; // already open
 
   const backdrop = el('div', { class: 'history-lightbox' });
+
+  const noteEl = note ? el('p', { class: 'history-lightbox__note' }, note) : null;
 
   const inner = el('div', { class: 'history-lightbox__postit' },
     el('div', { class: 'postit__header' }, 'REFERENCE'),
@@ -104,6 +106,7 @@ function _openHistoryLightbox(src, alt, caption) {
       el('img', { class: 'history-lightbox__photo', src, alt }),
     ),
     el('div', { class: 'history-postit__caption' }, caption),
+    ...(noteEl ? [noteEl] : []),
   );
 
   backdrop.appendChild(inner);
@@ -153,6 +156,34 @@ export function createElementToolbar(initialType, onTypeChange) {
   );
 
   return toolbar;
+}
+
+// ─── Mode toggle ──────────────────────────────────────────────────────────────
+
+// [BUILD-PHASE] Creates a paired Build / Edit mode toggle. Returns a wrapper div
+// containing both buttons. Visually marks the active button as "pressed down".
+export function createModeToggle(initialMode, onBuild, onEdit) {
+  let buildBtn, editBtn;
+
+  buildBtn = el('button', {
+    class: `hud-btn hud-btn--mode${initialMode === 'build' ? ' hud-btn--mode--active' : ''}`,
+    onClick: () => {
+      buildBtn.classList.add('hud-btn--mode--active');
+      editBtn.classList.remove('hud-btn--mode--active');
+      onBuild();
+    },
+  }, el('span', {}, 'Build'));
+
+  editBtn = el('button', {
+    class: `hud-btn hud-btn--mode${initialMode === 'edit' ? ' hud-btn--mode--active' : ''}`,
+    onClick: () => {
+      editBtn.classList.add('hud-btn--mode--active');
+      buildBtn.classList.remove('hud-btn--mode--active');
+      onEdit();
+    },
+  }, el('span', {}, 'Edit'));
+
+  return el('div', { class: 'mode-toggle' }, buildBtn, editBtn);
 }
 
 // ─── Action buttons ───────────────────────────────────────────────────────────

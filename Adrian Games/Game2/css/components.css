@@ -1,0 +1,90 @@
+/* Components utilized through out the game while playing the game */
+.draggables {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    visibility: hidden;             
+    background-color: var(--foam);
+    border: 3px solid var(--gold);
+    box-shadow: 4px 4px 0px var(--black);
+}
+
+.Tray {
+    color: var(--gold);
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 6px;
+    width: 100%;
+    text-align: center;
+}
+
+.slotDesign {
+    border: solid 2px var(--gold);
+    background-color: var(--silver-edge);
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 70px;
+    cursor: grab;
+    touch-action: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+    filter: drop-shadow(0 0 3px var(--gold));
+}
+
+.slotDesign:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0px var(--black);
+    filter: drop-shadow(0 0 6px var(--gold));
+}
+
+.slotDesign:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+    filter: drop-shadow(0 0 2px var(--gold));
+}
+
+.component-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    border: 2px solid var(--gold);
+    padding: 4px;
+    background-color: #1a1a30;
+    box-shadow: 2px 2px 0px var(--gold);
+    transition: background-color 0.1s;
+}
+
+.slotDesign:hover .component-img {
+    background-color: #2a2a50;
+}
+
+.component-label {
+    font-size: 0.4rem;
+    color: var(--gold);
+    text-align: center;
+    padding: 4px 4px;
+}
+
+/* Custom drag ghost that follows the cursor while a component is being dragged.
+ * Replaces the browser's default faded/translucent drag image — this one stays fully
+ * opaque, scales up slightly, and glows gold so the part reads as being lifted out
+ * of the tray cleanly. Cleaned up in board.js on dragend. */
+.component-dragGhost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    opacity: 1;
+    border: 2px solid var(--gold);
+    padding: 4px;
+    background-color: #2a2a50;
+    box-shadow: 4px 4px 0px var(--black);
+    filter: drop-shadow(0 0 8px var(--gold));
+    transform: scale(1.1);
+    object-fit: contain;
+    image-rendering: pixelated;
+}
