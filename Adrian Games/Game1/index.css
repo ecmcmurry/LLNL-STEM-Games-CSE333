@@ -1341,6 +1341,120 @@ input[type="number"]:focus {
 }
 
 
+/* --- ROTATE PROMPT (mobile portrait only) --- */
+#rotate-prompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: radial-gradient(ellipse at 50% 40%, #0b1a33 0%, #020617 70%);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    color: var(--text-main);
+    text-align: center;
+    padding: 32px;
+}
+.rotate-icon {
+    font-size: 4rem;
+    animation: rotate-spin 2s ease-in-out infinite;
+    color: var(--accent-cyan);
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.6));
+}
+@keyframes rotate-spin {
+    0%   { transform: rotate(0deg); }
+    40%  { transform: rotate(90deg); }
+    60%  { transform: rotate(90deg); }
+    100% { transform: rotate(0deg); }
+}
+#rotate-prompt p {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.7;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+    #rotate-prompt { display: flex; }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+    #rotate-prompt { display: none; }
+}
+
+/* --- JUMP BUTTON (mobile only) --- */
+#jump-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: rgba(34, 211, 238, 0.12);
+    border: 2px solid rgba(34, 211, 238, 0.5);
+    color: var(--accent-cyan);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.2), inset 0 1px 0 rgba(34, 211, 238, 0.15);
+    transition: background 0.12s, box-shadow 0.12s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: none;
+}
+
+.jump-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    display: block;
+}
+
+.jump-label {
+    font-size: 0.48rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    font-family: 'Courier New', monospace;
+}
+
+#jump-btn:active {
+    transform: scale(0.93);
+    background: rgba(34, 211, 238, 0.22);
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.5), inset 0 1px 0 rgba(34, 211, 238, 0.3);
+}
+
+@keyframes jump-charge-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.25), inset 0 1px 0 rgba(34, 211, 238, 0.15); }
+    50%       { box-shadow: 0 0 45px rgba(34, 211, 238, 0.65), 0 0 70px rgba(34, 211, 238, 0.25), inset 0 1px 0 rgba(34, 211, 238, 0.3); }
+}
+
+#jump-btn.charging {
+    background: rgba(34, 211, 238, 0.22);
+    transform: scale(0.93);
+    animation: jump-charge-pulse 0.45s ease-in-out infinite;
+}
+
+/* On very small landscape screens, shrink the button slightly */
+@media (max-height: 400px) {
+    #jump-btn {
+        width: 62px;
+        height: 62px;
+        bottom: 70px;
+        right: 14px;
+    }
+    .jump-icon { font-size: 1.4rem; }
+}
+
 /* --- UTILS --- */
 .hidden { display: none !important; }
 hr { border: 0; border-top: 1px solid #334155; margin: 10px 0; }

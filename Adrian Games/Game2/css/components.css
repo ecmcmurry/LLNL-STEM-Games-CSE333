@@ -30,6 +30,7 @@
     align-items: center;
     width: 70px;
     cursor: grab;
+    touch-action: none;
     transition: transform 0.1s, box-shadow 0.1s;
     filter: drop-shadow(0 0 3px var(--gold));
 }
