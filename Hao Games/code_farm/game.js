@@ -91,6 +91,8 @@ const helpTerminalOutput = $("#helpTerminalOutput");
 // first-time help guide
 const terminalGuide = $("#terminalGuide");
 
+// loading page
+const loading = $("#loading");
 
 // 9 plots
 const PLOT_COUNT = 9;
@@ -252,7 +254,9 @@ let state = {
 
     bugged: false,
     bugPuzzleId: null,
+    bugData: null,
     bugStartDay: null,
+    totalFrozenDays: 0,
   })),
 };
 
@@ -271,6 +275,14 @@ function loadState() {
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object") {
       state = parsed;
+
+      if (Array.isArray(state.plots)) {
+        for (const plot of state.plots) {
+          if (!("bugData" in plot)) {
+            plot.bugData = null;
+          }
+        }
+      }
       
       if (typeof state.harCount !== "number") {
         state.harCount = 0;
@@ -522,7 +534,8 @@ function closeModalFn() {
 function getStage(plot) {
   if (!plot.planted) return 0;
   const effectiveDay = plot.bugged ? plot.bugStartDay : state.day;
-  const age = effectiveDay - plot.plantedDay;
+  const frozenDays = plot.totalFrozenDays || 0;
+  const age = effectiveDay - plot.plantedDay - frozenDays;
   const flower = FLOWERS[plot.flowerType];
   // note: add different cases for different flowers
   if (age < flower.mid) return 1;
@@ -728,7 +741,17 @@ function onPlotClicked(i) {
   const plot = state.plots[i];
 
   if (plot.planted && plot.bugged) {
-    const puzzle = PUZZLES[plot.bugPuzzleId];
+    const puzzle = plot.bugData;
+
+    if (!puzzle) {
+      modalTitle.textContent = "Bug Error";
+      modalDesc.textContent = "This bug puzzle failed to load.";
+      plantChoices.classList.add("hidden");
+      harvestChoice.classList.add("hidden");
+      codeBugArea.classList.add("hidden");
+      openModal();
+      return;
+    }
 
     modalTitle.textContent = puzzle.title;
     modalDesc.textContent = "A bug appeared! Fix the code to keep the flower growing.";
@@ -802,7 +825,9 @@ function plantFlower(type) {
 
   plot.bugged = false;
   plot.bugPuzzleId = null;
+  plot.bugData = null;
   plot.bugStartDay = null;
+  plot.totalFrozenDays = 0;
 
   saveState();
   updateTopUI();
@@ -834,7 +859,9 @@ function harvest() {
 
   plot.bugged = false;
   plot.bugPuzzleId = null;
+  plot.bugData = null;
   plot.bugStartDay = null;
+  plot.totalFrozenDays = 0;
 
   saveState();
   updateTopUI();
@@ -843,7 +870,44 @@ function harvest() {
   closeModalFn();
 }
 
-function nextDay() {
+async function fetchAIPuzzle(flowerType) {
+  const response = await fetch("http://localhost:3000/api/bug-puzzle", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ flowerType }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch AI puzzle");
+  }
+
+  return await response.json();
+}
+
+function isPuzzleCorrect(text, puzzle) {
+  return text.includes(puzzle.fixCheck);
+}
+
+function showLoadingPage() {
+  loading.classList.remove("hidden");
+  nextDayBtn.disabled = true;
+}
+
+function hideLoadingPage() {
+  loading.classList.add("hidden");
+  nextDayBtn.disabled = false;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function nextDay() {
+  showLoadingPage();
+  const lonadingStart = Date.now();
+
   state.day += 1;
   for (const plot of state.plots){
     if (!plot.planted) continue;
@@ -853,14 +917,29 @@ function nextDay() {
     if (stageNow >= 3) continue;
 
     if (Math.random() < 0.30) {
+      try {
+        const aiPuzzle = await fetchAIPuzzle(plot.flowerType);
+
         plot.bugged = true;
-        plot.bugPuzzleId = randomPuzzleId();
+        plot.bugPuzzleId = null;
+        plot.bugData = aiPuzzle;
         plot.bugStartDay = state.day;
+      } catch (error) {
+        console.error("Failed to fetch AI puzzle:", error);
+      }
     }
   }
   saveState();
   updateTopUI();
+  updateStatsUI();
   refreshCropsOnly();
+
+  const elapsed = Date.now() - lonadingStart;
+  if (elapsed < 1200) {
+    await delay(1200 - elapsed);
+  }
+
+  hideLoadingPage();
 }
 
 
@@ -907,22 +986,30 @@ function init() {
     const plot = state.plots[activePlotIndex];
     if (!plot.bugged) return;
 
-    const puzzle = PUZZLES[plot.bugPuzzleId];
+    const puzzle = plot.bugData;
     const text = codeEditor.value;
 
-    if (puzzle.isCorrect(text)) {
-        plot.bugged = false;
-        plot.bugPuzzleId = null;
-        plot.bugStartDay = null;
+    if (!puzzle) {
+      bugHint.textContent = "Puzzle data is missing.";
+      return;
+    }
 
-        state.totalBugsFixed += 1;
+    if (isPuzzleCorrect(text, puzzle)) {
+      const fronzenDays = state.day - plot.bugStartDay;
+      plot.totalFrozenDays = (plot.totalFrozenDays || 0) + fronzenDays;
+      plot.bugged = false;
+      plot.bugPuzzleId = null;
+      plot.bugData = null;
+      plot.bugStartDay = null;
 
-        saveState();
-        updateStatsUI();
-        refreshCropsOnly();
-        closeModalFn();
+      state.totalBugsFixed += 1;
+
+      saveState();
+      updateStatsUI();
+      refreshCropsOnly();
+      closeModalFn();
     } else {
-        bugHint.textContent = "Not quite. " + puzzle.hint;
+      bugHint.textContent = "Not quite. " + puzzle.hint;
     }
   });
 
