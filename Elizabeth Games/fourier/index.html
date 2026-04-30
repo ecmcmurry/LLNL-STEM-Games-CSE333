@@ -4,9 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>What Wave</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 
-  /* TODO: Update for light-mode toggle */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: #0d0d14;
     display: flex;
@@ -14,12 +17,288 @@
     justify-content: center;
     min-height: 100vh;
     font-family: 'DM Sans', sans-serif;
-    color: var(--text-primary);
+    color: #ffffff;
   }
 
-  /* Used for the Score text. Used to include the title for the game, hence the name card-title
-  TODO: Update to match new purpose
-  TODO: Update for light-mode toggle*/
+  /* -- Screens -- */
+  .screen {
+    display: none;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+  .screen.active { display: flex; }
+
+  /* -- Title Screen -- */
+  #titleScreen {
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 40px 24px;
+    gap: 0;
+  }
+
+  .title-art {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .title-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(127,239,189,0.5);
+  }
+
+  .title-wordmark {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(38px, 8vw, 72px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #7fefbd;
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(127,239,189,0.25);
+  }
+
+  .title-tagline {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+  }
+
+  /* Decorative wave preview canvas */
+  #titleCanvas {
+    display: block;
+    width: min(520px, 90vw);
+    height: auto;
+    border-radius: 10px;
+    opacity: 0.7;
+    margin-bottom: 48px;
+  }
+
+  /* -- Buttons -- */
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    padding: 14px 32px;
+    width: 100%;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    border: none;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: #7fefbd;
+    color: #0d0d14;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-ghost:hover { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.28); }
+
+  /* -- Portrait Disclaimer -- */
+  .portrait-note {
+    display: none;
+    margin-top: 28px;
+    padding: 10px 16px;
+    border-radius: 7px;
+    background: rgba(255,200,100,0.07);
+    border: 1px solid rgba(255,200,100,0.18);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgba(255,200,100,0.75);
+    text-align: center;
+    max-width: 280px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) and (orientation: portrait) {
+    .portrait-note { display: block; }
+  }
+
+  /* -- How To Play Overlay */
+  .overlay-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,13,20,0.85);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px;
+  }
+  .overlay-backdrop.open { display: flex; }
+
+  .htp-card {
+    background: #13131e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 32px 28px;
+    max-width: 420px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .htp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .htp-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7fefbd;
+  }
+
+  .htp-close {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.35);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+  .htp-close:hover { color: rgba(255,255,255,0.7); }
+
+  .htp-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .htp-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .htp-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .htp-body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.7;
+  }
+
+  .htp-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 4px;
+  }
+
+  .htp-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .htp-step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #7fefbd;
+    background: rgba(127,239,189,0.08);
+    border-radius: 4px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .htp-step-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+
+  /* -- Legend Chips -- */
+  .htp-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+  .legend-line {
+    width: 28px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-line.solid { background: #7fefbd; }
+  .legend-line.dashed {
+    background: repeating-linear-gradient(90deg, #ff4444 0px, #ff4444 10px, transparent 10px, transparent 16px);
+  }
+  .legend-line.subwave {
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.35) 0px, rgba(255,255,255,0.35) 8px, transparent 8px, transparent 13px);
+  }
+
+  /* -- Game Screen -- */
+
+  #gameScreen {
+    flex-direction: column;
+    padding: 32px 20px 20px;
+    min-height: 100vh;
+  }
+
+  .wave-card {
+    width: 100%;
+    max-width: 1600px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  /* Used for the Score text. Used to include the title for the game, hence the name card-title*/
   .card-title {
     font-family: 'Space Mono', monospace;
     font-size: 15px;
@@ -28,8 +307,21 @@
     color: #7fefbd;
   }
 
-  /* Acts as a wrapper for the canvas. It rounds the corners and clips anything that extends out of bounds
-  TODO: Update for light-mode toggle*/
+  .menu-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.35);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .menu-btn:hover { color: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.22); }
+
+  /* Acts as a wrapper for the canvas. It rounds the corners and clips anything that extends out of bounds*/
   .canvas-wrapper {
     position: relative;
     border-radius: 12px;
@@ -41,6 +333,18 @@
     display: block;
     width: 100%;
   }
+
+  @media (max-height: 500px) and (orientation: landscape) {
+    #gameScreen { padding: 10px 16px 10px; }
+    .card-header { margin-bottom: 6px; }
+    .canvas-wrapper { max-height: 40vh; }
+    .canvas-wrapper canvas { max-height: 40vh; }
+    .subwave-list { margin-top: 6px; gap: 4px; }
+    .subwave-row { padding: 4px 10px; }
+    .subwave-label { font-size: 16px; }
+    .chip { font-size: 13px; padding: 2px 6px; }
+    input[type="range"] { width: 60px; }
+  }
   
   /* This is the information for the list that contains the subwave sliders
   Basically just denotes that the slider sets are grouped into rows(and therefore stacked in a column) with an 8px gap*/
@@ -51,8 +355,7 @@
     gap: 8px;
   }
 
-  /* This determines the visuals of the actual row contianing the subwave sliders
-  TODO: Update for light-mode toggle */
+  /* This determines the visuals of the actual row contianing the subwave sliders*/
   .subwave-row {
     display: flex;
     align-items: center;
@@ -69,8 +372,8 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-  /* This controls the text containing the wave number
-  TODO: Update for light-mode toggle */
+
+  /* This controls the text containing the wave number*/
   .subwave-label {
     font-family: 'Space Mono', monospace;
     font-size: 25px;
@@ -82,24 +385,80 @@
   .param-chips {
     display: flex;
     gap: 6px;
+    flex-wrap: wrap;
   }
 
-  /* Controls the display of the sliders, like their colors and background
-  TODO: Update for light-mode toggle */
+  /* Controls the display of the sliders, like their colors and background*/
+  /* TODO: CHECK IF THIS TEXT SIZE LOOKS GOOD */
   .chip {
     font-family: 'Space Mono', monospace;
     font-size: 18px;
-    padding: 2px 7px;
+    padding: 4px 8px;
     border-radius: 4px;
     background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.7);
     border: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    outline: none;
+    width: 80px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #7fefbd;
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #7fefbd;
+    cursor: pointer;
+    border: none;
+  }
+
+  @media (max-width: 480px) {
+    input[type="range"] { width: 56px; }
+    .chip { font-size: 11px; }
+    .subwave-label { font-size: 11px; }
   }
 
 </style>
 </head>
 <body>
 
+<!-- Title Screen -->
+<div id="titleScreen" class="screen active">
+
+  <div class="title-art">
+    <div class="title-eyebrow">A wave-matching puzzle</div>
+    <div class="title-wordmark">WHAT WAVE</div>
+    <div class="title-tagline">Fourier decomposition, one slider at a time</div>
+  </div>
+
+  <canvas id="titleCanvas" width="520" height="140"></canvas>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" id="startBtn">Start</button>
+    <button class="btn btn-ghost" id="htpBtn">How to Play</button>
+  </div>
+
+  <div class="portrait-note">
+    &#9095; Landscape mode recommended for the best experience on mobile.
+  </div>
 <div class="wave-card">
 	
   <div class="card-header" data-testid="wave-card">
@@ -115,10 +474,176 @@
 
 </div>
 
+<!-- How To Play -->
+<div class="overlay-backdrop" id="htpOverlay">
+  <div class="htp-card">
+    <div class="htp-header">
+      <div class="htp-title">How to Play</div>
+      <button class="htp-close" id="htpClose">&#x2715;</button>
+    </div>
+    <div class="htp-divider"></div>
+
+    <div class="htp-section">
+      <div class="htp-section-label">Objective</div>
+      <div class="htp-body">Match your wave (green) to the hidden target wave (red). Adjust the sliders until they overlap perfectly.</div>
+    </div>
+
+    <div class="htp-section">
+      <div class="htp-section-label">Controls</div>
+      <div class="htp-steps">
+        <div class="htp-step">
+          <span class="htp-step-num">01</span>
+          <span class="htp-step-text">Click/tap and drag the sliders to adjust the <strong style="color:rgba(255,255,255,0.75)">amplitude (A)</strong>, <strong style="color:rgba(255,255,255,0.75)">frequency (f)</strong>, and <strong style="color:rgba(255,255,255,0.75)">phase (φ)</strong> of your wave.</span>
+        </div>
+        <div class="htp-step">
+          <span class="htp-step-num">02</span>
+          <span class="htp-step-text">Once multiple waves are unlocked, new sliders appear for each subwave — adjust them independently.</span>
+        </div>
+        <div class="htp-step">
+          <span class="htp-step-num">03</span>
+          <span class="htp-step-text">Score a point each time you match the target. Difficulty increases with each correct answer.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="htp-divider"></div>
+
+    <div class="htp-section">
+      <div class="htp-section-label">Wave legend</div>
+      <div class="htp-legend">
+        <div class="legend-row">
+          <div class="legend-line solid"></div>
+          Your composite wave
+        </div>
+        <div class="legend-row">
+          <div class="legend-line dashed"></div>
+          Target wave (match this!)
+        </div>
+        <div class="legend-row">
+          <div class="legend-line subwave"></div>
+          Individual subwave components
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen" class="screen">
+  <div class="wave-card">
+	
+    <div class="card-header" data-testid="wave-card">
+      <div class="card-title" id="scoreDisplay" data-testid="score-display">Score: 0</div>
+      <button class="menu-btn" id="menuBtn">&#x2190; Menu</button>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="waveCanvas" width="1240" height="420" data-testid="wave-canvas"></canvas>
+    </div>
+
+    <div class="subwave-list" id="subwaveList" data-testid="subwave-list"></div>
+
+  </div>
+</div>
+
 <script>
+  // -- Title Screen Animation --
+  (function() {
+    const tc = document.getElementById('titleCanvas');
+    const tx = tc.getContext('2d');
+    const TW = tc.width, TH = tc.height;
+    let t0 = null;
+
+    const demoWaves = [
+      { amp: 0.6, freq: 1.5, phase: 0,          color: '#7fefbd', alpha: 1 },
+      { amp: 0.35, freq: 3.5, phase: Math.PI/4,  color: '#da77f2', alpha: 0.45 },
+      { amp: 0.2,  freq: 6,   phase: Math.PI/2,  color: '#74c0fc', alpha: 0.45 },
+    ];
+
+    function drawTitle(ts) {
+      if (!t0) t0 = ts;
+      const elapsed = (ts - t0) / 1000;
+      tx.clearRect(0, 0, TW, TH);
+
+      const padX = 20, padY = 20;
+      const plotW = TW - 2*padX;
+      const midY  = TH / 2;
+      const scaleY = (TH/2 - padY) / 1.15;
+
+      tx.strokeStyle = 'rgba(255,255,255,0.08)';
+      tx.lineWidth = 1;
+      tx.setLineDash([]);
+      tx.beginPath(); tx.moveTo(padX, midY); tx.lineTo(TW-padX, midY); tx.stroke();
+
+      const N = 400;
+
+      demoWaves.forEach((w, wi) => {
+        tx.beginPath();
+        tx.strokeStyle = w.color;
+        tx.globalAlpha = w.alpha * 0.6;
+        tx.lineWidth = 1.5;
+        tx.setLineDash([10, 7]);
+        for (let i = 0; i <= N; i++) {
+          const tt = i / N * 2;
+          const y  = w.amp * Math.sin(2*Math.PI*w.freq*tt + w.phase + elapsed * (0.4 + wi*0.15));
+          const px = padX + plotW * (i/N);
+          const py = midY - y * scaleY;
+          i === 0 ? tx.moveTo(px, py) : tx.lineTo(px, py);
+        }
+        tx.stroke();
+      });
+
+      tx.setLineDash([]);
+      tx.globalAlpha = 1;
+      tx.beginPath();
+      tx.strokeStyle = '#7fefbd';
+      tx.lineWidth = 2.5;
+      for (let i = 0; i <= N; i++) {
+        const tt = i / N * 2;
+        let y = 0;
+        demoWaves.forEach((w, wi) => {
+          y += w.amp * Math.sin(2*Math.PI*w.freq*tt + w.phase + elapsed * (0.4 + wi*0.15));
+        });
+        const px = padX + plotW * (i/N);
+        const py = midY - y * scaleY;
+        i === 0 ? tx.moveTo(px, py) : tx.lineTo(px, py);
+      }
+      tx.stroke();
+
+      requestAnimationFrame(drawTitle);
+    }
+
+    requestAnimationFrame(drawTitle);
+  })();
+
+  // -- Screen Navigation --
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    showScreen('gameScreen');
+  });
+
+  document.getElementById('menuBtn').addEventListener('click', () => {
+    showScreen('titleScreen');
+  });
+
+  document.getElementById('htpBtn').addEventListener('click', () => {
+    document.getElementById('htpOverlay').classList.add('open');
+  });
+
+  document.getElementById('htpClose').addEventListener('click', () => {
+    document.getElementById('htpOverlay').classList.remove('open');
+  });
+
+  document.getElementById('htpOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+  });
+
   //Defines the subwaves and realwaves, consisitng of amplitude, frequency, phase, color, and whether the wave is enabled
-  //TODO: change enabled logic
-  //TODO: introduce color editing for subwaves
   let subwaves = [
     { amplitude: 0.5, frequency: 2.5,  phase: 0,   color: '#00ff2f',	enabled: 1 },
     { amplitude: 0.5, frequency: 2.5,  phase: 0,   color: '#fff200',	enabled: 0 },
@@ -428,24 +953,25 @@ let phaEnabled = false;
 
 //Generates a new wave according to the current criteria (wave count, amplitude enabled, etc.)
 function reroll() {
-    realwaves.forEach(wave => {
+    realwaves.forEach((wave, index) => {
 		  if(ampEnabled) {
        	wave.amplitude = randomRounded(0.05, 1, 0.05) * wave.enabled;
-        //console.log(wave.amplitude);
       } else {
       	wave.amplitude = 0.5 * wave.enabled;
       }
       
       if(freEnabled) {
       	wave.frequency = randomRounded(0.5, 5, 0.1) * wave.enabled;
-        //console.log(wave.frequency);
+        //Prevents two waves from having the same frequency
+        do {
+          wave.frequency = randomRounded(0.5, 5, 0.1);
+        } while (realwaves.slice(0, index).some(w => w.enabled && w.frequency === wave.frequency));
       } else {
       	wave.frequency = 2.5 * wave.enabled;
       }
       
       if(phaEnabled) {
       	wave.phase = Math.PI*randomRounded(0, 2, 0.05) * wave.enabled;
-        //console.log(wave.phase);
       } else {
       	wave.phase = 0 * wave.enabled;
       }
@@ -470,8 +996,6 @@ function changeDifficulty() {
 	});
   //check score against stages
   //update waveCount and enable relevant variables
-  //TODO: More playtesting to refine difficulty curve
-  //TODO: Update to table-based instead of huge case statement
   switch(score) {
     case 1:
       //this is just redundant, but I want this to work right, even if it means having some redundancies
