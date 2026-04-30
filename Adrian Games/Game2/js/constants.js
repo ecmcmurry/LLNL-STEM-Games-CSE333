@@ -29,7 +29,7 @@ const componentTypes = {
         HorizontalWire:       'assets/Wire-Horizontal2.png',
         VerticalWire:         'assets/vertical-wire.png',
         LeftDownWire:         'assets/Corner-Left-Down-wire.png',
-        LeftUpWire:           'assets/Corner-Left-Up-wire (1).png',
+        LeftUpWire:           'assets/Corner-Left-Up-wire.png',
         RightDownWire:        'assets/Corner-Down-Right-wire.png',
         RightUpWire:          'assets/Corner-Up-Right-wire.png',
         TUpWire:              'assets/Left-Up-Right-wire.png',
@@ -40,7 +40,7 @@ const componentTypes = {
         NegativeTerminal:     'assets/negative.png',
         VoltageDivideEndUp:   'assets/Up-V-end.png',
         VoltageDivideEndDown: 'assets/Down-V-end.png',
-        VoltageDivideEndLeft: 'assets/Left-V-end (1).png',
+        VoltageDivideEndLeft: 'assets/Left-V-end.png',
         VoltageDivideEndRight:'assets/Right-V-end.png',
         HorizontalResistor:   'assets/horizontal-resistor-actual.png',
         VerticalResistor:     'assets/vertical-resistor.png',
@@ -56,7 +56,7 @@ const componentTypes = {
 //these are just all my hard coded levels that i had made my self 
 const levels = [
     {
-        category: 'ohmsLaw',
+        category: 'ohmsLaw',//basic ohms law circuit board
         level: 1, 
         voltage: 12,
         goal: 3,
@@ -74,7 +74,7 @@ const levels = [
     },
 
     {
-        category: 'ohmsLaw',
+        category: 'ohmsLaw',//basic ohms law circuit
         level: 2,
         fixedCurrent: 2,
         resistance: 4,
@@ -96,7 +96,7 @@ const levels = [
     },
     
     {
-        category: 'ohmsLaw',
+        category: 'ohmsLaw',//1 resistor and 1 battery circuit
         level: 3,
         fixedCurrent: 3,
         goal: 3,
@@ -119,7 +119,7 @@ const levels = [
     },
 
     {
-        category: 'resistor',
+        category: 'resistor',// series circuit 2 equivalence resistance
         level: 4,
         voltage: 15,
         fixedCurrent: 1,
@@ -140,7 +140,7 @@ const levels = [
     },
 
     {
-        category: 'resistor',
+        category: 'resistor', //series equavalence circuit 3 resistors
         level: 5,
         voltage: 15,
         goal: 5,
@@ -161,7 +161,7 @@ const levels = [
     }, 
 
     {   
-        category: 'resistor',
+        category: 'resistor', //2 series resistors in parallel with 1 resistor 
         level: 6,
         voltage: 15,
         goal: 5,
@@ -183,7 +183,7 @@ const levels = [
     },
 
     {
-        category: 'complexLevel', 
+        category: 'complexLevel', //dropping correct capacitance basic board
         goalType: 'tau',
         level: 7,
         voltage: 15,
@@ -204,7 +204,7 @@ const levels = [
         ]
     },
     {
-        category: 'complexLevel',
+        category: 'complexLevel', //dropping correct switch witha fixed resistor and capacitor simple circuit
         level: 8,
         fixedResistor: 5,      
         fixedCapacitor: 1,    
@@ -241,7 +241,7 @@ const levels = [
     },
 
     {
-        category: 'complexLevel',
+        category: 'complexLevel', //Voltage division with the usefule formula
         level: 10,
         voltage: 12,          
         fixedR1: 8,             

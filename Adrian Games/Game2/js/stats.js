@@ -61,9 +61,11 @@ function checkAnswer() {
     //final heart it goes to game over
     if(result !== undefined && Math.abs(result - level.Answer) < 0.1){
         categoryStats[level.category].correct++;
-        nextLevel();
+        const delay = typeof juiceCorrectAnswer === 'function' ? juiceCorrectAnswer() : 0;
+        setTimeout(nextLevel, Math.min(delay, 900));
     } else {
         categoryStats[level.category].incorrect++;
+        if(typeof juiceWrongAnswer === 'function') juiceWrongAnswer();
         lives--;
         updateHearts();
         dropZones.forEach(zone => {
@@ -77,11 +79,14 @@ function checkAnswer() {
 //basic game over screen that displays student metrics and displays either home or retry button
 function gameOver() {
     clearInterval(timerInterval);
+    if(typeof juiceGameOverExplosion === 'function') juiceGameOverExplosion();
     document.getElementById('resultTitle').innerText = 'Game Over!';
-    showStats();
-    document.getElementById('play-screen').style.display   = 'none';
-    document.querySelector('.draggables').style.visibility = 'hidden';
-    resultScreen();
+    setTimeout(() => {
+        showStats();
+        document.getElementById('play-screen').style.display   = 'none';
+        document.querySelector('.draggables').style.visibility = 'hidden';
+        resultScreen();
+    }, 950);
 }
 //basic win screen that displays student metrics and either a home or retry button
 function WinScreen() {

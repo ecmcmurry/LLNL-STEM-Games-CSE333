@@ -83,3 +83,69 @@
     font-size: 0.4rem !important;
     line-height: 1.8;
 }
+
+/* ====== HOW TO PLAY - mission briefing flavor ======
+ * Scoped to #howToPlay so the base pixel-card/divider stay untouched on other screens.
+ * Compact HUD-style grid so everything fits in the briefcase interior without scrolling.
+ */
+#howToPlay .pixel-card {
+    overflow: hidden;
+    gap: 8px;
+    padding: 12px 24px;
+}
+
+#howToPlay h1 {
+    font-size: 1.1rem;
+}
+
+/* two-col grid: gold label | description, terminal-readout style */
+.htp-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 6px;
+    width: 100%;
+    align-items: center;
+}
+
+.htp-label {
+    color: var(--gold);
+    font-size: 0.4rem;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 var(--black);
+    white-space: nowrap;
+}
+
+.htp-text {
+    color: var(--white);
+    font-size: 0.4rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* green/red inline callouts inside SIGNAL row */
+.htp-good {
+    color: var(--green);
+    text-shadow: 0 0 4px var(--green);
+}
+
+.htp-bad {
+    color: var(--red);
+}
+
+/* visible gold rule only on the briefing; other pixel-dividers stay as invisible spacers */
+#howToPlay .htp-divider {
+    background: var(--gold);
+    opacity: 0.7;
+    height: 2px;
+    margin: 0;
+}
+
+/* pulsing red warning reuses the existing glowPulse keyframe from base.css */
+.htp-warning {
+    color: var(--red) !important;
+    font-size: 0.5rem !important;
+    letter-spacing: 2px;
+    padding: 2px 0;
+    animation: glowPulse 1s ease-in-out infinite;
+}
