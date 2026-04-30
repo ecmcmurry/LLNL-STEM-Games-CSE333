@@ -196,4 +196,72 @@ function dragMethod() {
             selectedComponent = null;
         }
     });
+
+    // Touch support — mirrors the drag behaviour for mobile devices
+    if(!window._touchDragInit){
+        window._touchDragInit = true;
+        slots.addEventListener('touchstart', function(e) {
+            const touched = e.target.closest('.slotDesign');
+            if(!touched) return;
+            selectedComponent = touched;
+
+            const img = touched.querySelector('.component-img');
+            if(!img) return;
+            const touch = e.touches[0];
+
+            const ghost = img.cloneNode(true);
+            ghost.classList.add('component-dragGhost');
+            ghost.style.width  = `${img.offsetWidth}px`;
+            ghost.style.height = `${img.offsetHeight}px`;
+            ghost.style.left   = `${touch.clientX - img.offsetWidth  / 2}px`;
+            ghost.style.top    = `${touch.clientY - img.offsetHeight / 2}px`;
+            document.body.appendChild(ghost);
+            window._touchGhostEl = ghost;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if(!window._touchGhostEl) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            window._touchGhostEl.style.left = `${touch.clientX - window._touchGhostEl.offsetWidth  / 2}px`;
+            window._touchGhostEl.style.top  = `${touch.clientY - window._touchGhostEl.offsetHeight / 2}px`;
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if(!window._touchGhostEl){ selectedComponent = null; return; }
+            window._touchGhostEl.remove();
+            window._touchGhostEl = null;
+
+            if(!selectedComponent) return;
+
+            const touch = e.changedTouches[0];
+            const dropZones = document.querySelectorAll('.dropZone');
+            let targetZone = null;
+            dropZones.forEach(zone => {
+                const r = zone.getBoundingClientRect();
+                if(touch.clientX >= r.left && touch.clientX <= r.right &&
+                   touch.clientY >= r.top  && touch.clientY <= r.bottom){
+                    targetZone = zone;
+                }
+            });
+
+            if(targetZone){
+                const img = selectedComponent.querySelector('.component-img').cloneNode(true);
+                targetZone.innerHTML = '';
+                targetZone.appendChild(img);
+                targetZone.dataset.value = selectedComponent.dataset.value;
+                targetZone.dataset.type  = selectedComponent.dataset.type;
+
+                const level = categoryLevel[currentLevel];
+                const expectedZones = level.board
+                    ? level.board.filter(cell => cell.isDropZone).length
+                    : level.dropZones.length;
+                const filledZones = document.querySelectorAll('.dropZone[data-value]');
+                if(filledZones.length === expectedZones){
+                    setTimeout(checkAnswer, 150);
+                }
+            }
+            selectedComponent = null;
+        });
+    }
 }
