@@ -42,13 +42,24 @@ You explore one of four chemical reactions in a simplified manner framed like my
 chemistry/
 ├── index.html
 ├── main.js                  — Contains most of the code including drawing, confirming responses, calculating reactions, etc.
-├── main.js                  — Contains functions that don't interact with DOM elements to aid in testing.
+├── utils.js                 — Contains functions that don't interact with DOM elements to aid in testing.
 ├── reactions.js             — Data object containing information on all included reactions
 ├── swapScreen.js            — Functions and Event Listeners for swapping screens
+├── jest.config.js           — Configuration for jest, used for unit testing
+├── playwright.config.js     — Configuration for playwright, used for end-to-end testing
+├── package-lock.json
+├── package.json
 ├── api/
 │   └── chat.js              — Communicates with the Claude API
-└── styles/
-    └── main.css             — full stylesheet
+├── styles/
+│   └── main.css             — full stylesheet
+├── coverage/                — Folder containing the unit test report from jest
+├── playwright-report/
+│   └── index.html           — End-to-End test results from playwright
+├── test-results
+└── tests
+    ├── chemistry.e2e.test.js      — A file containing all of the End-to-End tests
+    └── chemistry.unit.test.js     — A file containing all of the unit tests
 ```
 
 ---
