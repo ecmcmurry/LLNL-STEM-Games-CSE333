@@ -43,6 +43,13 @@
         width: 58px;
         margin-bottom: 0;
     }
+
+    /* Larger, easier-to-tap buttons on mobile */
+    .pixel-btn {
+        font-size: 0.72rem;
+        padding: 14px 10px;
+        letter-spacing: 1.5px;
+    }
 }
 
 /* ====== JUICE ANIMATIONS ======
