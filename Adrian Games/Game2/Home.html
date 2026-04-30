@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>8-BIT CIRCUIT</title>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="css/base.css">
+      <link rel="stylesheet" href="css/briefcase.css">
+      <link rel="stylesheet" href="css/screens.css">
+      <link rel="stylesheet" href="css/game.css">
+      <link rel="stylesheet" href="css/components.css">
+      <link rel="stylesheet" href="css/ai.css">
+      <link rel="stylesheet" href="css/extraStyling.css">
+      <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+      <script src="js/constants.js" defer></script>
+      <script src="js/screens.js" defer></script>
+      <script src="js/game.js" defer></script>
+      <script src="js/board.js" defer></script>
+      <script src="js/stats.js" defer></script>
+      <script src="js/ai.js" defer></script>
+      <script src="js/extraStyling.js" defer></script>
+  </head>
+  <body>
+
+      <div class="draggables">
+        <p class="Tray">COMPONENTS</p>
+        <div class="slots" id="componentSlots"></div>
+      </div>
+
+      <div class="briefcase-wrapper">
+
+        <div class="briefcase-lid">
+          <div class="lid-interior"></div>
+        </div>
+
+        <div class="hinge-row">
+          <div class="hinge">
+            <div class="screw">--</div>
+          </div>
+          <div class="hinge-bar"></div>
+          <div class="hinge">
+            <div class="screw">--</div>
+          </div>
+        </div>
+
+        <div class="briefcase-bottom">
+          <div class="briefcase-interior">
+
+            <!-- HOME SCREEN -->
+            <div class="screen" id="home-screen">
+              <div class="pixel-card">
+                <h1>8 BIT CIRCUIT</h1>
+                <div class="pixel-divider"></div>
+                <p>Solve the Circuit or BOOM!</p>
+                <div class="btn-group">
+                  <button class="pixel-btn" onclick="startGame()">FULL CIRCUIT</button>
+                  <button class="pixel-btn" onclick="howToPlay()">HOW TO PLAY</button>
+                  <button class="pixel-btn" onclick="levelScreen()">LEVELS</button>
+                  <button class="pixel-btn" onclick="supportedLearning()">SUPPORTED LEARNING</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- HOW TO PLAY -->
+            <div class="screen" id="howToPlay">
+              <div class="pixel-card htp-card">
+                <h1>MISSION BRIEFING</h1>
+                <div class="pixel-divider htp-divider"></div>
+
+                <div class="htp-grid">
+                  <span class="htp-label">OBJECTIVE</span>
+                  <span class="htp-text">Defuse the circuit in 30 seconds.</span>
+
+                  <span class="htp-label">CONTROLS</span>
+                  <span class="htp-text">Drag parts from the tray onto glowing slots.</span>
+
+                  <span class="htp-label">SIGNAL</span>
+                  <span class="htp-text"><span class="htp-good">GREEN</span> = solved &middot; <span class="htp-bad">DARK</span> = -1 heart</span>
+
+                  <span class="htp-label">TOOLS</span>
+                  <span class="htp-text">Resistors &middot; Wires &middot; Capacitors &middot; Inductors &middot; Switches</span>
+
+                  <span class="htp-label">BACKUP</span>
+                  <span class="htp-text">Tap the AI TUTOR for a hint.</span>
+                </div>
+
+                <p class="htp-warning">!! TIMER AT 0 = BOOM !!</p>
+
+                <button class="pixel-btn" onclick="homeScreen()">BACK</button>
+              </div>
+            </div>
+
+            <!-- RESULT SCREEN -->
+            <div class="screen" id="resultScreen">
+              <div class="pixel-card">
+                <h1 id="resultTitle"></h1>
+                <div id="resultMessage"></div>
+                <div class="btn-group">
+                  <button class="pixel-btn" onclick="homeScreen()">HOME</button>
+                  <button class="pixel-btn" onclick="startGame()">RETRY</button>
+                  <button class="pixel-btn" onclick="levelScreen()">STUDY TOPIC</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- LEVEL SELECT -->
+            <div class="screen" id="levelScreen">
+              <div class="pixel-card">
+                <h1>SELECT CATEGORY</h1>
+                <div class="pixel-divider"></div>
+                <div class="btn-group">
+                  <button class="pixel-btn" onclick="categorySelection('ohmsLaw')">OHM'S LAW</button>
+                  <button class="pixel-btn" onclick="categorySelection('resistor')">RESISTORS</button>
+                  <button class="pixel-btn" onclick="categorySelection('complexLevel')">COMPLEX CIRCUITS</button>
+                </div>
+                <button class="pixel-btn" onclick="homeScreen()">BACK</button>
+              </div>
+            </div>
+
+            <!-- PLAY SCREEN -->
+            <div class="screen" id="play-screen">
+              <div id="formattingGame">
+
+                <div class="goalDisplay">
+                  <p class="goalText" id="goalText"></p>
+                </div>
+
+                <div class="circuitBoard" id="circuitBoard">
+                  <img src="assets/CircuitBoard_blank1.1.png" class="circuitBoardImg" id="circuitBoardImg">
+                  <div class="boardOverlay" id="boardOverlay"></div>
+                </div>
+                <div class="statusDisplay">
+                  <div id="hearts"></div>
+                  <div class="timerDesign">
+                    <p class="timerText"><span id="timer">30</span>:00</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="latch-row">
+            <div class="latch">[ - ]</div>
+            <div class="latch-bar"></div>
+            <div class="latch">[ - ]</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- AI GUIDE -->
+      <div class="aiGuide">
+          <div class="aiGuideBox">
+              <p class="guideLabel">AI TUTOR</p>
+              <div class="guideContainer" onclick="toggleHint()">
+                  <img src="assets/AI-Guide.png" alt="AI Guide" class="guideCharacter" id="guideImg">
+                  <div class="speechBubble" id="speechBubble">
+                      <p id="hintText"></p>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+  </body>
+</html>

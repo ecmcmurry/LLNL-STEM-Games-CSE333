@@ -1,0 +1,359 @@
+/* ── UCM Colors: Gold #dbaa00, Blue #0f2d52, Dark #071828 ── */
+
+@font-face {
+    font-family: 'PixelPurl';
+    src: url('../assets/PixelPurl.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    background-color: #071828;
+}
+
+body {
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: #071828;
+    color: #ffffff;
+    transition: background-color 0.4s ease;
+}
+
+.top-bar, #main-nav {
+    transition: opacity 0.3s ease;
+}
+
+h1 { margin-bottom: 32px; color: #dbaa00; }
+
+.top-bar {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+#logo {
+    margin: 0;
+    font-size: 3.2rem;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#logo span { font-size: 2.4rem; color: #dbaa00; transition: transform 0.3s ease; }
+#logo:hover { opacity: 0.85; }
+#logo:hover span { transform: translateY(2px); }
+
+.search-bar {
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 1rem;
+    outline: none;
+    width: 250px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+.search-bar::placeholder { color: rgba(255, 255, 255, 0.5); }
+.search-bar:focus {
+    border-color: #dbaa00;
+    box-shadow: 0 0 0 2px rgba(219, 170, 0, 0.3);
+    width: 260px;
+}
+
+nav { display: flex; flex-direction: column; gap: 6px; }
+
+#main-nav {
+    flex: 1;
+    align-self: stretch;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    padding: 6px 0 20px 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+nav a {
+    flex: 1;
+    max-height: 90px;
+    display: flex;
+    align-items: center;
+    font-size: 2.6rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, #071828, #0f2d52);
+    padding: 0 45px;
+    border-radius: 0;
+    text-align: left;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(219, 170, 0, 0.15);
+    transition: all 0.3s ease;
+}
+nav a:hover {
+    background: linear-gradient(135deg, #0f2d52, #1a4a7a);
+    box-shadow: 0 10px 20px rgba(219, 170, 0, 0.15);
+    border-color: rgba(219, 170, 0, 0.5);
+    transform: translateY(-3px);
+}
+
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: -250px;
+    background-color: #071828;
+    overflow-x: hidden;
+    transition: left 0.3s ease;
+    padding-top: 60px;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.4);
+}
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 1.5rem;
+    color: #e6f1ff;
+    display: block;
+    transition: 0.2s;
+}
+.sidebar a:hover {
+    background-color: #0f2d52;
+    color: #dbaa00;
+    padding-left: 30px;
+}
+.sidebar .closebtn {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 28px;
+    line-height: 1;
+    padding: 6px 10px;
+    margin: 0;
+    display: inline-block;
+    border-radius: 6px;
+}
+.sidebar .closebtn:hover {
+    background: #0f2d52;
+    color: #dbaa00;
+    padding: 6px 10px;    /* keep padding fixed — cancel the sidebar a:hover shift */
+}
+
+@keyframes floatUp {
+    from { transform: translateY(100px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+}
+
+/* ── Desktop: no-scroll STEM layout ── */
+.desktop-games { display: none; }
+
+@media (min-width: 769px) {
+    html, body {
+        height: 100%;
+        overflow: hidden;
+        background-color: #071828;
+    }
+
+    body {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
+
+    /* Top bar in normal flow so body flex handles height correctly */
+    .top-bar {
+        position: relative;
+        flex-shrink: 0;
+        height: 72px;
+        padding: 0 40px;
+        background: #0f2d52;
+        border-bottom: 3px solid #dbaa00;
+        z-index: 200;
+        box-sizing: border-box;
+    }
+
+    #logo { font-size: 2.2rem; }
+    .search-bar { width: 220px; }
+    .search-bar:focus { width: 240px; }
+    #main-nav { display: none; }
+
+    /* Games container fills remaining viewport exactly */
+    .desktop-games {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        padding: 10px 24px;
+        gap: 8px;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .stem-row {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    /* ── Letter box ── */
+    .stem-letter-box {
+        flex: 0 0 130px;
+        background: linear-gradient(135deg, #071828, #0f2d52);
+        border: 1px solid rgba(219, 170, 0, 0.4);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6rem;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* SVG background fills the box at low opacity, forced to greyscale */
+    .stem-bg-svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6;
+        filter: grayscale(1) brightness(2.5);
+        pointer-events: none;
+    }
+
+    /* Text-based bg (math) */
+    .stem-bg {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .stem-bg span {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.65rem;
+        font-family: 'Segoe UI', monospace, sans-serif;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    .stem-char {
+        position: relative;
+        z-index: 2;
+        color: #dbaa00;
+    }
+
+    /* ── Games row: fill remaining width after letter box ── */
+    .stem-games-row {
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+
+    /* ── Game card: height = row height, width derived from aspect ratio ── */
+    .desktop-card {
+        flex: 0 0 auto;
+        aspect-ratio: 16/9;
+        background: rgba(255, 255, 255, 0.07);
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(219, 170, 0, 0.2);
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        cursor: pointer;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .desktop-card:hover {
+        transform: scale(1.03);
+        background: rgba(219, 170, 0, 0.08);
+        border-color: rgba(219, 170, 0, 0.55);
+    }
+
+    /* Image wrapper: fills remaining card height */
+    .dc-img-wrapper {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        border-radius: 5px;
+        margin-bottom: 7px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .dc-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border: none;
+    }
+
+    .dc-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.25);
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.6rem;
+        font-style: italic;
+        box-sizing: border-box;
+    }
+
+    .dc-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 3px;
+        line-height: 1.2;
+        flex-shrink: 0;
+    }
+
+    .dc-author {
+        font-size: 1.05rem;
+        color: #dbaa00;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: row;
+        align-items: center;
+        padding: 12px 20px;
+    }
+    #logo { font-size: 2rem; }
+    .search-bar { display: none; }
+}
