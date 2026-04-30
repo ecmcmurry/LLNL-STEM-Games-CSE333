@@ -57,11 +57,45 @@ window.addEventListener('touchcancel', e => {
 });
 
 //correct orientation handler for the ball moving in respect to other movement
+// Axes are remapped for landscape mode so tilting left/right/forward/back always
+// matches the on-screen board regardless of which way the device was rotated.
 function handleOrientation(e) {
     if (tiltLocked) return;
     if (calibBeta === null) { calibBeta = e.beta; calibGamma = e.gamma; return; }
-    tiltX = THREE.MathUtils.clamp(e.gamma - calibGamma, -MAX_TILT_DEG, MAX_TILT_DEG);
-    tiltZ = THREE.MathUtils.clamp(e.beta  - calibBeta,  -MAX_TILT_DEG, MAX_TILT_DEG);
+
+    // Detect landscape rotation direction (prefer modern API, fall back to legacy)
+    const angle = (typeof screen.orientation !== 'undefined')
+        ? screen.orientation.angle
+        : (window.orientation ?? 0);
+
+    let dx, dz;
+    if (angle === 90) {
+        // Landscape: physical top of device points LEFT of screen
+        dx =  (e.beta  - calibBeta);
+        dz = -(e.gamma - calibGamma);
+    } else if (angle === -90 || angle === 270) {
+        // Landscape: physical top of device points RIGHT of screen
+        dx = -(e.beta  - calibBeta);
+        dz =  (e.gamma - calibGamma);
+    } else {
+        // Portrait fallback
+        dx = calibGamma - e.gamma;
+        dz = calibBeta  - e.beta;
+    }
+    tiltX = THREE.MathUtils.clamp(dx, -MAX_TILT_DEG, MAX_TILT_DEG);
+    tiltZ = THREE.MathUtils.clamp(dz, -MAX_TILT_DEG, MAX_TILT_DEG);
+}
+
+// Recalibrate whenever the device physically rotates so the new hold = neutral
+window.addEventListener('orientationchange', () => {
+    calibBeta  = null;
+    calibGamma = null;
+});
+if (typeof screen.orientation !== 'undefined') {
+    screen.orientation.addEventListener('change', () => {
+        calibBeta  = null;
+        calibGamma = null;
+    });
 }
 
 //real phone accelerometer — updates phoneAccelMag each sensor frame
