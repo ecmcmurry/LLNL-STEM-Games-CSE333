@@ -68,3 +68,22 @@
     text-align: center;
     padding: 4px 4px;
 }
+
+/* Custom drag ghost that follows the cursor while a component is being dragged.
+ * Replaces the browser's default faded/translucent drag image — this one stays fully
+ * opaque, scales up slightly, and glows gold so the part reads as being lifted out
+ * of the tray cleanly. Cleaned up in board.js on dragend. */
+.component-dragGhost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    opacity: 1;
+    border: 2px solid var(--gold);
+    padding: 4px;
+    background-color: #2a2a50;
+    box-shadow: 4px 4px 0px var(--black);
+    filter: drop-shadow(0 0 8px var(--gold));
+    transform: scale(1.1);
+    object-fit: contain;
+    image-rendering: pixelated;
+}

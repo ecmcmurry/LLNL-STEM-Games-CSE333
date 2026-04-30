@@ -1,3 +1,27 @@
+/*Shared helper for one-off tutor messages (non-AI) so every screen that wants to speak
+through the AI tutor uses the same speech bubble plumbing. Auto-dismisses after durationMs
+and plays nice with toggleHint by syncing hintVisible.*/
+function showTutorNudge(message, durationMs = 4000) {
+    const speechBubble = document.getElementById('speechBubble');
+    const hintText     = document.getElementById('hintText');
+    if(!speechBubble || !hintText) return;
+    hintText.innerText = message;
+    speechBubble.style.display = 'block';
+    hintVisible = true;
+    clearTimeout(window._tutorNudgeTimer);
+    window._tutorNudgeTimer = setTimeout(hideTutorNudge, durationMs);
+}
+
+function hideTutorNudge() {
+    const speechBubble = document.getElementById('speechBubble');
+    const hintText     = document.getElementById('hintText');
+    if(!speechBubble || !hintText) return;
+    clearTimeout(window._tutorNudgeTimer);
+    speechBubble.style.display = 'none';
+    hintText.innerText = '';
+    hintVisible = false;
+}
+
 /*This function calls on the functions askAI to retreave the LLMs response and utilize the text when clicked on
 When it is clicked on after wards it will then hide the text and display nothing.*/
 async function toggleHint() {
@@ -86,14 +110,16 @@ async function generateWeakLevel(weakCategory) {
             category: weakCategory,
             categoryName: categoryNames[weakCategory],
             correct: stats.correct,
-            incorrect: stats.incorrect, accuracy
+            incorrect: stats.incorrect,
+            accuracy,
+            engine: 'sonnet'
         })
     });
     //possible generation of a new board correlating to the topic the student is the weakest at
 
     if(!response.ok) throw new Error('Generation failed');
     const data = await response.json();
-    return data.level;
+    return data;
 }
 //students will be able to access suported learning once they have attempted to get results from the freeplay mode
 async function supportedLearning() {
@@ -101,7 +127,8 @@ async function supportedLearning() {
     //if students have not attempted free play mode they will be asked to before the function can even push the necessary
     //levels to generateWeakLevel()
     if(!hasHistory){
-        alert('Play Full Circuit first so the AI can learn your weak areas!');
+        //route the nudge through the AI tutor speech bubble instead of a browser alert
+        showTutorNudge('Play Full Circuit first so I can learn your weak areas!', 4000);
         return;
     }
     //basic function to track weakest or worse topic for the student based on performance
