@@ -3,19 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Absolute Physics Master Lab</title>
+    <title>Physics Game Lab</title>
     <link rel="stylesheet" href="index.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
+    <!--Device selection for the student-->
     <div id="device-selector">
-        <div class="selector-box">
-            <h2>SYSTEM INITIALIZATION</h2>
-            <button id="choose-mobile">📱 Mobile (Gyroscope)</button>
-            <button id="choose-pc">💻 PC (WASD/Arrows)</button>
+        <div class="selector-grid"></div>
+        <div class="selector-scanlines"></div>
+
+        <h1 class="selector-title">
+            <span class="title-bot">Physics Game Lab</span>
+        </h1>
+
+        <p class="selector-tagline">
+            Roll a ball. Measure gravity. Become a physicist.
+        </p>
+
+        <div class="selector-prompt">
+            <span class="prompt-blink">▸</span>
+            SELECT INPUT DEVICE
         </div>
+
+        <div class="device-options">
+            <button id="choose-mobile" class="device-card">
+                <div class="device-badge">M</div>
+                <div class="device-info">
+                    <div class="device-name">MOBILE</div>
+                    <div class="device-desc">Gyroscope</div>
+                </div>
+                <div class="device-arrow">→</div>
+            </button>
+            <button id="choose-pc" class="device-card">
+                <div class="device-badge">K</div>
+                <div class="device-info">
+                    <div class="device-name">KEYBOARD</div>
+                    <div class="device-desc">WASD keys</div>
+                </div>
+                <div class="device-arrow">→</div>
+            </button>
+            <button id="htp-open-btn" class="device-card htp-card-btn">
+                <div class="device-badge">?</div>
+                <div class="device-info">
+                    <div class="device-name">HOW TO PLAY</div>
+                    <div class="device-desc">Game guide</div>
+                </div>
+                <div class="device-arrow">→</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- How To Play full-screen overlay -->
+    <div id="how-to-play" class="hidden">
+        <div class="selector-grid"></div>
+        <div class="selector-scanlines"></div>
+
+        <div class="htp-inner">
+            <button id="htp-back-btn" class="htp-back">← BACK</button>
+
+            <h2 class="htp-heading">HOW TO PLAY</h2>
+
+            <div class="htp-grid">
+                <div class="htp-card">
+                    <div class="htp-card-badge">🎮 CONTROLS</div>
+                    <p><strong>Desktop:</strong> Hold <kbd>W A S D</kbd> to tilt the platform and roll the ball. Press <kbd>Space</kbd> to jump.</p>
+                    <p><strong>Mobile:</strong> Physically tilt your device — the gyroscope drives the ball. Tap and hold the <kbd>↑ JUMP</kbd> button to charge, then release to jump.</p>
+                </div>
+
+                <div class="htp-card">
+                    <div class="htp-card-badge">🎯 OBJECTIVE</div>
+                    <p>Each level teaches a physics concept. Complete the on-screen challenge to unlock a short quiz, then move to the next world.</p>
+                    <p>Sandbox mode lets you tune every parameter freely — no goal, just exploration.</p>
+                </div>
+
+                <div class="htp-card">
+                    <div class="htp-card-badge">🌍 LEVELS</div>
+                    <p><strong>W1 Position</strong> — Position vs Time: place 8 snapshot points as you roll.</p>
+                    <p><strong>W2 Path vs Arrow</strong> — Distance vs Displacement.</p>
+                    <p><strong>W3 Velocity Aim</strong> — Velocity vs Speed: hit the target gate.</p>
+                    <p><strong>W4 Accelerator</strong> — Constant acceleration: reach the speed zone.</p>
+                    <p><strong>W5 Drop Tower</strong> — Free fall: measure g by rolling off a height.</p>
+                    <p><strong>W6 Sandbox</strong> — Free play with full parameter control.</p>
+                </div>
+
+                <div class="htp-card">
+                    <div class="htp-card-badge">⚗️ LAB CONTROLS (Sandbox)</div>
+                    <p><strong>μ Friction</strong> — how much the surface grips the ball.</p>
+                    <p><strong>m Mass</strong> — heavier balls resist acceleration.</p>
+                    <p><strong>gY Gravity</strong> — lower it to simulate the Moon or Mars.</p>
+                    <p><strong>Cd Drag</strong> — air resistance coefficient.</p>
+                    <p><strong>ρ Air density</strong> — affects how much drag the ball feels.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full-screen retro grid shown during level selection, hidden on game boot -->
+    <div id="ui-bg">
+        <div class="selector-grid"></div>
+        <div class="selector-scanlines"></div>
     </div>
 
     <div id="hud-left" class="hud-panel hidden">
@@ -27,33 +116,78 @@
         
         <div class="hud-content">
             <div class="stat">
-                <label>μ (Friction):</label>
-                <input type="number" id="live-mu" value="0.15" step="0.01">
+                <label>μ Friction</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-mu',-0.05)">−</button>
+                    <input type="number" id="ctrl-mu" value="0.3" step="0.05" min="0" max="2">
+                    <button onclick="adj('ctrl-mu',0.05)">+</button>
+                </div>
             </div>
             <div class="stat">
-                <label>m (Mass kg):</label>
-                <input type="number" id="live-mass" value="0.5" step="0.1">
+                <label>m Mass (kg)</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-mass',-0.1)">−</button>
+                    <input type="number" id="ctrl-mass" value="0.5" step="0.1" min="0.1" max="20">
+                    <button onclick="adj('ctrl-mass',0.1)">+</button>
+                </div>
             </div>
             <div class="stat">
-                <label>g (Gravity):</label>
-                <input type="number" id="live-g" value="9.81" step="0.1">
+                <label>gY Gravity</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-gy',-1)">−</button>
+                    <input type="number" id="ctrl-gy" value="-9.81" step="0.5" min="-20" max="0">
+                    <button onclick="adj('ctrl-gy',1)">+</button>
+                </div>
             </div>
-            <button id="reset-ball-btn">🔄 RESET POSITION</button>
+            <div class="stat">
+                <label>Cd Drag</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-cd',-0.1)">−</button>
+                    <input type="number" id="ctrl-cd" value="0.47" step="0.1" min="0" max="2">
+                    <button onclick="adj('ctrl-cd',0.1)">+</button>
+                </div>
+            </div>
+            <div class="stat">
+                <label>ρ Air (kg/m³)</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-rho',-0.5)">−</button>
+                    <input type="number" id="ctrl-rho" value="1.225" step="0.5" min="0" max="20">
+                    <button onclick="adj('ctrl-rho',0.5)">+</button>
+                </div>
+            </div>
+            <div class="stat">
+                <label>⚡ Bounciness</label>
+                <div class="adj-row">
+                    <button onclick="adj('ctrl-bounce',-0.05)">−</button>
+                    <input type="number" id="ctrl-bounce" value="0.3" step="0.05" min="0" max="1">
+                    <button onclick="adj('ctrl-bounce',0.05)">+</button>
+                </div>
+            </div>
+            <div class="stat" style="gap:8px;">
+                <label>Force Arrows</label>
+                <input type="checkbox" id="ctrl-arrows" checked style="width:auto; cursor:pointer;">
+            </div>
+            <button id="reset-ball-btn">🔄 RESET BALL</button>
         </div>
     </div>
 
     <div id="hud-right" class="hud-panel hidden">
-        <div class="hud-header">ANALYTICS OVERLAY</div>
+        <div class="hud-header">ANALYTICS</div>
         <div class="graph-container">
             <canvas id="physicsChart"></canvas>
         </div>
         <div class="telemetry-grid">
-            <div class="stat">V: <span id="v-total">0.00</span> m/s</div>
-            <div class="stat">A: <span id="a-total">0.00</span> m/s²</div>
-            <div class="stat">θX: <span id="rot-x">0</span>°</div>
-            <div class="stat">θZ: <span id="rot-z">0</span>°</div>
+            <div class="stat">|v|: <span id="tel-speed">0.00</span> m/s</div>
+            <div class="stat">|a|: <span id="tel-accel">0.00</span> m/s²</div>
+            <div class="stat">θX: <span id="tel-tiltx">0.0</span>°</div>
+            <div class="stat">θZ: <span id="tel-tiltz">0.0</span>°</div>
+            <div class="stat">N: <span id="tel-normal">0.00</span> N</div>
+            <div class="stat">KE: <span id="tel-ke">0.000</span> J</div>
+            <div id="tel-phone-row" class="stat phone-accel-row" style="display:none;">
+                PHONE |a|: <span id="tel-phone-accel">9.81</span> m/s²
+            </div>
         </div>
-        <p id="mode-description" style="font-size: 0.65rem; color: #94a3b8; margin-top: 10px;"></p>
+        <div id="tel-state" class="state-badge">ON SURFACE</div>
     </div>
 
     <div id="match-hud" class="hud-panel hidden">
@@ -67,29 +201,121 @@
             </div>
         </div>
 
-        <div id="game-stats" class="hidden">
-            <hr>
-            <div class="stat"><span>Timer:</span> <span id="timer">10.0</span>s</div>
-            <div class="stat"><span>Score:</span> <span id="score">0</span></div>
+    </div>
+    <!--new approach to the level objectives-->
+    <div id="level-hud" class="hud-panel hidden">
+        <input type="checkbox" id="level-toggle" style="display:none;">
+        <div class="hud-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="level-badge-text">LEVEL</span>
+            <label for="level-toggle" class="drop-arrow level-drop-arrow" style="cursor:pointer; padding:0 5px;">▼</label>
         </div>
-
-        <div id="racing-stats" class="hidden">
-            <hr>
-            <div class="stat"><span>Time:</span> <span id="race-timer">0.0</span>s</div>
-            <div class="stat"><span>Laps:</span> <span id="lap-count">0</span>/3</div>
+        <div class="level-hud-content">
+            <div id="level-task-text" style="font-size:0.75rem; color:#e2e8f0; margin:8px 0; min-height:2em;"></div>
+            <div class="progress-bar-bg" style="margin-top:6px;">
+                <div id="level-progress-bar" style="width:0%; height:100%; background:#22d3ee; border-radius:10px; box-shadow:0 0 10px #22d3ee; transition:width 0.2s;"></div>
+            </div>
+            <div id="level-score-text" style="font-size:0.7rem; color:#94a3b8; margin-top:6px;"></div>
         </div>
     </div>
+
+    <button id="snapshot-btn" class="hidden">📸 SNAP</button>
+
+    <!--Legend for the vectors-->
+    <div id="force-legend" class="hud-panel hidden">
+        <div style="color:#ef4444; margin:3px 0; font-size:0.65rem;">● <span class="leg-text">Gravity (surface)</span></div>
+        <div style="color:#4ade80; margin:3px 0; font-size:0.65rem;">● <span class="leg-text">Normal</span></div>
+        <div style="color:#3b82f6; margin:3px 0; font-size:0.65rem;">● <span class="leg-text">Friction</span></div>
+        <div style="color:#fbbf24; margin:3px 0; font-size:0.65rem;">● <span class="leg-text">Drag</span></div>
+    </div>
+    <!--preparation for the bloom model-->
+    <div id="bloom-modal" class="hidden">
+        <div class="modal-box">
+            <div id="bm-badge"></div>
+            <h3 id="bm-title"></h3>
+            <p id="bm-body"></p>
+            <div id="bm-choices"></div>
+            <div id="bm-explanation" class="hidden"></div>
+            <button id="bm-btn"></button>
+        </div>
+    </div>
+
+    <button id="game-back-btn" class="back-btn hidden">← LEVELS</button>
+
+    <!-- Mobile jump button — shown only during mobile gameplay -->
+    <button id="jump-btn" class="hidden" aria-label="Jump">
+        <span class="jump-icon">↑</span>
+        <span class="jump-label">JUMP</span>
+    </button>
 
     <div id="ui">
-        <h1>PHYSICS LAB</h1>
-        <div class="mode-selection">
-            <button class="mode-btn active" id="mode-sandbox">🛠 Sandbox</button>
-            <button class="mode-btn" id="mode-challenge">🎯 Challenge</button>
-            <button class="mode-btn" id="mode-racing">🏎 Racing</button>
+        <h1>Learn Kinematics by playing!</h1>
+        <div class="level-select-label">SELECT MODE</div>
+        <div class="level-grid">
+            <button class="level-btn active" data-level="1">
+                <span class="lvl-num">W1</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Position</span>
+                    <span class="lvl-topic">Position vs Time</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
+            <button class="level-btn" data-level="2">
+                <span class="lvl-num">W2</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Path vs Arrow</span>
+                    <span class="lvl-topic">Distance vs Displacement</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
+            <button class="level-btn" data-level="3">
+                <span class="lvl-num">W3</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Velocity Aim</span>
+                    <span class="lvl-topic">Velocity vs Speed</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
+            <button class="level-btn" data-level="4">
+                <span class="lvl-num">W4</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Accelerator</span>
+                    <span class="lvl-topic">Constant acceleration</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
+            <button class="level-btn" data-level="5">
+                <span class="lvl-num">W5</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Drop Tower</span>
+                    <span class="lvl-topic">Free fall · measure g</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
+            <button class="level-btn" data-level="6">
+                <span class="lvl-num">W6</span>
+                <span class="lvl-meta">
+                    <span class="lvl-title">Sandbox</span>
+                    <span class="lvl-topic">Free play · tune every parameter</span>
+                </span>
+                <span class="lvl-arrow">→</span>
+            </button>
         </div>
-        <button id="start-button">INITIALIZE ENGINE</button>
+        <button id="start-button">▶ PLAY</button>
+        <button id="back-to-device-btn">← BACK TO DEVICE SELECT</button>
+    </div>
+    <!-- Mobile landscape prompt — CSS-only, shown only in portrait on small screens -->
+    <div id="rotate-prompt">
+        <div class="rotate-icon">&#8635;</div>
+        <p>Rotate your device<br>to landscape mode</p>
     </div>
 
-    <script src="index.js"></script>
+    <!--organized js files to work with the game-->
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/physics-engine.js"></script>
+    <script src="js/scene.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

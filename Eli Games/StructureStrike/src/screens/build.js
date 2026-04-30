@@ -14,7 +14,7 @@ import {
 import { drawThreatDirectionArrows } from '../canvas/sim-renderer.js';
 import {
   findNodeAtCanvasPoint, findElementAtCanvasPoint,
-  snapToGrid, placePlayerNode, connectNodes, removeElement, undoLastElement,
+  snapToGrid, placePlayerNode, connectNodes, removeElement, removeNode,
   isStructureSimulatable, getElementCostOptions,
 } from '../canvas/build-tools.js';
 import {
@@ -25,12 +25,13 @@ import {
   createRequirementsPostIt,
   createHistoryPostIt,
   createBackButton,
+  createModeToggle,
 } from '../ui/hud.js';
 import {
   mountNotificationContainer, unmountNotificationContainer,
   showPatternRecognisedNotification, showWarningNotification,
 } from '../ui/notifications.js';
-import { showElementPickerModal, showMuseumModal, closeModal } from '../ui/modals.js';
+import { showElementPickerModal, closeModal } from '../ui/modals.js';
 import { detectAllPatterns } from '../recognition/pattern-detector.js';
 import { computeElementCost } from '../physics/elements.js';
 
@@ -122,18 +123,23 @@ export function render(container) {
   const levelStrip  = createLevelInfoStrip(level);
   const budgetEl    = createBudgetDisplay(level.budget);
   const backBtn     = createBackButton(() => { location.hash = ''; });
-  const museumBtn   = el('button', { class: 'hud-btn hud-btn--museum', onClick: () => showMuseumModal(screen, level) }, 'History');
-  const undoBtn     = createUndoButton(handleUndo);
   const resetBtn    = createResetButton(handleReset);
+  const modeTgl     = createModeToggle('build', handleBuildMode, handleEditMode);
+  const undoBtn     = createUndoButton(handleUndo);
+  const deleteBtn   = createDeleteButton(handleDeleteSelected);
   const simBtn      = createRunSimulationButton(handleRunSimulation);
   const costTooltip = createCostPreviewTooltip();
 
   const selectedElementType = ELEMENT_TYPE.BEAM;
 
+  // Delete starts hidden; _syncDeleteButton manages its visibility
+  deleteBtn.classList.add('hud-btn--hidden');
+
   const requirementsPostIt = createRequirementsPostIt(level);
   const historyPostIt      = createHistoryPostIt(level);
   hudLeftEl.append(levelStrip, budgetEl, requirementsPostIt, historyPostIt);
-  hudRightEl.append(backBtn, museumBtn, undoBtn, resetBtn, simBtn);
+  hudRightEl.append(backBtn, resetBtn, modeTgl, undoBtn, deleteBtn, simBtn);
+  hudRightEl.classList.add('mode--build');
   canvasWrap.appendChild(costTooltip);
 
   mountNotificationContainer(screen);
@@ -141,9 +147,13 @@ export function render(container) {
   // ── Interaction state ─────────────────────────────────────────────────────
   let selectedNodeId  = null; // first node of a pending connection
   let selectedElemId  = null; // currently selected element (for delete)
-  let deleteBtn       = null;
+  let buildMode       = 'build'; // 'build' | 'edit'
   let cursorCanvasPos = null;
   let alreadyDetectedPatterns = new Set();
+  // Stack of player actions for undo. Each entry is one of:
+  //   { type: 'node', nodeId }
+  //   { type: 'element', elementId, cost }
+  let undoHistory = [];
 
   // ── Initial render ────────────────────────────────────────────────────────
   renderCanvas();
@@ -169,6 +179,15 @@ export function render(container) {
     // even if it also lands on a beam drawn between two nodes.
     const tappedNode = findNodeAtCanvasPoint(x, y, structure.nodes, cellPx);
     if (tappedNode) {
+      if (buildMode === 'edit') {
+        // In edit mode, tapping a node clears any element selection
+        selectedNodeId = null;
+        selectedElemId = null;
+        _syncDeleteButton();
+        renderCanvas();
+        return;
+      }
+      // Build mode: node tap logic
       if (!selectedNodeId) {
         // First tap: select node as connection start
         selectedNodeId = tappedNode.id;
@@ -190,16 +209,34 @@ export function render(container) {
     // No node hit — check if tapping an existing element (for selection/delete)
     const tappedElem = findElementAtCanvasPoint(x, y, structure.nodes, structure.elements, cellPx);
     if (tappedElem) {
+      if (buildMode === 'edit') {
+        // Edit mode: toggle element selection
+        selectedNodeId = null;
+        selectedElemId = selectedElemId === tappedElem.id ? null : tappedElem.id;
+        _syncDeleteButton();
+        renderCanvas();
+        return;
+      }
+      // Build mode: ignore the element hit — fall through to place a node at this position
+    }
+
+    // Tapping empty grid space (or over an element in build mode)
+    if (buildMode === 'edit') {
+      // In edit mode, clear selection and do nothing else
       selectedNodeId = null;
-      selectedElemId = selectedElemId === tappedElem.id ? null : tappedElem.id;
+      selectedElemId = null;
       _syncDeleteButton();
       renderCanvas();
       return;
     }
 
-    // Tapping empty grid space: place a new node
+    // Build mode: place a new node
     const snapped = snapToGrid(x, y, cellPx);
-    placePlayerNode(snapped.col, snapped.row, structure);
+    const prevNodeCount = structure.nodes.length;
+    const placedNode = placePlayerNode(snapped.col, snapped.row, structure);
+    if (structure.nodes.length > prevNodeCount) {
+      undoHistory.push({ type: 'node', nodeId: placedNode.id });
+    }
     selectedNodeId = null;
     selectedElemId = null;
     _syncDeleteButton();
@@ -257,6 +294,7 @@ export function render(container) {
       return;
     }
     deductBudget(result.cost);
+    undoHistory.push({ type: 'element', elementId: result.element.id, cost: result.cost });
     updateBudgetDisplay(getBudgetRemaining());
     saveStructure(levelIndex, structure);
     _checkForNewPatterns(structure);
@@ -274,6 +312,7 @@ export function render(container) {
     refundBudget(spent);
     selectedNodeId = null;
     selectedElemId = null;
+    undoHistory    = [];
     alreadyDetectedPatterns = new Set();
     _syncDeleteButton();
     updateBudgetDisplay(getBudgetRemaining());
@@ -282,12 +321,25 @@ export function render(container) {
     setSimulateButtonEnabled(simBtn, isStructureSimulatable(structure));
   }
 
-  // [BUILD-PHASE] Removes the last placed element and refunds its cost.
+  // [BUILD-PHASE] Undoes the last player action (node placement or element placement),
+  // one step at a time. Nodes and elements are each their own undo step.
   function handleUndo() {
+    if (undoHistory.length === 0) return;
     const structure = getStructure();
-    const refund    = undoLastElement(structure);
-    refundBudget(refund);
-    updateBudgetDisplay(getBudgetRemaining());
+    const action    = undoHistory.pop();
+
+    if (action.type === 'node') {
+      removeNode(action.nodeId, structure);
+    } else if (action.type === 'element') {
+      // Remove element without orphan cleanup so explicitly-placed nodes survive
+      removeElement(action.elementId, structure, false);
+      refundBudget(action.cost);
+      updateBudgetDisplay(getBudgetRemaining());
+    }
+
+    selectedNodeId = null;
+    selectedElemId = null;
+    _syncDeleteButton();
     saveStructure(levelIndex, structure);
     renderCanvas();
     setSimulateButtonEnabled(simBtn, isStructureSimulatable(structure));
@@ -356,16 +408,46 @@ export function render(container) {
     }
   }
 
+  // ── Mode switching ────────────────────────────────────────────────────────
+
+  // [BUILD-PHASE] Switches to Build mode: only node/element placement is active.
+  function handleBuildMode() {
+    buildMode = 'build';
+    hudRightEl.classList.replace('mode--edit', 'mode--build');
+    selectedNodeId = null;
+    selectedElemId = null;
+    _syncDeleteButton();
+    renderCanvas();
+  }
+
+  // [BUILD-PHASE] Switches to Edit mode: only element selection/deletion is active.
+  function handleEditMode() {
+    buildMode = 'edit';
+    hudRightEl.classList.replace('mode--build', 'mode--edit');
+    selectedNodeId = null;
+    selectedElemId = null;
+    _syncDeleteButton();
+    renderCanvas();
+  }
+
   // ── Delete button sync ────────────────────────────────────────────────────
 
-  // [BUILD-PHASE] Shows or hides the delete button based on whether an element is selected.
+  // [BUILD-PHASE] Shows/enables or hides/disables the delete button based on
+  // current mode and element selection.
   function _syncDeleteButton() {
-    if (selectedElemId && !deleteBtn) {
-      deleteBtn = createDeleteButton(handleDeleteSelected);
-      hudRightEl.insertBefore(deleteBtn, simBtn);
-    } else if (!selectedElemId && deleteBtn) {
-      deleteBtn.remove();
-      deleteBtn = null;
+    if (buildMode === 'edit') {
+      deleteBtn.classList.remove('hud-btn--hidden');
+      if (selectedElemId) {
+        deleteBtn.disabled = false;
+        deleteBtn.classList.remove('hud-btn--disabled');
+      } else {
+        deleteBtn.disabled = true;
+        deleteBtn.classList.add('hud-btn--disabled');
+      }
+    } else {
+      deleteBtn.classList.add('hud-btn--hidden');
+      deleteBtn.disabled = false;
+      deleteBtn.classList.remove('hud-btn--disabled');
     }
   }
 
@@ -427,11 +509,11 @@ export function render(container) {
     // Element legend below the grid
     drawElementLegend(ctx, cellPx);
 
-    // Snap preview and connection preview
+    // Snap preview and connection preview (build mode only)
     if (cursorCanvasPos) {
       const snapped = snapToGrid(cursorCanvasPos.x, cursorCanvasPos.y, cellPx);
       const overNode = findNodeAtCanvasPoint(cursorCanvasPos.x, cursorCanvasPos.y, structure.nodes, cellPx);
-      if (!overNode) drawSnapPreview(ctx, snapped.col, snapped.row, cellPx);
+      if (!overNode && buildMode === 'build') drawSnapPreview(ctx, snapped.col, snapped.row, cellPx);
 
       if (selectedNodeId) {
         const fromNode = structure.nodes.find(n => n.id === selectedNodeId);
