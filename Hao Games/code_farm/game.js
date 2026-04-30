@@ -5,7 +5,6 @@ const farmEl = $("#farm");
 
 const startBtn = $("#startBtn");
 const nextDayBtn = $("#nextDayBtn");
-const editBtn = $("#editBtn");
 const resetBtn = $("#resetBtn");
 
 const coinsText = $("#coinsText");
@@ -29,6 +28,12 @@ const plantC = $("#plantC");
 const plantD = $("#plantD");
 const plantE = $("#plantE");
 const plantF = $("#plantF");
+const plantSeedA = $("#plantSeedA");
+const plantSeedB = $("#plantSeedB");
+const plantSeedC = $("#plantSeedC");
+const plantSeedD = $("#plantSeedD");
+const plantSeedE = $("#plantSeedE");
+const plantSeedF = $("#plantSeedF");
 const harvestBtn = $("#harvestBtn");
 const closeModal = $("#closeModal");
 
@@ -49,7 +54,8 @@ const inventoryC = $("#inventoryC");
 const inventoryD = $("#inventoryD");
 const inventoryE = $("#inventoryE");
 const inventoryF = $("#inventoryF");
-const closeInventoryBtn = $("#closeInventoryBtn");
+const invTerminalInput = $("#invTerminalInput");
+const invTerminalOutput = $("#invTerminalOutput");
 
 // store
 const storeBackdrop = $("#storeBackdrop");
@@ -59,8 +65,32 @@ const buyC = $("#buyC");
 const buyD = $("#buyD");
 const buyE = $("#buyE");
 const buyF = $("#buyF");
-const closeStoreBtn = $("#closeStoreBtn");
 const storeMessage = $("#storeMessage");
+const storeTerminalInput = $("#storeTerminalInput");
+const storeTerminalOutput = $("#storeTerminalOutput");
+
+// stat
+const statsBackdrop = $("#statsBackdrop");
+const statsTotalHarvest = $("#statsTotalHarvest");
+const statsHarvestA = $("#statsHarvestA");
+const statsHarvestB = $("#statsHarvestB");
+const statsHarvestC = $("#statsHarvestC");
+const statsHarvestD = $("#statsHarvestD");
+const statsHarvestE = $("#statsHarvestE");
+const statsHarvestF = $("#statsHarvestF");
+const statsTotalCoins = $("#statsTotalCoins");
+const statsCurrentDay = $("#statsCurrentDay");
+const statsTotalBugsFixed = $("#statsTotalBugsFixed");
+const statsTerminalInput = $("#statsTerminalInput");
+const statsTerminalOutput = $("#statsTerminalOutput");
+
+// help
+const helpBackdrop = $("#helpBackdrop");
+const helpTerminalInput = $("#helpTerminalInput");
+const helpTerminalOutput = $("#helpTerminalOutput");
+// first-time help guide
+const terminalGuide = $("#terminalGuide");
+
 
 // 9 plots
 const PLOT_COUNT = 9;
@@ -73,8 +103,8 @@ const FLOWERS = {
     price: 10,
     daysToGrow: 5,
     mid: 2,
-    images: ["assets/flowerAB_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
-    bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
+    images: ["assets/flowerA_1.jpg", "assets/flowerA_2.jpg", "assets/flowerA_3.jpg"],
+    bugImages: ["assets/flowerA_bug1.jpg", "assets/flowerA_bug2.jpg", "assets/flowerA_bug3.jpg"],
   },
   B: {
     name: "Daisy",
@@ -82,8 +112,8 @@ const FLOWERS = {
     price: 13,
     daysToGrow: 7,
     mid: 3,
-    images: ["assets/flowerAB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
-    bugImages: ["assets/flowerAB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
+    images: ["assets/flowerB_1.jpg", "assets/flowerB_2.jpg", "assets/flowerB_3.jpg"],
+    bugImages: ["assets/flowerB_bug1.jpg", "assets/flowerB_bug2.jpg", "assets/flowerB_bug3.jpg"],
   },
   C: {
     name: "Crimson Rose",
@@ -113,7 +143,7 @@ const FLOWERS = {
     bugImages: ["assets/flowerE_bug1.jpg", "assets/flowerE_bug2.jpg", "assets/flowerE_bug3.jpg"],
   },
   F: {
-    name: "Emberblossom",
+    name: "Moonflower",
     seedCost: 20,
     price: 30,
     daysToGrow: 9,
@@ -187,12 +217,24 @@ function randomPuzzleId() {
 // local storage keys: save the data in the browser
 const STORAGE_KEY = "farm_game_state_v1";
 const PLOTS_KEY = "farm_plot_layout_v1";
+const GUIDE_KEY = "farm_help_guide_done";
 
 // State
 let state = {
   day: 1,
   coins: 50,
   harCount: 0,
+  totalCoinsEarned: 0,
+  totalBugsFixed: 0,
+
+  flowerHarvests: {
+    A: 0,
+    B: 0,
+    C: 0,
+    D: 0,
+    E: 0,
+    F: 0,
+  },
 
   inventory: {
     A: 0,
@@ -233,6 +275,25 @@ function loadState() {
       if (typeof state.harCount !== "number") {
         state.harCount = 0;
       }
+
+      if (typeof state.totalCoinsEarned !== "number") {
+        state.totalCoinsEarned = 0;
+      }
+
+      if (typeof state.totalBugsFixed !== "number") {
+        state.totalBugsFixed = 0;
+      }
+
+      if (!state.flowerHarvests || typeof state.flowerHarvests !== "object" ) {
+        state.flowerHarvests = {
+          A: 0,
+          B: 0,
+          C: 0,
+          D: 0,
+          E: 0,
+          F: 0,
+        };
+      }
     }
   } catch {
   }
@@ -253,6 +314,23 @@ function loadLayout() {
     // ignore
   }
   return null;
+}
+
+function shouldShowGuide() {
+  return localStorage.getItem(GUIDE_KEY) !== "true";
+}
+
+function showGuide() {
+  terminalGuide.classList.remove("hidden");
+}
+
+function hideGuide() {
+  terminalGuide.classList.add("hidden");
+}
+
+function completeGuide() {
+  localStorage.setItem(GUIDE_KEY, "true");
+  hideGuide();
 }
 
 function updateTopUI() {
@@ -342,31 +420,78 @@ function buySeed(type) {
   storeMessage.textContent = `${flower.name} seed purchased!`;
 }
 
-function runTerminal(command) {
+
+
+function runTerminal(command, outputEl = terminalOutput) {
   const text = command.trim().toLowerCase();
 
   if (text === 'cd farm') {
     closeInventory();
     closeStore();
+    closeStats();
+    closeHelp();
     terminalOutput.textContent = "Switched to farm.";
+    storeTerminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd farm/inventory') {
     closeStore();
+    closeStats();
+    closeHelp();
     openInventory();
-    terminalOutput.textContent = "Switched to inventory.";
+    invTerminalOutput.textContent = "Switched to inventory.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
   if (text === 'cd store') {
     closeInventory();
+    closeStats();
+    closeHelp();
     openStore();
-    terminalOutput.textContent = "Switched to store.";
+    storeTerminalOutput.textContent = "Switched to store.";
+    terminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
     return;
   }
 
-  terminalOutput.textContent = `Unknown command: ${command}`;
+  if (text === 'cd farm/stats') {
+    closeInventory();
+    closeStore();
+    closeHelp();
+    openStats();
+    statsTerminalOutput.textContent = "Switched to statistics.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    helpTerminalOutput.textContent = "";
+    return;
+  }
+
+  if (text === 'cd help') {
+    closeInventory();
+    closeStore();
+    closeStats();
+    openHelp();
+    completeGuide();
+    helpTerminalOutput.textContent = "Switched to help page.";
+    terminalOutput.textContent = "";
+    storeTerminalOutput.textContent = "";
+    invTerminalOutput.textContent = "";
+    statsTerminalOutput.textContent = "";
+    return;
+  }
+
+  outputEl.textContent = `Unknown command: ${command}`;
 
 }
 
@@ -463,54 +588,84 @@ function updateStore() {
   }
 }
 
+function updateStatsUI() {
+  statsTotalHarvest.textContent = state.harCount;
+  statsHarvestA.textContent = state.flowerHarvests.A;
+  statsHarvestB.textContent = state.flowerHarvests.B;
+  statsHarvestC.textContent = state.flowerHarvests.C;
+  statsHarvestD.textContent = state.flowerHarvests.D;
+  statsHarvestE.textContent = state.flowerHarvests.E;
+  statsHarvestF.textContent = state.flowerHarvests.F;
+  statsTotalCoins.textContent = state.totalCoinsEarned;
+  statsCurrentDay.textContent = state.day;
+  statsTotalBugsFixed.textContent = state.totalBugsFixed;
+}
+
+function openStats() {
+  updateStatsUI();
+  statsBackdrop.classList.remove("hidden");
+}
+
+function closeStats() {
+  statsBackdrop.classList.add("hidden");
+}
+
+function openHelp() {
+  helpBackdrop.classList.remove("hidden");
+}
+
+function closeHelp() {
+  helpBackdrop.classList.add("hidden");
+}
+
 
 function createDefaultLayout() {
   return [
     {
         "x": 38.09948668187978,
-        "y": 24.610414916011344,
-        "w": 7.338435114646444,
-        "h": 10.24876685800824},
-    {
-        "x": 46.6482450524155,
-        "y": 24.97768025924203,
-        "w": 7.1400225892358895,
-        "h": 9.918025638867329},
-    {
-        "x": 55.12471413125797,
-        "y": 24.912750712270018,
-        "w": 7.205218101034359,
-        "h": 10.177744941349182},
-    {
-        "x": 38.25254790636958,
-        "y": 36.77055743421578,
-        "w": 7.220814763283243,
-        "h": 10.409057706355004},
-    {
-        "x": 46.6695077078683,
-        "y": 36.76243873300824,
-        "w": 7.097508955974968,
-        "h": 10.504423466104935},
-    {
-        "x": 55.13888300681601,
-        "y": 36.93693507928061,
-        "w": 7.20804720508809,
-        "h": 10.13107689912516},
-    {
-        "x": 38.161845304528065,
-        "y": 48.79271324051828,
+        "y": 35.210414916011344,
         "w": 7.434804488201531,
         "h": 10.715445051060879},
     {
-        "x": 46.85374045858578,
-        "y": 48.65678183957554,
-        "w": 7.130098926777742,
-        "h": 10.741823027828822},
+        "x": 46.4695077078683,
+        "y": 35.210414916011344,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
     {
-        "x": 55.04676351741868,
-        "y": 48.74401440839858,
-        "w": 7.37953808842873,
-        "h": 10.480075164638878}
+        "x": 55.03888300681601,
+        "y": 35.210414916011344,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 38.09948668187978,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 46.4695077078683,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 55.03888300681601,
+        "y": 47.37055743421578,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 38.09948668187978,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 46.4695077078683,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879},
+    {
+        "x": 55.03888300681601,
+        "y": 59.39271324051828,
+        "w": 7.434804488201531,
+        "h": 10.715445051060879}
     ];
 }
 
@@ -542,15 +697,7 @@ function renderPlots() {
     }
     plotEl.appendChild(cropImg);
 
-    // resize handle (only for getting the position of the plot)
-    const handle = document.createElement("div");
-    handle.className = "handle";
-    plotEl.appendChild(handle);
-
     plotEl.addEventListener("click", (e) => {
-      // In edit mode, clicks are handled by drag logic; avoid opening modal
-      if (farmStage.classList.contains("editMode")) return;
-
       const i = Number(plotEl.dataset.index);
       onPlotClicked(i);
     });
@@ -600,12 +747,12 @@ function onPlotClicked(i) {
     modalTitle.textContent = `Plot ${i + 1}`;
     modalDesc.textContent = `Choose a seed to plant.`;
 
-    plantA.textContent = `Plant Tulip (Remaining seeds: ${state.inventory.A})`;
-    plantB.textContent = `Plant Daisy (Remaining seeds: ${state.inventory.B})`;
-    plantC.textContent = `Plant Crimson Rose (Remaining seeds: ${state.inventory.C})`;
-    plantD.textContent = `Plant Violet Star (Remaining seeds: ${state.inventory.D})`;
-    plantE.textContent = `Plant Emberblossom (Remaining seeds: ${state.inventory.E})`;
-    plantF.textContent = `Plant Moonflower (Remaining seeds: ${state.inventory.F})`;
+    plantSeedA.textContent = state.inventory.A;
+    plantSeedB.textContent = state.inventory.B;
+    plantSeedC.textContent = state.inventory.C;
+    plantSeedD.textContent = state.inventory.D;
+    plantSeedE.textContent = state.inventory.E;
+    plantSeedF.textContent = state.inventory.F;
 
     plantChoices.classList.remove("hidden");
     harvestChoice.classList.add("hidden");
@@ -677,6 +824,8 @@ function harvest() {
 
   state.coins += earn;
   state.harCount += 1;
+  state.totalCoinsEarned += earn;
+  state.flowerHarvests[plot.flowerType] += 1;
 
   // clear plot
   plot.planted = false;
@@ -715,53 +864,15 @@ function nextDay() {
 }
 
 
-// Plot edit mode: drag + resize
-// Stored as % units so it scales with the image.
-let isEditMode = false;
-
-function toggleEditMode() {
-  isEditMode = !isEditMode;
-  farmStage.classList.toggle("editMode", isEditMode);
-  editBtn.textContent = isEditMode ? "Done Editing" : "Edit Plots";
-}
-
-// function pxToPercent(xPx, yPx, wPx, hPx) {
-//   const rect = farmStage.getBoundingClientRect();
-//   return {
-//     x: (xPx / rect.width) * 100,
-//     y: (yPx / rect.height) * 100,
-//     w: (wPx / rect.width) * 100,
-//     h: (hPx / rect.height) * 100,
-//   };
-// }
-
-// check if n in range of (a,b), return the max
-// function clamp(n, a, b) {
-//   return Math.max(a, Math.min(b, n));
-// }
-
-// function attachDragResize() {
-// }
-
-
 function init() {
   loadState();
-
-  // const ALLOW_EDIT_MODE = false; // set true only while developing
-
     layout = createDefaultLayout();
 
-    // if (ALLOW_EDIT_MODE) {
-    //     const saved = loadLayout();
-    //     if (saved) layout = saved;
-    //     editBtn.style.display = "inline-block";
-    // } else {
-    //     editBtn.style.display = "none";
-    // }
 
   updateTopUI();
   updateInventoryUI();
   updateProgressUI();
+  updateStatsUI();
 
   // Wait for image to load so stage has correct size
   farmImg.addEventListener("load", () => {
@@ -776,6 +887,10 @@ function init() {
   // Buttons
   startBtn.addEventListener("click", () => {
     showFarm();
+
+    if (shouldShowGuide()) {
+      showGuide();
+    }
   });
 
   resetBtn.addEventListener("click", () => {
@@ -800,7 +915,10 @@ function init() {
         plot.bugPuzzleId = null;
         plot.bugStartDay = null;
 
+        state.totalBugsFixed += 1;
+
         saveState();
+        updateStatsUI();
         refreshCropsOnly();
         closeModalFn();
     } else {
@@ -809,10 +927,6 @@ function init() {
   });
 
   nextDayBtn.addEventListener("click", nextDay);
-
-  // editBtn.addEventListener("click", () => {
-  //   toggleEditMode();
-  // });
 
   closeModal.addEventListener("click", closeModalFn);
   modalBackdrop.addEventListener("click", (e) => {
@@ -834,21 +948,39 @@ function init() {
   buyE.addEventListener("click", () => buySeed("E"));
   buyF.addEventListener("click", () => buySeed("F"));
 
-  closeInventoryBtn.addEventListener("click", closeInventory);
-  closeStoreBtn.addEventListener("click", closeStore);
-
-  inventoryBackdrop.addEventListener("click", (e) => {
-    if (e.target === inventoryBackdrop) closeInventory();
-  });
-
-  storeBackdrop.addEventListener("click", (e) => {
-    if (e.target === storeBackdrop) closeStore();
-  });
 
   terminalInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       runTerminal(terminalInput.value);
       terminalInput.value = "";
+    }
+  });
+
+  storeTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(storeTerminalInput.value, storeTerminalOutput);
+      storeTerminalInput.value = "";
+    }
+  });
+
+  invTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(invTerminalInput.value, invTerminalOutput);
+      invTerminalInput.value = "";
+    }
+  });
+
+  statsTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(statsTerminalInput.value, statsTerminalOutput);
+      statsTerminalInput.value = "";
+    }
+  });
+
+  helpTerminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      runTerminal(helpTerminalInput.value, helpTerminalOutput);
+      helpTerminalInput.value = "";
     }
   });
 

@@ -8,7 +8,7 @@ const EPOCH = new Date("2025-01-01T00:00:00Z");
 export function getDailyObjectIndex(objectCount) {
   const now = new Date();
   const daysSinceEpoch = Math.floor(
-    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) -
+    (Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) -
       EPOCH.getTime()) /
       (1000 * 60 * 60 * 24)
   );
