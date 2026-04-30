@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Lab</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Title Screen + Reaction Select -->
+    <div id="titleScreen" class="screen" style="display: block;">
+        <h1>Reaction Lab</h1>
+
+        <div class="title-card">
+            <label for="reactionDropdown" style="font-weight:bold; color:#2a6a70; display:block; margin-bottom:10px;">Choose a Reaction:</label>
+            <select id="reactionDropdown" name="reactions" class="reaction-dropdown">
+                <option value="hcl_naoh">Hydrochloric Acid + Sodium Hydroxide</option>
+                <option value="pb_no3_ki">Lead Nitrate + Potassium Iodide</option>
+                <option value="na2co3_hcl">Sodium Carbonate + Hydrochloric Acid</option>
+                <option value="cuso4_naoh">Copper Sulfate + Sodium Hydroxide</option>
+            </select>
+            <p id="reaction-description" class="reaction-hint">
+                A neutralisation reaction between a strong acid and a strong base.
+            </p>
+        </div>
+
+        <div class="btn-group">
+            <button id="titleToPreLabBtn" class="btn-secondary">Read the Pre-Lab</button>
+        </div>
+    </div>
+
+    <!-- the Pre-Lab screen -->
+    <div id="preLabScreen" class="screen" style="display: none;">
+        <div class="nav-back">
+            <button id="preLabToTitleBtn" class="btn-secondary">Back to Title</button>
+        </div>
+
+        <h1>Pre-Lab</h1>
+
+        <div id="preLabBriefing" class="briefing-card bodytext">
+            Lorem ipsum dolor sit amet
+        </div>
+
+        <div class="btn-group">
+            <button id="preLabToPredictionsBtn" class="btn-primary">Make Your Predictions</button>
+            <button id="preLabToLabBtn" class="btn-secondary hidden">Back to Lab</button>
+        </div>
+    </div>
+
+    <!-- the Making Predictions stage -->
+    <div id="predictionScreen" class="screen" style="display: none;">
+        <div class="nav-back">
+            <button id="predictionsToPreLabBtn" class="btn-secondary">Back to Pre-Lab</button>
+        </div>
+
+        <h1>Predictions</h1>
+
+        <p class="bodytext section-intro">
+            Based on the reaction chosen, you are tasked with predicting certain outcomes of the experiment.
+        </p>
+
+        <!-- These cards list out the prediction questions and answers, which are populated using javascript from main.js -->
+        <div id="predictionCards" class="cards"></div>
+
+        <div class="btn-group">
+            <button id="predictionsToLabBtn" class="btn-primary">Begin Experiment</button>
+        </div>
+    </div>
+
+    <!-- the main Lab screen -->
+    <div id="labScreen" class="screen" style="display: none;">
+        <div class="nav-back">
+            <button id="labToPreLabBtn" class="btn-secondary">Back to Pre-Lab</button>
+        </div>
+
+        <h1>Lab Overview</h1>
+
+        <!-- Station buttons: 2-column grid on mobile, 3-column on wider screens -->
+        <div class="station-grid">
+            <button id="toSafetyScreenBtn"  class="station-btn">Safety</button>
+            <button id="toStorageScreenBtn" class="station-btn">Storage</button>
+            <button id="toMeasureScreenBtn" class="station-btn">Measure</button>
+            <button id="toReactScreenBtn"   class="station-btn">React</button>
+            <button id="toAnalyzeScreenBtn" class="station-btn">Analyze</button>
+            <button id="toDisposeScreenBtn" class="station-btn">Dispose</button>
+        </div>
+
+        <div class="btn-group">
+            <button id="toDebriefScreenBtn" class="btn-primary">Proceed to Reflection</button>
+        </div>
+
+        <div id="labFeedback" class="lab-feedback bodytext"></div>
+    </div>
+
+    <!-- Safety Screen -->
+    <div id="safetyScreen" class="screen" style="display: none;">
+
+        <h1>Safety</h1>
+
+        <!-- Player is presented with multiple choice options for what PPE to use for this experiment. -->
+        <div class="ppe-category">
+            <span class="ppe-category-header">Eye and Face Protection</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="goggles" name="eyeAndFaceProtection" value="Safety Goggles">
+                    <label for="goggles">Safety Goggles</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="glasses" name="eyeAndFaceProtection" value="Safety Glasses">
+                    <label for="glasses">Safety Glasses</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="faceShield" name="eyeAndFaceProtection" value="Face Shield">
+                    <label for="faceShield">Face Shield</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noFace" name="eyeAndFaceProtection" value="None" checked>
+                    <label for="noFace">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Hand Protection</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="nitrile" name="handProtection" value="Nitrile Gloves">
+                    <label for="nitrile">Nitrile Gloves</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="latex" name="handProtection" value="Latex Gloves">
+                    <label for="latex">Latex Gloves</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="thickRubber" name="handProtection" value="Thick Rubber Gloves">
+                    <label for="thickRubber">Thick Rubber Gloves</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noHand" name="handProtection" value="None" checked>
+                    <label for="noHand">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Body Protection</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="labCoat" name="bodyProtection" value="Lab Coat">
+                    <label for="labCoat">Lab Coat</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="apron" name="bodyProtection" value="Apron">
+                    <label for="apron">Apron</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noBody" name="bodyProtection" value="None" checked>
+                    <label for="noBody">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Footwear</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="closedShoe" name="footProtection" value="Closed-toe Shoes">
+                    <label for="closedShoe">Closed-toe Shoes</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="openShoe" name="footProtection" value="Open-toe Shoes" checked>
+                    <label for="openShoe">Open-toe Shoes</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Respiratory Protection</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="fumeHood" name="respiratoryProtection" value="Fume Hood">
+                    <label for="fumeHood">Fume Hood</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="respiratorMask" name="respiratoryProtection" value="Respirator Mask">
+                    <label for="respiratorMask">Respirator Mask</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noRespiration" name="respiratoryProtection" value="None" checked>
+                    <label for="noRespiration">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="verifyPPE" class="btn-primary">Verify PPE</button>
+        </div>
+
+        <p id="PPEFeedback" class="bodytext" style="text-align: center;"></p>
+
+        <div class="btn-group">
+            <button class="toLabBtn btn-secondary hidden">Back to Lab</button>
+        </div>
+
+    </div>
+
+    <!-- Storage Screen -->
+    <div id="storageScreen" class="screen" style="display: none;">
+
+        <h1>Storage</h1>
+
+        <p class="bodytext section-intro">Study the reactants you are using in this reaction.</p>
+
+        <div id="storageCards" class="cards"></div>
+
+        <div class="btn-group">
+            <button class="toLabBtn btn-secondary">Back to Lab</button>
+        </div>
+    </div>
+
+    <!-- Measure Screen -->
+    <div id="measureScreen" class="screen" style="display: none;">
+
+        <div class="nav-back">
+            <button class="toLabBtn btn-secondary">Back to Lab</button>
+        </div>
+
+        <h1>Measure</h1>
+
+        <!-- Equation displayed in monospace card -->
+        <div id="measureEquation" class="equation-card">
+            <p id="measureEquationText"></p>
+        </div>
+
+        <!-- Volume controls populated by JS -->
+        <div id="measureInputs"></div>
+
+        <div class="btn-group">
+            <button id="measureBalanceBtn" class="btn-secondary">Help me balance!</button>
+        </div>
+
+        <div id="measureFeedback" style="text-align: center;">
+            <p id="measureFeedbackText" class="bodytext"></p>
+        </div>
+
+        <div class="btn-group">
+            <button id="measureToLabBtn" class="btn-primary">Lock in Measurements</button>
+        </div>
+    </div>
+
+    <!-- React Screen -->
+    <!-- In favor of time, I have increase the AI assistance in creating this screen -->
+    <div id="reactScreen" class="screen" style="display: none;">
+
+        <h1>React</h1>
+
+        <p id="reactionStatus" class="bodytext section-intro">
+            lorem ipsum dolor sit amet
+        </p>
+
+        <div class="react-container">
+            <div class="canvas-wrapper">
+                <canvas id="reactionCanvas" width="500" height="380"></canvas>
+            </div>
+            <div class="pour-buttons">
+                <button class="pourBtn" id="pourReactant1" style="left:0px">Pour Reactant 1</button>
+                <button class="pourBtn" id="pourReactant2" style="right:0px">Pour Reactant 2</button>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="toLabBtn btn-secondary hidden">Back to Lab</button>
+        </div>
+    </div>
+
+    <!-- Analyze Screen -->
+    <!-- In favor of time, I have increase the AI assistance in creating this screen -->
+    <div id="analyzeScreen" class="screen" style="display: none;">
+
+        <h1>Analyze</h1>
+
+        <p class="bodytext section-intro">
+            Examine the products of your reaction. Record what you observe.
+        </p>
+
+        <h2 class="analyzeHeader">General Observations</h2>
+        <p class="analyzeNote">These observations apply to the reaction and its products as a whole.</p>
+        <div id="observationsContainer"></div>
+
+        <h2 class="analyzeHeader">Yield Analysis</h2>
+        <p class="analyzeNote">Compares your actual product yield to the theoretical maximum.</p>
+        <div id="yieldContainer"></div>
+
+        <h2 class="analyzeHeader">Liquid Products</h2>
+        <p class="analyzeNote">Products that exist in the liquid phase at room temperature.</p>
+        <div id="liquidProductsContainer"></div>
+
+        <h2 class="analyzeHeader">Solid Products</h2>
+        <p class="analyzeNote">Products that are solid at room temperature, whether dissolved in solution or forming a visible precipitate.</p>
+        <div id="solidProductsContainer"></div>
+
+        <h2 class="analyzeHeader">Gaseous Products</h2>
+        <p class="analyzeNote">Products that are a gas at room temperature.</p>
+        <div id="gaseousProductsContainer"></div>
+
+        <h2 class="analyzeHeader">What evidence tells you this reaction occurred?</h2>
+        <p class="analyzeNote">
+            Using your observations above, explain in your own words how you know a chemical reaction took place.
+            Aim to cite at least three pieces of evidence.
+        </p>
+
+        <textarea id="evidenceInput" class="textInput" placeholder="e.g. The temperature rose from 20°C to 27°C, which indicates energy was released..."></textarea>
+
+        <div class="btn-group" id="checkAnalysisBtn">
+            <button class="btn-primary">Submit</button>
+        </div>
+
+        <p id="evidenceFeedback" class="bodytext" style="text-align: center;"></p>
+
+        <div class="btn-group">
+            <button class="toLabBtn btn-secondary hidden">Back to Lab</button>
+        </div>
+    </div>
+
+    <!-- Dispose Screen -->
+    <div id="disposeScreen" class="screen" style="display: none;">
+
+        <h1>Dispose</h1>
+
+        <!-- Player is presented with multiple choice options for what disposal method to use for this experiment. -->
+        <div class="ppe-category">
+            <span class="ppe-category-header">Liquid Waste</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="drain" name="liquidWaste" value="Drain Disposal">
+                    <label for="drain">Drain Disposal</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="acidWaste" name="liquidWaste" value="Acid Waste Container">
+                    <label for="acidWaste">Acid Waste Container</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="baseWaste" name="liquidWaste" value="Base Waste Container">
+                    <label for="baseWaste">Base Waste Container</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noLiquid" name="liquidWaste" value="None" checked>
+                    <label for="noLiquid">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Solid Waste</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="trash" name="solidWaste" value="Regular Trash">
+                    <label for="trash">Regular Trash</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="solidChemicalWaste" name="solidWaste" value="Solid Chemical Waste Container">
+                    <label for="solidChemicalWaste">Solid Chemical Waste Container</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="sharps" name="solidWaste" value="Sharps Container">
+                    <label for="sharps">Sharps Container</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noSolid" name="solidWaste" value="None" checked>
+                    <label for="noSolid">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="ppe-category">
+            <span class="ppe-category-header">Gaseous Waste</span>
+            <div class="ppe-options">
+                <div class="radio-row">
+                    <input type="radio" id="ventToFumeHood" name="gaseousWaste" value="Vent To Fume Hood">
+                    <label for="ventToFumeHood">Vent To Fume Hood</label>
+                </div>
+                <div class="radio-row">
+                    <input type="radio" id="noGas" name="gaseousWaste" value="None" checked>
+                    <label for="noGas">None</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button id="verifyDisposal" class="btn-primary">Verify Disposal Methods</button>
+        </div>
+
+        <p id="disposalFeedback" class="bodytext" style="text-align: center;"></p>
+
+        <div class="btn-group">
+            <button class="toLabBtn btn-secondary hidden">Back to Lab</button>
+        </div>
+    </div>
+
+    <!-- the Debrief screen -->
+    <!-- In favor of time, I have increase the AI assistance in creating this screen -->
+    <div id="debriefScreen" class="screen" style="display: none;">
+
+        <h1>Reflection</h1>
+
+        <p class="bodytext section-intro">
+            Discuss your experiment with your AI tutor.
+        </p>
+
+        <!-- Run summary card — populated by buildSummaryCard() -->
+        <h2>Your Run Summary</h2>
+        <div class="card">
+            <header><h3 id="summaryReactionName"></h3></header>
+            <div class="content" id="summaryContent"></div>
+        </div>
+
+        <!-- Chat interface -->
+        <h2>Tutor Chat</h2>
+
+        <div id="chatWindow" class="chatWindow"></div>
+
+        <p id="apiError" class="apiError"></p>
+
+        <div class="debriefInputContainer">
+            <textarea
+                id="messageInput"
+                placeholder="Type your response..."
+                rows="1"
+                disabled
+                class="debriefScreen"></textarea>
+            <button id="sendBtn" disabled class="sendButton">Send</button>
+        </div>
+
+        <p id="exchangeCounter" class="exchangeCounter"></p>
+
+        <div class="btn-group">
+            <button id="toTitleBtn" class="btn-primary hidden">Return to Title Screen</button>
+        </div>
+
+    </div>
+
+    <script src="reactions.js"></script>
+    <script src="utils.js"></script>
+    <script src="main.js"></script>
+    <script src="swapScreen.js"></script>
+
+</body>
+</html>

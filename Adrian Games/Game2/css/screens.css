@@ -1,0 +1,151 @@
+/* Formatting and spacing of screens and logic of when they should show up */
+.screen {
+    width: 100%;
+    height: 105%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 17px;
+}
+
+/*Basic css to show the correct screen when needed and javascript handles the dynamic displays*/
+#play-screen  { display: none; }
+#howToPlay    { display: none; }
+#resultScreen { display: none; }
+#levelScreen  { display: none; }
+
+.pixel-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 40px;
+    min-width: 95%;
+    max-height: 100%;
+    overflow-y: auto;
+    background: var(--foam-inner);
+    box-shadow:
+        0 0 0 4px var(--white),
+        0 0 0 8px var(--white),
+        0 0 0 12px var(--black),
+        6px 6px 0px var(--white);
+}
+
+.pixel-divider {
+    width: 100%;
+    height: 4px;
+}
+
+/*basic button designs and spacing below*/
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.pixel-btn {
+    width: 100%;
+    padding: 8px 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    background: var(--silver);
+    color: var(--black);
+    transition: transform 0.1s;
+}
+
+.pixel-btn:hover {
+    transform: translate(-2px, -2px);
+    color: white;
+    border: 2px solid var(--gold);
+    background-color: var(--foam);
+}
+
+.pixel-btn:active {
+    transform: translate(4px, 4px);
+}
+
+#resultMessage p {
+    font-size: 0.45rem;
+    margin: 4px 0;
+    color: var(--white);
+}
+
+/*AI recommendation is the LLMs advice to the student on what they should work on based on results*/
+#aiRecommendation {
+    margin-top: 8px !important;
+    color: var(--gold) !important;
+    font-size: 0.4rem !important;
+    line-height: 1.8;
+}
+
+/* ====== HOW TO PLAY - mission briefing flavor ======
+ * Scoped to #howToPlay so the base pixel-card/divider stay untouched on other screens.
+ * Compact HUD-style grid so everything fits in the briefcase interior without scrolling.
+ */
+#howToPlay .pixel-card {
+    overflow: hidden;
+    gap: 8px;
+    padding: 12px 24px;
+}
+
+#howToPlay h1 {
+    font-size: 1.1rem;
+}
+
+/* two-col grid: gold label | description, terminal-readout style */
+.htp-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    row-gap: 6px;
+    width: 100%;
+    align-items: center;
+}
+
+.htp-label {
+    color: var(--gold);
+    font-size: 0.4rem;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 0 var(--black);
+    white-space: nowrap;
+}
+
+.htp-text {
+    color: var(--white);
+    font-size: 0.4rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* green/red inline callouts inside SIGNAL row */
+.htp-good {
+    color: var(--green);
+    text-shadow: 0 0 4px var(--green);
+}
+
+.htp-bad {
+    color: var(--red);
+}
+
+/* visible gold rule only on the briefing; other pixel-dividers stay as invisible spacers */
+#howToPlay .htp-divider {
+    background: var(--gold);
+    opacity: 0.7;
+    height: 2px;
+    margin: 0;
+}
+
+/* pulsing red warning reuses the existing glowPulse keyframe from base.css */
+.htp-warning {
+    color: var(--red) !important;
+    font-size: 0.5rem !important;
+    letter-spacing: 2px;
+    padding: 2px 0;
+    animation: glowPulse 1s ease-in-out infinite;
+}

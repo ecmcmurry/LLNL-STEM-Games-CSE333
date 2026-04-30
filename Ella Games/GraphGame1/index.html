@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"
+    />
+    <title>FEED THE FUNCTION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+  </head>
+  <body>
+    <!--  home and title screen -->
+    <div class="screen home-screen" id="homeScreen">
+      <div class="frame">
+        <img class="frame-bg" src="pngAssets/HomePageStripped.png" alt="" />
+
+        <!-- button overlays -->
+        <button class="asset-btn btn-play" id="startBtn" aria-label="Play">
+          <img class="asset-shadow" src="pngAssets/PlayShadow.png" alt="" />
+          <img class="asset-face" src="pngAssets/PlayFull.png" alt="" />
+        </button>
+        <button
+          class="asset-btn btn-howto"
+          id="howToBtn"
+          aria-label="How to Play"
+        >
+          <img class="asset-shadow" src="pngAssets/HowToShadow.png" alt="" />
+          <img class="asset-face" src="pngAssets/HowToFull.png" alt="" />
+        </button>
+        <button
+          class="asset-btn btn-settings"
+          id="settingsBtn"
+          aria-label="Settings"
+        >
+          <img class="asset-shadow" src="pngAssets/SettingsShadow.png" alt="" />
+          <img class="asset-face" src="pngAssets/SettingsFull.png" alt="" />
+        </button>
+      </div>
+    </div>
+
+    <!-- settings -->
+    <div class="screen panel-screen" id="settingsScreen" style="display: none">
+      <div class="frame">
+        <img class="frame-bg" src="pngAssets/Settings.png" alt="" />
+        <div class="panel-overlay">
+          <h2 class="panel-title">Settings</h2>
+
+          <h3 class="panel-heading">Function Types</h3>
+          <div class="type-grid">
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="linear"
+                checked
+              />
+              <span class="type-label">Linear</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="polynomial"
+                checked
+              />
+              <span class="type-label">Polynomial</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="rational"
+                checked
+              />
+              <span class="type-label">Rational</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="absolute"
+                checked
+              />
+              <span class="type-label">Absolute</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="exponential"
+                checked
+              />
+              <span class="type-label">Exponential</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="sine"
+                checked
+              />
+              <span class="type-label">Sine</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="cosine"
+                checked
+              />
+              <span class="type-label">Cosine</span>
+            </label>
+            <label class="type-toggle">
+              <input
+                type="checkbox"
+                class="type-checkbox"
+                value="signum"
+                checked
+              />
+              <span class="type-label">Signum</span>
+            </label>
+          </div>
+
+          <h3 class="panel-heading">Rounds</h3>
+          <div class="round-options">
+            <button class="round-btn" data-rounds="5">5</button>
+            <button class="round-btn" data-rounds="10">10</button>
+            <button class="round-btn" data-rounds="15">15</button>
+            <button class="round-btn active" data-rounds="0">Endless</button>
+          </div>
+
+          <h3 class="panel-heading">Audio</h3>
+          <div class="audio-options">
+            <label class="type-toggle audio-toggle">
+              <input
+                type="checkbox"
+                id="audioToggle"
+                class="type-checkbox"
+                checked
+              />
+              <span class="type-label">Sound On</span>
+            </label>
+          </div>
+        </div>
+
+        <button
+          class="panel-close"
+          id="settingsDoneBtn"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+
+    <!-- HOW TO SCREEN, static -->
+    <div class="screen panel-screen" id="howToScreen" style="display: none">
+      <div class="frame">
+        <img class="frame-bg" src="pngAssets/HowToPage.png" alt="" />
+        <button
+          class="panel-close"
+          id="howToDoneBtn"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div class="screen game-screen" id="gameScreen" style="display: none">
+      <div class="frame">
+        <!-- using stripped pngs, empty pills and frame, no buttons baked in -->
+        <img class="frame-bg" src="pngAssets/MainPageStripped.png" alt="" />
+
+        <!-- graph canvas sized to the purple grid area -->
+        <div class="overlay graph-slot">
+          <canvas id="graphCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <!-- live values over the baked pills -->
+        <div class="overlay timer-value" id="timer">60</div>
+        <div class="overlay round-value" id="roundBlock" style="display: none">
+          <span id="roundDisplay">1 / 10</span>
+        </div>
+        <div class="overlay score-value" id="score">0</div>
+
+        <!-- hint / reveal banner placed in the empty strip above the graph,
+             matching the card's lavender/purple palette -->
+        <div class="overlay hint-area" id="hintArea" style="display: none">
+          <span id="hintText"></span>
+        </div>
+
+        <!-- Input overlay ("f(x)=" label is baked in) -->
+        <div class="overlay input-slot">
+          <input
+            type="text"
+            id="functionInput"
+            placeholder="ex. x ^ 2 + 1"
+            value=""
+            spellcheck="false"
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- High Score / Skill Level values , all baked in layers -->
+        <div class="overlay hs-value" id="scoreHistory">—</div>
+        <div class="overlay skill-value" id="skillLevelText">Novice</div>
+
+        <!-- Interactive buttons: each .btn-slot holds a Shadow img and a
+             Face img; on press the top face translates down to cover the
+             shadow by half -->
+        <button class="btn-slot slot-pause" id="pauseBtn" aria-label="Pause">
+          <img
+            class="shadow shadow-pause"
+            src="pngAssets/PauseShadow.png"
+            alt=""
+          />
+          <img
+            class="shadow shadow-unpause"
+            src="pngAssets/UnpauseShadow.png"
+            alt=""
+          />
+          <img class="face face-pause" src="pngAssets/PauseButton.png" alt="" />
+          <img
+            class="face face-unpause"
+            src="pngAssets/UnpauseButton.png"
+            alt=""
+          />
+        </button>
+        <button class="btn-slot slot-check" id="submitBtn" aria-label="Submit">
+          <img class="shadow" src="pngAssets/CheckShadow.png" alt="" />
+          <img class="face" src="pngAssets/CheckButton.png" alt="" />
+        </button>
+        <button class="btn-slot slot-menu" id="menuBtn" aria-label="Menu">
+          <img class="shadow" src="pngAssets/MenuShadow.png" alt="" />
+          <img class="face" src="pngAssets/MenuButton.png" alt="" />
+        </button>
+
+        <button
+          class="btn-slot slot-restart"
+          id="playAgainBtn"
+          aria-label="Restart"
+        >
+          <img class="shadow" src="pngAssets/RestartShadow.png" alt="" />
+          <img class="face" src="pngAssets/RestartButton.png" alt="" />
+        </button>
+
+        <!-- hidden legacy nodes kept for game.js -->
+        <div style="display: none">
+          <span id="accuracyPercent">0%</span>
+          <span id="earnedCoins">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bonus-container" id="bonusContainer"></div>
+    <div class="coin-rain-container" id="coinContainer"></div>
+
+    <!-- GAME OVER MODAL -->
+    <div class="modal" id="gameoverTab" style="display: none">
+      <div class="frame modal-frame gameover-frame">
+        <!-- full game over card: title, score pill, and buttons-->
+        <img class="frame-bg" src="pngAssets/GameOverScreen.png" alt="" />
+
+        <!-- closes tab with X button -->
+        <button
+          class="asset-close"
+          id="closeGameoverTab"
+          aria-label="Close"
+        ></button>
+
+        <!-- numeric final score centered in the baked score pill -->
+        <div class="overlay gameover-score" id="gameoverScore">0</div>
+        <!-- (TIME'S UP! title -->
+        <div class="overlay gameover-title" id="gameoverTitle">GAME OVER</div>
+
+        <!-- click hotspots over the baked AI Analysis / Play Again buttons -->
+        <button
+          class="hit-btn btn-ai-analysis"
+          id="aiAnalysisBtn"
+          aria-label="AI Game Analysis"
+        ></button>
+        <button
+          class="hit-btn btn-play-again"
+          id="gameoverRetryBtn"
+          aria-label="Play Again"
+        ></button>
+
+        <!-- Menu kept as a hidden legacy target -->
+        <button id="gameoverMenuBtn" style="display: none"></button>
+      </div>
+    </div>
+
+    <!--  AI ANALYSIS  -->
+    <div class="modal" id="analysisTab" style="display: none">
+      <div class="frame modal-frame analysis-frame">
+        <img class="frame-bg" src="pngAssets/GameAnalysisScreen.png" alt="" />
+        <button
+          class="asset-close"
+          id="closeAnalysisTab"
+          aria-label="Close"
+        ></button>
+        <div class="overlay analysis-title">Game Analysis</div>
+        <div class="overlay analysis-body" id="analysisBody">
+          Analyzing your game...
+        </div>
+
+        <!-- hidden legacy target -->
+        <button id="analysisDoneBtn" style="display: none"></button>
+      </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>
