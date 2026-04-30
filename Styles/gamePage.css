@@ -1,9 +1,16 @@
 /* ── UCM Colors: Gold #dbaa00, Blue #0f2d52, Dark #071828 ── */
 
+@font-face {
+    font-family: 'PixelPurl';
+    src: url('../assets/PixelPurl.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
     background: #071828;
     min-height: 100%;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, -apple-system, sans-serif;
     margin: auto;
 }
 
@@ -30,11 +37,11 @@ body {
     margin: 0 auto;
 }
 
-p { color: #ffffff; font-size: 1.2rem; }
+p { color: #ffffff; font-size: 1.5rem; }
 
 h1 {
     color: #dbaa00;
-    font-size: 2.5rem;
+    font-size: 3.2rem;
     border-bottom: rgba(219, 170, 0, 0.3) 2px solid;
 }
 
@@ -57,20 +64,37 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     padding: 12px 20px 0 20px;
 }
 
-.top h1 { align-content: center; color: #ffffff; flex: 1; }
+.top h1 { align-content: center; color: #ffffff; flex: 1; border-bottom: none; }
 
 .fullscreen-btn {
     background: rgba(219, 170, 0, 0.1);
     border: 1px solid rgba(219, 170, 0, 0.4);
     border-radius: 6px;
     color: #dbaa00;
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     padding: 6px 12px;
     cursor: pointer;
     transition: background 0.2s;
     flex-shrink: 0;
 }
 .fullscreen-btn:hover { background: rgba(219, 170, 0, 0.22); }
+
+@media (max-width: 768px) {
+    .top {
+        flex-wrap: wrap;
+    }
+    .top h1 {
+        order: 3;
+        flex: none;
+        width: 100%;
+        text-align: center;
+        font-size: 2.4rem;
+        margin: 0;
+    }
+    .fullscreen-btn {
+        margin-left: auto;
+    }
+}
 
 #gameContainer:fullscreen {
     width: 100vw;
