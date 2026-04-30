@@ -1,5 +1,12 @@
 /* ── UCM Colors: Gold #dbaa00, Blue #0f2d52, Dark #071828 ── */
 
+@font-face {
+    font-family: 'PixelPurl';
+    src: url('../assets/PixelPurl.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 html {
     margin: 0;
     padding: 0;
@@ -7,11 +14,11 @@ html {
 }
 
 body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, -apple-system, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     height: 100vh;
     margin: 0;
     box-sizing: border-box;
@@ -27,19 +34,19 @@ body {
 h1 { margin-bottom: 32px; color: #dbaa00; }
 
 .top-bar {
-    position: absolute;
-    top: 0; left: 0;
+    position: relative;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
     box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 #logo {
     margin: 0;
-    font-size: 2.5rem;
+    font-size: 3.2rem;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -48,7 +55,7 @@ h1 { margin-bottom: 32px; color: #dbaa00; }
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-#logo span { font-size: 1.8rem; color: #dbaa00; transition: transform 0.3s ease; }
+#logo span { font-size: 2.4rem; color: #dbaa00; transition: transform 0.3s ease; }
 #logo:hover { opacity: 0.85; }
 #logo:hover span { transform: translateY(2px); }
 
@@ -71,17 +78,30 @@ h1 { margin-bottom: 32px; color: #dbaa00; }
     width: 260px;
 }
 
-nav { display: flex; flex-direction: column; gap: 16px; }
+nav { display: flex; flex-direction: column; gap: 6px; }
+
+#main-nav {
+    flex: 1;
+    align-self: stretch;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    padding: 6px 0 20px 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
 
 nav a {
-    display: block;
-    font-size: 2rem;
+    flex: 1;
+    max-height: 90px;
+    display: flex;
+    align-items: center;
+    font-size: 2.6rem;
     font-weight: bold;
     text-decoration: none;
     color: #fff;
     background: linear-gradient(135deg, #071828, #0f2d52);
-    padding: 15px 45px;
-    border-radius: 8px;
+    padding: 0 45px;
+    border-radius: 0;
     text-align: left;
     letter-spacing: 2px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -110,7 +130,7 @@ nav a:hover {
 .sidebar a {
     padding: 15px 25px;
     text-decoration: none;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: #e6f1ff;
     display: block;
     transition: 0.2s;
@@ -160,7 +180,7 @@ nav a:hover {
         box-sizing: border-box;
     }
 
-    #logo { font-size: 1.7rem; }
+    #logo { font-size: 2.2rem; }
     .search-bar { width: 220px; }
     .search-bar:focus { width: 240px; }
     #main-nav { display: none; }
@@ -194,7 +214,7 @@ nav a:hover {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 4.5rem;
+        font-size: 6rem;
         font-weight: bold;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         position: relative;
@@ -305,7 +325,7 @@ nav a:hover {
     }
 
     .dc-title {
-        font-size: 0.82rem;
+        font-size: 1.25rem;
         font-weight: bold;
         margin-bottom: 3px;
         line-height: 1.2;
@@ -313,7 +333,7 @@ nav a:hover {
     }
 
     .dc-author {
-        font-size: 0.7rem;
+        font-size: 1.05rem;
         color: #dbaa00;
         flex-shrink: 0;
     }
@@ -321,12 +341,10 @@ nav a:hover {
 
 @media (max-width: 768px) {
     .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 20px;
+        flex-direction: row;
+        align-items: center;
+        padding: 12px 20px;
     }
     #logo { font-size: 2rem; }
-    .search-bar { width: 100%; max-width: 350px; box-sizing: border-box; }
-    .search-bar:focus { width: 100%; }
+    .search-bar { display: none; }
 }
