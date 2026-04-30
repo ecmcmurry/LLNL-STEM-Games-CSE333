@@ -70,7 +70,7 @@
                 <div class="htp-card">
                     <div class="htp-card-badge">🎮 CONTROLS</div>
                     <p><strong>Desktop:</strong> Hold <kbd>W A S D</kbd> to tilt the platform and roll the ball. Press <kbd>Space</kbd> to jump.</p>
-                    <p><strong>Mobile:</strong> Physically tilt your device — the gyroscope drives the ball.</p>
+                    <p><strong>Mobile:</strong> Physically tilt your device — the gyroscope drives the ball. Tap and hold the <kbd>↑ JUMP</kbd> button to charge, then release to jump.</p>
                 </div>
 
                 <div class="htp-card">
@@ -240,6 +240,12 @@
     </div>
 
     <button id="game-back-btn" class="back-btn hidden">← LEVELS</button>
+
+    <!-- Mobile jump button — shown only during mobile gameplay -->
+    <button id="jump-btn" class="hidden" aria-label="Jump">
+        <span class="jump-icon">↑</span>
+        <span class="jump-label">JUMP</span>
+    </button>
 
     <div id="ui">
         <h1>Learn Kinematics by playing!</h1>
