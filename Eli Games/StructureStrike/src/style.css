@@ -6,6 +6,13 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'PixelPurl';
+  src: url('/fonts/PixelPurl.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
@@ -25,8 +32,8 @@
   --accent-red:     #f44336;
   --accent-purple:  #ce93d8;
 
-  --font-mono: 'Courier New', Courier, monospace;
-  --font-sans: 'EngineerHand', 'Jost', system-ui, -apple-system, sans-serif;
+  --font-mono: 'PixelPurl', 'Courier New', Courier, monospace;
+  --font-sans: 'PixelPurl', 'EngineerHand', system-ui, -apple-system, sans-serif;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -200,7 +207,7 @@ ul { list-style: none; }
 .home-bolt--br { bottom: 10px; right: 18px; }
 
 .home-title {
-  font-size: clamp(1rem, 5.5vw, 4rem);
+  font-size: clamp(1.5rem, 7vw, 5.5rem);
   font-family: var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -235,7 +242,7 @@ ul { list-style: none; }
 .home-subtitle {
   margin-top: 0;
   color: var(--accent-amber);
-  font-size: 1rem;
+  font-size: 1.8rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   font-family: var(--font-mono);
@@ -267,7 +274,7 @@ ul { list-style: none; }
     letter-spacing: 0.01em;
   }
   .home-subtitle {
-    font-size: 0.82rem;
+    font-size: 1.3rem;
     letter-spacing: 0.18em;
   }
   .home-levels {
