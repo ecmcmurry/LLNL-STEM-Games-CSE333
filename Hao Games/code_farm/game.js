@@ -256,6 +256,7 @@ let state = {
     bugPuzzleId: null,
     bugData: null,
     bugStartDay: null,
+    totalFrozenDays: 0,
   })),
 };
 
@@ -533,7 +534,8 @@ function closeModalFn() {
 function getStage(plot) {
   if (!plot.planted) return 0;
   const effectiveDay = plot.bugged ? plot.bugStartDay : state.day;
-  const age = effectiveDay - plot.plantedDay;
+  const frozenDays = plot.totalFrozenDays || 0;
+  const age = effectiveDay - plot.plantedDay - frozenDays;
   const flower = FLOWERS[plot.flowerType];
   // note: add different cases for different flowers
   if (age < flower.mid) return 1;
@@ -825,6 +827,7 @@ function plantFlower(type) {
   plot.bugPuzzleId = null;
   plot.bugData = null;
   plot.bugStartDay = null;
+  plot.totalFrozenDays = 0;
 
   saveState();
   updateTopUI();
@@ -858,6 +861,7 @@ function harvest() {
   plot.bugPuzzleId = null;
   plot.bugData = null;
   plot.bugStartDay = null;
+  plot.totalFrozenDays = 0;
 
   saveState();
   updateTopUI();
@@ -991,19 +995,21 @@ function init() {
     }
 
     if (isPuzzleCorrect(text, puzzle)) {
-        plot.bugged = false;
-        plot.bugPuzzleId = null;
-        plot.bugData = null;
-        plot.bugStartDay = null;
+      const fronzenDays = state.day - plot.bugStartDay;
+      plot.totalFrozenDays = (plot.totalFrozenDays || 0) + fronzenDays;
+      plot.bugged = false;
+      plot.bugPuzzleId = null;
+      plot.bugData = null;
+      plot.bugStartDay = null;
 
-        state.totalBugsFixed += 1;
+      state.totalBugsFixed += 1;
 
-        saveState();
-        updateStatsUI();
-        refreshCropsOnly();
-        closeModalFn();
+      saveState();
+      updateStatsUI();
+      refreshCropsOnly();
+      closeModalFn();
     } else {
-        bugHint.textContent = "Not quite. " + puzzle.hint;
+      bugHint.textContent = "Not quite. " + puzzle.hint;
     }
   });
 
