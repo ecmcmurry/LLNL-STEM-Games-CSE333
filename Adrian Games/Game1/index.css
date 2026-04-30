@@ -1343,7 +1343,7 @@ input[type="number"]:focus {
 
 /* --- ROTATE PROMPT (mobile portrait only) --- */
 #rotate-prompt {
-    display: none; /* hidden by default; shown via media query below */
+    display: none;
     position: fixed;
     inset: 0;
     z-index: 2000;
@@ -1377,8 +1377,6 @@ input[type="number"]:focus {
     margin: 0;
     line-height: 1.7;
 }
-
-/* Show on mobile portrait, hide on mobile landscape */
 @media (max-width: 900px) and (orientation: portrait) {
     #rotate-prompt { display: flex; }
 }
