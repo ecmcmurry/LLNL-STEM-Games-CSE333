@@ -37,7 +37,24 @@ body {
     margin: 0 auto;
 }
 
-p { color: #ffffff; font-size: 1.5rem; }
+.author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    margin-bottom: 20px;
+    background: rgba(219, 170, 0, 0.07);
+    border: 1px solid rgba(219, 170, 0, 0.28);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.6px;
+}
+.author-badge span {
+    color: #dbaa00;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
 
 h1 {
     color: #dbaa00;
@@ -102,4 +119,123 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     border-radius: 0;
     margin: 0;
     border: none;
+}
+
+/* --- HOW TO PLAY SECTION --- */
+.htp-section {
+    width: 94%;
+    max-width: 960px;
+    margin: 0 auto 36px;
+}
+
+.htp-section.hidden { display: none; }
+
+/* Divider-style heading: line — label — line */
+.htp-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.htp-heading::before,
+.htp-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(219, 170, 0, 0.22);
+}
+.htp-heading-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    white-space: nowrap;
+}
+.htp-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+    background: rgba(219, 170, 0, 0.12);
+    border: 1px solid rgba(219, 170, 0, 0.35);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #dbaa00;
+    flex-shrink: 0;
+}
+
+/* 3-column grid, stacks on mobile */
+.htp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+@media (max-width: 600px) {
+    .htp-grid { grid-template-columns: 1fr; }
+}
+
+/* Card — accent color driven by --card-accent CSS variable set inline per card */
+.htp-card {
+    background: linear-gradient(160deg, rgba(15, 45, 82, 0.35), rgba(7, 24, 40, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-top: 3px solid var(--card-accent, #dbaa00);
+    border-radius: 10px;
+    padding: 20px 18px 18px;
+    transition: background 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+}
+/* subtle glow strip at top matching the accent */
+.htp-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--card-accent, #dbaa00) 8%, transparent), transparent);
+    pointer-events: none;
+}
+.htp-card:hover {
+    background: linear-gradient(160deg, rgba(15, 45, 82, 0.55), rgba(7, 24, 40, 0.75));
+    transform: translateY(-2px);
+}
+
+/* Title — white, reads naturally */
+.htp-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
+    position: relative;
+}
+
+/* Coloured category tag under the title */
+.htp-card-tag {
+    display: inline-block;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--card-accent, #dbaa00);
+    background: color-mix(in srgb, var(--card-accent, #dbaa00) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--card-accent, #dbaa00) 35%, transparent);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.htp-card-body {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.65;
+    margin: 0;
+    position: relative;
 }
