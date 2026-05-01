@@ -4,11 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="Styles/styles.css" />
-    <title>STEM Games</title>
+    <title>AI Arcademia</title>
   </head>
   <body>
+    <!-- Mobile only: sidebar + top bar + nav -->
     <div id="sidebar" class="sidebar">
-      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">&times;</a>
+      <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()"
+        >&times;</a
+      >
       <a href="index.html">Home</a>
       <a href="science.html">Science Games</a>
       <a href="technology.html">Technology Games</a>
@@ -20,11 +23,10 @@
 
     <div class="top-bar">
       <h1 id="logo" onclick="toggleSidebar()">
-        <span>&#9662;</span> STEM AI Games
+        <span>&#9662;</span> AI Arcademia
       </h1>
     </div>
 
-    <!-- Mobile: four STEM nav buttons -->
     <nav id="main-nav">
       <a href="science.html">S &mdash; Science</a>
       <a href="technology.html">T &mdash; Technology</a>
@@ -32,112 +34,331 @@
       <a href="math.html">M &mdash; Math</a>
     </nav>
 
-    <!-- Desktop: STEM letters with games inline -->
-    <div class="desktop-games">
+    <!-- Dark/light mode toggle for desktop -->
+    <button
+      id="theme-toggle"
+      class="theme-toggle"
+      onclick="toggleTheme()"
+      aria-label="Toggle dark/light mode"
+    >
+      <svg
+        class="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </svg>
+      <svg
+        class="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </svg>
+    </button>
 
-      <!-- Science -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/science.svg" alt="" />
-          <span class="stem-char">S</span>
-        </div>
-        <div class="stem-games-row">
-          <a href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian&from=index.html" class="desktop-card">
+    <!-- Desktop: Hero section -->
+    <section class="hero-section">
+      <h1 class="hero-title">AI Arcademia</h1>
+      <p class="hero-subtitle">STEM AI Games</p>
+      <a href="about.html" class="about-btn">About</a>
+      <div class="scroll-hint">&#9660;</div>
+    </section>
+
+    <!-- Desktop: STEM strip — sticky, sits at bottom of hero then locks to top -->
+    <div class="stem-strip">
+      <div class="stem-strip-letter" data-cat="s" onclick="selectCategory('s')">
+        <img class="stem-strip-bg" src="assets/Images/science.svg" alt="" />
+        <span class="stem-strip-char">S</span>
+      </div>
+      <div class="stem-strip-letter" data-cat="t" onclick="selectCategory('t')">
+        <img class="stem-strip-bg" src="assets/Images/technology.svg" alt="" />
+        <span class="stem-strip-char">T</span>
+      </div>
+      <div class="stem-strip-letter" data-cat="e" onclick="selectCategory('e')">
+        <img class="stem-strip-bg" src="assets/Images/engineering.svg" alt="" />
+        <span class="stem-strip-char">E</span>
+      </div>
+      <div class="stem-strip-letter" data-cat="m" onclick="selectCategory('m')">
+        <img
+          class="stem-strip-bg"
+          src="assets/Images/math_waves.png"
+          alt=""
+          style="object-fit: contain; transform: scale(1.5)"
+        />
+        <span class="stem-strip-char">M</span>
+      </div>
+    </div>
+
+    <!-- Desktop: Games section -->
+    <section class="games-section" id="games-section">
+      <div class="games-grid">
+        <!-- Science -->
+        <div class="games-col" data-cat="s">
+          <a
+            href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian&from=index.html"
+            class="desktop-card"
+          >
             <div class="dc-img-wrapper">
-              <img src="assets/Images/PhysicsGameLab.png" class="dc-img" alt="Physics Game Lab"/>
+              <img
+                src="assets/Images/PhysicsGameLab.png"
+                class="dc-img"
+                alt="Physics Game Lab"
+              />
             </div>
-            <div class="dc-title">Physics Game Lab</div>
+            <div class="dc-title-row">
+              <div class="dc-title">Physics Game Lab</div>
+              <span
+                class="dc-info"
+                data-desc="Play with physics concepts in this interactive lab — explore gravity, motion, and collisions hands-on."
+              ></span>
+            </div>
             <div class="dc-author">By Adrian</div>
           </a>
-          <a href="game.html?game=Eli Games/Sound and Valid/dist/index.html&title=Sound and Valid&author=Eli&from=index.html" class="desktop-card">
+          <a
+            href="game.html?game=Eli Games/Sound and Valid/dist/index.html&title=Sound and Valid&author=Eli&from=index.html"
+            class="desktop-card"
+          >
             <div class="dc-img-wrapper">
-              <img src="assets/Images/SoundAndValid.svg" class="dc-img" alt="Sound and Valid" />
+              <img
+                src="assets/Images/SoundAndValid.svg"
+                class="dc-img"
+                alt="Sound and Valid"
+              />
             </div>
-            <div class="dc-title">Sound and Valid</div>
+            <div class="dc-title-row">
+              <div class="dc-title">Sound and Valid</div>
+              <span
+                class="dc-info"
+                data-desc="Wave hello to natural frequency! Explore harmonics and resonance through sound."
+              ></span>
+            </div>
             <div class="dc-author">By Eli</div>
           </a>
-        </div>
-      </div>
-
-      <!-- Technology -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/technology.svg" alt="" />
-          <span class="stem-char">T</span>
-        </div>
-        <div class="stem-games-row">
-          <a href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=index.html" class="desktop-card">
-            <div class="dc-img-wrapper">
-              <img src="assets/Images/Farming Learning Game.png" class="dc-img" alt="There's a Bug in the Flower!" />
-            </div>
-            <div class="dc-title">There's a Bug in the Flower!</div>
-            <div class="dc-author">By Hao</div>
-          </a>
-          <a href="game.html?game=Adrian Games/Game2/Home.html&title=8 Bit Circuit&author=Adrian&from=index.html" class="desktop-card">
-            <div class="dc-img-wrapper">
-              <img src="assets/Images/8-BIT Circuit.png" class="dc-img" alt="8 Bit Circuit" />
-            </div>
-            <div class="dc-title">8 Bit Circuit</div>
-            <div class="dc-author">By Adrian</div>
-          </a>
-        </div>
-      </div>
-
-      <!-- Engineering -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/engineering.svg" alt="" />
-          <span class="stem-char">E</span>
-        </div>
-        <div class="stem-games-row">
-          <a href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune&author=Ella&from=index.html" class="desktop-card">
-            <div class="dc-img-wrapper">
-              <img src="assets/Images/Forge & Fortune.png" class="dc-img" alt="Forge &amp; Fortune" />
-            </div>
-            <div class="dc-title">Forge &amp; Fortune</div>
-            <div class="dc-author">By Ella</div>
-          </a>
-          <a href="game.html?game=Eli Games/StructureStrike/dist/index.html&title=StructureStrike&author=Eli&from=index.html" class="desktop-card">
-            <div class="dc-img-wrapper">
-              <img src="assets/Images/StructureStrike.svg" class="dc-img" alt="StructureStrike" />
-            </div>
-            <div class="dc-title">StructureStrike</div>
-            <div class="dc-author">By Eli</div>
-          </a>
-        </div>
-      </div>
-
-      <!-- Math -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/math_waves.png" alt="" style="object-fit: contain; transform: scale(1.5);" />
-          <span class="stem-char">M</span>
-        </div>
-        <div class="stem-games-row">
-          <a href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=index.html" class="desktop-card">
-            <div class="dc-img-wrapper">
-              <img src="assets/Images/Fourier.png" class="dc-img" alt="What Wave" />
-            </div>
-            <div class="dc-title">What Wave</div>
-            <div class="dc-author">By Elizabeth</div>
-          </a>
-          <a href="game.html?game=Ella Games/GraphGame1/index.html&title=Feed The Function&author=Ella&from=index.html" class="desktop-card">
+          <a href="#" class="desktop-card" aria-disabled="true">
             <div class="dc-img-wrapper">
               <div class="dc-placeholder">Cover image coming soon</div>
             </div>
-            <div class="dc-title">Feed The Function</div>
+            <div class="dc-title-row">
+              <div class="dc-title">Reaction Lab</div>
+              <span
+                class="dc-info"
+                data-desc="Coming soon — a virtual chemistry lab where you mix reagents and observe reactions."
+              ></span>
+            </div>
+            <div class="dc-author">Coming Soon</div>
+          </a>
+        </div>
+
+        <!-- Technology -->
+        <div class="games-col" data-cat="t">
+          <a
+            href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <img
+                src="assets/Images/Farming Learning Game.png"
+                class="dc-img"
+                alt="There's a Bug in the Flower!"
+              />
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">There's a Bug in the Flower!</div>
+              <span
+                class="dc-info"
+                data-desc="Debug the farm and grow your code skills — squash bugs to keep the flowers blooming."
+              ></span>
+            </div>
+            <div class="dc-author">By Hao</div>
+          </a>
+          <a
+            href="game.html?game=Adrian Games/Game2/Home.html&title=8 Bit Circuit&author=Adrian&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <img
+                src="assets/Images/8-BIT Circuit.png"
+                class="dc-img"
+                alt="8 Bit Circuit"
+              />
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">8 Bit Circuit</div>
+              <span
+                class="dc-info"
+                data-desc="Solve logic puzzles in this retro-inspired circuit game — wire up gates to win."
+              ></span>
+            </div>
+            <div class="dc-author">By Adrian</div>
+          </a>
+        </div>
+
+        <!-- Engineering -->
+        <div class="games-col" data-cat="e">
+          <a
+            href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune&author=Ella&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <img
+                src="assets/Images/Forge & Fortune.png"
+                class="dc-img"
+                alt="Forge &amp; Fortune"
+              />
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">Forge &amp; Fortune</div>
+              <span
+                class="dc-info"
+                data-desc="Forge materials, balance their properties, and build your fortune one alloy at a time."
+              ></span>
+            </div>
+            <div class="dc-author">By Ella</div>
+          </a>
+          <a
+            href="game.html?game=Eli Games/StructureStrike/dist/index.html&title=StructureStrike&author=Eli&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <img
+                src="assets/Images/StructureStrike.svg"
+                class="dc-img"
+                alt="StructureStrike"
+              />
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">StructureStrike</div>
+              <span
+                class="dc-info"
+                data-desc="Build structures and survive the forces — engineer beams that hold under load."
+              ></span>
+            </div>
+            <div class="dc-author">By Eli</div>
+          </a>
+        </div>
+
+        <!-- Math -->
+        <div class="games-col" data-cat="m">
+          <a
+            href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <img
+                src="assets/Images/Fourier.png"
+                class="dc-img"
+                alt="What Wave"
+              />
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">What Wave</div>
+              <span
+                class="dc-info"
+                data-desc="Decompose waves and recognize Fourier components — match the harmonic to the wave."
+              ></span>
+            </div>
+            <div class="dc-author">By Elizabeth</div>
+          </a>
+          <a
+            href="game.html?game=Ella Games/GraphGame1/index.html&title=Feed The Function&author=Ella&from=index.html"
+            class="desktop-card"
+          >
+            <div class="dc-img-wrapper">
+              <div class="dc-placeholder">Cover image coming soon</div>
+            </div>
+            <div class="dc-title-row">
+              <div class="dc-title">Feed The Function</div>
+              <span
+                class="dc-info"
+                data-desc="Recognize the shape, name the function — feed the right answer to advance."
+              ></span>
+            </div>
             <div class="dc-author">By Ella</div>
           </a>
         </div>
       </div>
-
-    </div>
+    </section>
 
     <script>
       function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
         sidebar.style.left = sidebar.style.left === "0px" ? "-250px" : "0px";
       }
+
+      function selectCategory(cat) {
+        const letters = document.querySelectorAll(".stem-strip-letter");
+        const cols = document.querySelectorAll(".games-col");
+        const clickedLetter = document.querySelector(
+          `.stem-strip-letter[data-cat="${cat}"]`,
+        );
+        const isAlreadyActive = clickedLetter.classList.contains("stem-active");
+
+        if (isAlreadyActive) {
+          letters.forEach((el) =>
+            el.classList.remove("stem-active", "stem-dimmed"),
+          );
+          cols.forEach((el) =>
+            el.classList.remove("stem-active", "stem-dimmed"),
+          );
+          return;
+        }
+
+        document
+          .getElementById("games-section")
+          .scrollIntoView({ behavior: "smooth" });
+
+        letters.forEach((el) => {
+          el.classList.toggle("stem-active", el.dataset.cat === cat);
+          el.classList.toggle("stem-dimmed", el.dataset.cat !== cat);
+        });
+        cols.forEach((el) => {
+          el.classList.toggle("stem-active", el.dataset.cat === cat);
+          el.classList.toggle("stem-dimmed", el.dataset.cat !== cat);
+        });
+      }
+
+      function toggleTheme() {
+        const isLight = document.documentElement.classList.toggle("light-mode");
+        localStorage.setItem("theme", isLight ? "light" : "dark");
+      }
+
+      if (localStorage.getItem("theme") === "light") {
+        document.documentElement.classList.add("light-mode");
+      }
+
+      // Typing animation for "AI Arcademia" title
+      window.addEventListener("DOMContentLoaded", () => {
+        const title = document.querySelector(".hero-title");
+        if (!title) return;
+        const text = title.textContent;
+        title.textContent = "";
+        title.classList.add("typing");
+        let i = 0;
+        const step = () => {
+          if (i < text.length) {
+            title.textContent += text[i++];
+            setTimeout(step, 110);
+          }
+        };
+        setTimeout(step, 350);
+      });
     </script>
   </body>
 </html>
