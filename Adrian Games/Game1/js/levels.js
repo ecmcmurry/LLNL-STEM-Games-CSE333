@@ -35,6 +35,11 @@ function startLevel(n) {
     if (n !== 5) w5ClearVisuals();
     if (n !== 6) w6ClearVisuals();
 
+    const isSandbox = (n === 0 || n === 6);
+    if (controlMethod === 'mobile') {
+        document.getElementById('jump-btn')?.classList.toggle('hidden', !isSandbox);
+    }
+
     if (n === 0) {
         document.getElementById('hud-left').classList.remove('hidden');
         document.getElementById('match-hud').classList.remove('hidden');
@@ -1859,7 +1864,10 @@ function w6GenChallenge() {
         c.desc = c.dir === 'over'
             ? `⚡ GO FAST!\nHold OVER ${c.targetSpeed.toFixed(1)} m/s for 3 seconds!`
             : `🐢 GO SLOW!\nHold UNDER ${c.targetSpeed.toFixed(1)} m/s for 3 seconds!`;
+        document.getElementById('match-hud').classList.remove('hidden');
     }
+
+    if (type !== 'speed') document.getElementById('match-hud').classList.add('hidden');
 
     w6Challenge    = c;
     w6WasOnSurface = onSurface;
@@ -1906,7 +1914,7 @@ function startW6() {
     levelState     = { phase: 'sandbox' };
 
     document.getElementById('hud-left').classList.remove('hidden');
-    document.getElementById('match-hud').classList.remove('hidden');
+    document.getElementById('match-hud').classList.add('hidden');
     document.getElementById('level-hud').classList.remove('hidden');
 
     showModal({
