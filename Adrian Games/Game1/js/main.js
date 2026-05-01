@@ -31,28 +31,23 @@ function updateKeyboardTilt(dt) {
     tiltX = THREE.MathUtils.clamp(tiltX, -MAX_TILT_DEG, MAX_TILT_DEG);
     tiltZ = THREE.MathUtils.clamp(tiltZ, -MAX_TILT_DEG, MAX_TILT_DEG);
 }
-// Touch hold = charge jump (mobile equivalent of holding Space)
-window.addEventListener('touchstart', e => {
-    if (controlMethod !== 'mobile' || !gameActive) return;
-    if (levelPhase === 'question') return;
+// Jump button touch handlers — no global touch listener so long-press highlights don't trigger
+const jumpBtn = document.getElementById('jump-btn');
+jumpBtn.addEventListener('touchstart', e => {
     e.preventDefault();
     if (!spaceDown) {
         spaceDown      = true;
         jumpChargeTime = 0;
     }
 }, { passive: false });
-
-window.addEventListener('touchend', e => {
-    if (controlMethod !== 'mobile' || !gameActive) return;
+jumpBtn.addEventListener('touchend', e => {
     e.preventDefault();
     spaceDown  = false;
     jumpQueued = true;
 }, { passive: false });
-
-window.addEventListener('touchcancel', e => {
-    if (controlMethod !== 'mobile') return;
-    spaceDown  = false;
-    jumpQueued = false;
+jumpBtn.addEventListener('touchcancel', () => {
+    spaceDown      = false;
+    jumpQueued     = false;
     jumpChargeTime = 0;
 });
 
@@ -79,8 +74,8 @@ function handleOrientation(e) {
         dz =  (e.gamma - calibGamma);
     } else {
         // Portrait fallback
-        dx = calibGamma - e.gamma;
-        dz = calibBeta  - e.beta;
+        dx = e.gamma - calibGamma;
+        dz = calibBeta - e.beta;
     }
     tiltX = THREE.MathUtils.clamp(dx, -MAX_TILT_DEG, MAX_TILT_DEG);
     tiltZ = THREE.MathUtils.clamp(dz, -MAX_TILT_DEG, MAX_TILT_DEG);
@@ -152,7 +147,7 @@ document.getElementById('back-to-device-btn').onclick = () => {
 // Shared helper — used by game-back-btn AND the level-complete menu
 function goToLevelSelect() {
     gameActive = false;
-    ['hud-left', 'hud-right', 'force-legend', 'snapshot-btn', 'game-back-btn']
+    ['hud-left', 'hud-right', 'force-legend', 'snapshot-btn', 'game-back-btn', 'jump-btn']
         .forEach(id => document.getElementById(id)?.classList.add('hidden'));
     hideAllLevelPanels();
     const uiBg = document.getElementById('ui-bg');

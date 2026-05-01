@@ -475,6 +475,7 @@ kbd {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #334155 transparent;
+    z-index: 25;
 }
 #hud-left::-webkit-scrollbar { width: 4px; }
 #hud-left::-webkit-scrollbar-track { background: transparent; }
@@ -901,6 +902,7 @@ input[type="number"]:focus {
         padding: 12px 14px;
     }
     #level-hud {
+        position: fixed;
         bottom: 16px;
         width: calc(100vw - 32px);
         max-width: 340px;
@@ -991,7 +993,7 @@ input[type="number"]:focus {
     .lvl-num    { width: 28px; height: 28px; font-size: 0.65rem; }
     #start-button { max-width: 100%; padding: 14px; font-size: 0.78rem; }
 
-    /* ── In-game back button — compact, clear of level HUD ── */
+    /* ── In-game back button — bottom left on mobile ── */
     #game-back-btn {
         bottom: 16px;
         left: 12px;
@@ -1003,6 +1005,7 @@ input[type="number"]:focus {
 
 /* --- LEVEL HUD --- */
 #level-hud {
+    position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
@@ -1387,50 +1390,47 @@ input[type="number"]:focus {
 /* --- JUMP BUTTON (mobile only) --- */
 #jump-btn {
     position: fixed;
-    bottom: 90px;
+    bottom: 20px;
     right: 20px;
-    width: 76px;
-    height: 76px;
-    border-radius: 50%;
+    padding: 10px 18px;
     background: rgba(34, 211, 238, 0.12);
-    border: 2px solid rgba(34, 211, 238, 0.5);
     color: var(--accent-cyan);
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    border-radius: 8px;
     cursor: pointer;
     z-index: 15;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1px;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.2), inset 0 1px 0 rgba(34, 211, 238, 0.15);
-    transition: background 0.12s, box-shadow 0.12s, transform 0.1s;
+    box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
+    transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     touch-action: none;
 }
 
 .jump-icon {
-    font-size: 1.8rem;
-    line-height: 1;
-    display: block;
+    display: inline;
+    margin-right: 4px;
 }
 
 .jump-label {
-    font-size: 0.48rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    display: block;
-    font-family: 'Courier New', monospace;
+    display: inline;
+}
+
+#jump-btn:hover {
+    background: rgba(34, 211, 238, 0.22);
+    box-shadow: 0 6px 26px rgba(34, 211, 238, 0.35);
 }
 
 #jump-btn:active {
-    transform: scale(0.93);
+    transform: scale(0.95);
     background: rgba(34, 211, 238, 0.22);
-    box-shadow: 0 0 30px rgba(34, 211, 238, 0.5), inset 0 1px 0 rgba(34, 211, 238, 0.3);
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.5);
 }
 
 @keyframes jump-charge-pulse {
@@ -1447,12 +1447,11 @@ input[type="number"]:focus {
 /* On very small landscape screens, shrink the button slightly */
 @media (max-height: 400px) {
     #jump-btn {
-        width: 62px;
-        height: 62px;
-        bottom: 70px;
+        padding: 7px 12px;
+        font-size: 0.62rem;
+        bottom: 14px;
         right: 14px;
     }
-    .jump-icon { font-size: 1.4rem; }
 }
 
 /* --- UTILS --- */
