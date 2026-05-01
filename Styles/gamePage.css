@@ -46,7 +46,7 @@ body {
     background: rgba(219, 170, 0, 0.07);
     border: 1px solid rgba(219, 170, 0, 0.28);
     border-radius: 999px;
-    font-size: 0.8rem;
+    font-size: 2rem;
     color: rgba(255, 255, 255, 0.5);
     letter-spacing: 0.6px;
 }
@@ -88,7 +88,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     border: 1px solid rgba(219, 170, 0, 0.4);
     border-radius: 6px;
     color: #dbaa00;
-    font-size: 1.8rem;
+    font-size: 2.3rem;
     padding: 6px 12px;
     cursor: pointer;
     transition: background 0.2s;
@@ -238,4 +238,82 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     line-height: 1.65;
     margin: 0;
     position: relative;
+}
+
+.theme-toggle {
+    display: flex;
+    position: absolute;
+    top: 35px;
+    right: 140px; 
+    z-index: 1001;
+    align-items: center;
+    justify-content: center;
+    width: 69px;
+    height: 69px;
+    border-radius: 50%;
+    border: 1px solid rgba(219, 170, 0, 0.45);
+    background: rgba(255, 255, 255, 0.06);
+    color: #dbaa00;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        width: 48px;
+        height: 48px;
+        top: 12px;
+        right: 14px;
+    }
+    .theme-toggle svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+.theme-toggle:hover {
+    background: rgba(219, 170, 0, 0.14);
+    border-color: rgba(219, 170, 0, 0.75);
+    transform: scale(1.08);
+}
+.theme-toggle svg {
+    width: 33px;
+    height: 33px;
+    pointer-events: none;
+}
+.icon-sun  { display: block; }
+.icon-moon { display: none;  }
+.light-mode .icon-sun  { display: none;  }
+.light-mode .icon-moon { display: block; }
+
+.light-mode body { background: #e8eef5; color: #071828; }
+.light-mode h1 { color: #0f2d52; }
+.light-mode .top h1 { color: #071828; }
+.light-mode a.back {
+    color: #0f2d52;
+    background-color: rgba(15, 45, 82, 0.08);
+    border-color: rgba(15, 45, 82, 0.3);
+}
+.light-mode a.back:hover { background: rgba(15, 45, 82, 0.16); }
+.light-mode .fullscreen-btn {
+    background: rgba(15, 45, 82, 0.08);
+    border-color: rgba(15, 45, 82, 0.3);
+    color: #0f2d52;
+}
+.light-mode .fullscreen-btn:hover { background: rgba(15, 45, 82, 0.16); }
+.light-mode .author-badge {
+    background: rgba(15, 45, 82, 0.08);
+    border-color: rgba(15, 45, 82, 0.22);
+    color: rgba(7, 24, 40, 0.55);
+}
+.light-mode .author-badge span { color: #0f2d52; }
+.light-mode #gameContainer { border-color: rgba(15, 45, 82, 0.22); }
+.light-mode .theme-toggle {
+    border-color: rgba(15, 45, 82, 0.45);
+    background: rgba(15, 45, 82, 0.06);
+    color: #0f2d52;
+}
+.light-mode .theme-toggle:hover {
+    background: rgba(15, 45, 82, 0.14);
+    border-color: rgba(15, 45, 82, 0.75);
 }
