@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="Styles/styles.css" />
-    <title>STEM Games</title>
+    <title>AI Arcademia</title>
   </head>
   <body>
+    <!-- Mobile only: sidebar + top bar + nav -->
     <div id="sidebar" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" onclick="toggleSidebar()">&times;</a>
       <a href="index.html">Home</a>
@@ -19,11 +20,10 @@
 
     <div class="top-bar">
       <h1 id="logo" onclick="toggleSidebar()">
-        <span>&#9662;</span> STEM AI Games
+        <span>&#9662;</span> AI Arcademia
       </h1>
     </div>
 
-    <!-- Mobile: four STEM nav buttons -->
     <nav id="main-nav">
       <a href="science.html">S &mdash; Science</a>
       <a href="technology.html">T &mdash; Technology</a>
@@ -31,16 +31,40 @@
       <a href="math.html">M &mdash; Math</a>
     </nav>
 
-    <!-- Desktop: STEM letters with games inline -->
-    <div class="desktop-games">
+    <!-- Desktop: Hero section -->
+    <section class="hero-section">
+      <h1 class="hero-title">AI Arcademia</h1>
+      <p class="hero-subtitle">STEM AI Games</p>
+      <a href="about.html" class="about-btn">About</a>
+      <div class="scroll-hint">&#9660;</div>
+    </section>
 
-      <!-- Science -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/science.svg" alt="" />
-          <span class="stem-char">S</span>
-        </div>
-        <div class="stem-games-row">
+    <!-- Desktop: STEM strip — sticky, sits at bottom of hero then locks to top -->
+    <div class="stem-strip">
+      <div class="stem-strip-letter">
+        <img class="stem-strip-bg" src="assets/Images/science.svg" alt="" />
+        <span class="stem-strip-char">S</span>
+      </div>
+      <div class="stem-strip-letter">
+        <img class="stem-strip-bg" src="assets/Images/technology.svg" alt="" />
+        <span class="stem-strip-char">T</span>
+      </div>
+      <div class="stem-strip-letter">
+        <img class="stem-strip-bg" src="assets/Images/engineering.svg" alt="" />
+        <span class="stem-strip-char">E</span>
+      </div>
+      <div class="stem-strip-letter">
+        <img class="stem-strip-bg" src="assets/Images/math_waves.png" alt="" style="object-fit: contain; transform: scale(1.5);" />
+        <span class="stem-strip-char">M</span>
+      </div>
+    </div>
+
+    <!-- Desktop: Games section -->
+    <section class="games-section">
+      <div class="games-grid">
+
+        <!-- Science -->
+        <div class="games-col">
           <a href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian&from=index.html" class="desktop-card">
             <div class="dc-img-wrapper">
               <img src="assets/Images/PhysicsGameLab.png" class="dc-img" alt="Physics Game Lab"/>
@@ -56,15 +80,9 @@
             <div class="dc-author">By Eli</div>
           </a>
         </div>
-      </div>
 
-      <!-- Technology -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/technology.svg" alt="" />
-          <span class="stem-char">T</span>
-        </div>
-        <div class="stem-games-row">
+        <!-- Technology -->
+        <div class="games-col">
           <a href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=index.html" class="desktop-card">
             <div class="dc-img-wrapper">
               <img src="assets/Images/Farming Learning Game.png" class="dc-img" alt="There's a Bug in the Flower!" />
@@ -80,15 +98,9 @@
             <div class="dc-author">By Adrian</div>
           </a>
         </div>
-      </div>
 
-      <!-- Engineering -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/engineering.svg" alt="" />
-          <span class="stem-char">E</span>
-        </div>
-        <div class="stem-games-row">
+        <!-- Engineering -->
+        <div class="games-col">
           <a href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune&author=Ella&from=index.html" class="desktop-card">
             <div class="dc-img-wrapper">
               <img src="assets/Images/Forge & Fortune.png" class="dc-img" alt="Forge &amp; Fortune" />
@@ -104,15 +116,9 @@
             <div class="dc-author">By Eli</div>
           </a>
         </div>
-      </div>
 
-      <!-- Math -->
-      <div class="stem-row">
-        <div class="stem-letter-box">
-          <img class="stem-bg-svg" src="assets/Images/math_waves.png" alt="" style="object-fit: contain; transform: scale(1.5);" />
-          <span class="stem-char">M</span>
-        </div>
-        <div class="stem-games-row">
+        <!-- Math -->
+        <div class="games-col">
           <a href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=index.html" class="desktop-card">
             <div class="dc-img-wrapper">
               <img src="assets/Images/Fourier.png" class="dc-img" alt="What Wave" />
@@ -128,9 +134,9 @@
             <div class="dc-author">By Ella</div>
           </a>
         </div>
-      </div>
 
-    </div>
+      </div>
+    </section>
 
     <script>
       function toggleSidebar() {
