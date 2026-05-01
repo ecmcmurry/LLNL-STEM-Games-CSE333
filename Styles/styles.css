@@ -317,7 +317,7 @@ nav a:hover {
         vertical-align: baseline;
         width: 0;
         font-size: 0.4em;
-        color: #dbaa00;
+        color: inherit;
         letter-spacing: 1px;
     }
     .stem-strip-letter[data-cat="s"] .stem-strip-char::after {
@@ -349,33 +349,38 @@ nav a:hover {
     .games-section {
         display: flex;
         flex-direction: column;
-        height: calc(100vh - 236px);
-        overflow: hidden;
+        min-height: calc(100vh - 236px);
+        height: auto;
+        overflow: visible;
+        padding-bottom: 32px;
         box-sizing: border-box;
     }
 
     .games-grid {
         flex: 1;
-        min-height: 0;
         display: flex;
-        gap: 10px;
+        gap: 14px;
         padding: 16px 32px;
         box-sizing: border-box;
-        overflow: hidden;
+        overflow: visible;
+        align-items: flex-start;
+        flex-wrap: nowrap;
     }
 
     .games-col {
         flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
         gap: 12px;
-        min-height: 0;
     }
 
     /* ── Game cards ── */
     .desktop-card {
-        flex: 1;
-        min-height: 0;
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: 0;
+        height: 220px;
         background: rgba(255, 255, 255, 0.07);
         padding: 10px;
         border-radius: 10px;
@@ -390,10 +395,12 @@ nav a:hover {
         cursor: pointer;
         box-sizing: border-box;
         position: relative;
+        z-index: 1;
     }
     .desktop-card:hover {
         transform: scale(1.02);
         background: rgba(219, 170, 0, 0.08);
+        z-index: 10;
         border-color: rgba(219, 170, 0, 0.55);
     }
 
@@ -408,6 +415,8 @@ nav a:hover {
     }
 
     .dc-img {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -430,13 +439,14 @@ nav a:hover {
     }
 
     .dc-title-row {
-        position: relative;
         margin-bottom: 3px;
         flex-shrink: 0;
         min-height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 6px;
+        padding: 0 10px;
     }
 
     .dc-title {
@@ -444,9 +454,10 @@ nav a:hover {
         font-weight: bold;
         line-height: 1.2;
         text-align: center;
-        padding: 0 36px; 
-        width: 100%;
-        box-sizing: border-box;
+        flex: 0 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .dc-author {
@@ -473,8 +484,6 @@ nav a:hover {
         font-size: 1.1rem;
         line-height: 1;
         cursor: help;
-        position: absolute;
-        right: 10px;
         transition: background 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
     }
     .dc-info::before {
@@ -488,8 +497,10 @@ nav a:hover {
     .dc-info::after {
         content: attr(data-desc);
         position: absolute;
-        bottom: calc(100% + 10px);
-        right: -4px;
+        top: 50%;
+        left: calc(100% + 10px);
+        right: auto;
+        bottom: auto;
         width: max-content;
         max-width: 240px;
         padding: 12px 14px;
@@ -500,14 +511,14 @@ nav a:hover {
         font-family: 'PixelPurl', 'Segoe UI', system-ui, sans-serif;
         font-style: normal;
         font-weight: normal;
-        font-size: 2rem;
+        font-size: 0.78rem;
         line-height: 1.45;
         text-align: left;
         white-space: normal;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
         opacity: 0;
         visibility: hidden;
-        transform: translateY(6px);
+        transform: translateY(-50%) translateX(-6px);
         transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
         pointer-events: none;
         z-index: 100;
@@ -515,8 +526,21 @@ nav a:hover {
     .dc-info:hover::after {
         opacity: 1;
         visibility: visible;
-        transform: translateY(0);
+        transform: translateY(-50%) translateX(0);
     }
+
+    /* E and M columns (3rd and 4th): tooltip slides out to the left */
+    .games-col:nth-child(3) .dc-info::after,
+    .games-col:nth-child(4) .dc-info::after {
+        left: auto;
+        right: calc(100% + 10px);
+        transform: translateY(-50%) translateX(6px);
+    }
+    .games-col:nth-child(3) .dc-info:hover::after,
+    .games-col:nth-child(4) .dc-info:hover::after {
+        transform: translateY(-50%) translateX(0);
+    }
+
 
    
     .light-mode .dc-info {
@@ -543,9 +567,8 @@ nav a:hover {
         padding: 0 4vw 14px;
     }
     .hero-section  { height: calc(100vh - 210px); }
-    /* Let games section grow as tall as needed and scroll naturally with the page */
-    .games-section { height: auto; overflow: visible; padding-bottom: 32px; }
-    .games-grid    { padding: 14px 4vw; overflow: visible; align-items: flex-start; }
+    .games-section { min-height: calc(100vh - 210px); }
+    .games-grid    { padding: 14px 4vw; }
 
     .hero-title    { font-size: clamp(6rem, 11vw, 10rem); }
     .hero-subtitle { font-size: clamp(2.4rem, 4.2vw, 3.2rem); }
@@ -554,11 +577,8 @@ nav a:hover {
     .dc-title      { font-size: clamp(1rem, 1.4vw, 1.15rem); }
     .dc-author     { font-size: clamp(0.85rem, 1.2vw, 0.95rem); }
 
-    /* Cards: fixed size, not stretching to fill the column height */
-    .desktop-card   { flex: 0 0 auto; }
-    .games-col      { justify-content: flex-start; min-height: unset; }
-    /* Fixed 16:9 image area so all cards are the same landscape shape */
-    .dc-img-wrapper { flex: 0 0 auto; aspect-ratio: 16 / 9; height: auto; background: #071828; }
+    .desktop-card   { height: 196px; }
+    .dc-img-wrapper { background: #071828; }
     .dc-img         { object-fit: contain; }
 }
 
@@ -666,7 +686,8 @@ nav a:hover {
     .stem-strip-letter {
         cursor: pointer;
         transition: background 0.35s ease, border-color 0.35s ease,
-                    box-shadow 0.35s ease, opacity 0.35s ease, filter 0.35s ease;
+                    box-shadow 0.35s ease, opacity 0.35s ease, filter 0.35s ease,
+                    flex 0.45s ease;
     }
 
     .stem-strip-letter.stem-active {
@@ -683,20 +704,57 @@ nav a:hover {
     }
 
     .stem-strip-letter.stem-dimmed {
-        opacity: 0.32;
+        flex: 0 0 0%;
+        min-width: 0;
+        opacity: 0;
         filter: brightness(0.55) saturate(0.4);
+        pointer-events: none;
     }
+
+    /* Keep full text visible when a letter is active */
+    .stem-strip-letter[data-cat="s"].stem-active .stem-strip-char::after { width: 6.2ch; }
+    .stem-strip-letter[data-cat="t"].stem-active .stem-strip-char::after { width: 9.4ch; }
+    .stem-strip-letter[data-cat="e"].stem-active .stem-strip-char::after { width: 10.4ch; }
+    .stem-strip-letter[data-cat="m"].stem-active .stem-strip-char::after { width: 3.2ch; }
 
     /* Games columns being active or dimmed  */
     .games-col {
-        transition: opacity 0.4s ease, filter 0.4s ease;
+        transition: flex 0.45s ease, opacity 0.45s ease, filter 0.45s ease;
     }
     .games-col.stem-active {
+        flex: 1;
         opacity: 1;
         filter: none;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .games-col.stem-active .desktop-card {
+        flex: 0 0 calc(25vw - 26.5px);
+        width: calc(25vw - 26.5px);
+    }
+
+    /* Tooltip direction in row layout: all cards go right except the last */
+    .games-col.stem-active .desktop-card .dc-info::after {
+        left: calc(100% + 10px);
+        right: auto;
+        transform: translateY(-50%) translateX(-6px);
+    }
+    .games-col.stem-active .desktop-card .dc-info:hover::after {
+        transform: translateY(-50%) translateX(0);
+    }
+    .games-col.stem-active .desktop-card:last-child .dc-info::after {
+        left: auto;
+        right: calc(100% + 10px);
+        transform: translateY(-50%) translateX(6px);
+    }
+    .games-col.stem-active .desktop-card:last-child .dc-info:hover::after {
+        transform: translateY(-50%) translateX(0);
     }
     .games-col.stem-dimmed {
-        opacity: 0.18;
+        flex: 0 0 0%;
+        overflow: hidden;
+        opacity: 0;
         filter: brightness(0.5) saturate(0.3);
         pointer-events: none;
     }

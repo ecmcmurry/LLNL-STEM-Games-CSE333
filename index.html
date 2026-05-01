@@ -319,9 +319,10 @@
           return;
         }
 
-        document
-          .getElementById("games-section")
-          .scrollIntoView({ behavior: "smooth" });
+        window.scrollTo({
+          top: document.querySelector(".stem-strip").offsetTop,
+          behavior: "smooth",
+        });
 
         letters.forEach((el) => {
           el.classList.toggle("stem-active", el.dataset.cat === cat);
@@ -342,8 +343,20 @@
         document.documentElement.classList.add("light-mode");
       }
 
+      function fitCardTitles() {
+        document.querySelectorAll('.dc-title').forEach(el => {
+          el.style.fontSize = '';
+          let size = parseFloat(getComputedStyle(el).fontSize);
+          while (el.scrollWidth > el.offsetWidth && size > 10) {
+            size -= 0.5;
+            el.style.fontSize = size + 'px';
+          }
+        });
+      }
+
       // Typing animation for "AI Arcademia" title
       window.addEventListener("DOMContentLoaded", () => {
+        fitCardTitles();
         const title = document.querySelector(".hero-title");
         if (!title) return;
         const text = title.textContent;
@@ -358,6 +371,8 @@
         };
         setTimeout(step, 350);
       });
+
+      window.addEventListener("resize", fitCardTitles);
     </script>
   </body>
 </html>
