@@ -64,6 +64,28 @@ html, body {
   }
 }
 
+/* Mobile: cap the container so the room background isn't vertically
+   stretched into a tall, distorted strip on portrait phones. The
+   background SVG's natural aspect is ~787:480 (≈1.64:1); we let the
+   container go a bit taller than that for breathing room, but never as
+   tall as a full phone viewport. The container is then vertically
+   centered against a dark backdrop so the whole game reads as a single
+   framed scene rather than a stretched canvas. */
+@media (max-width: 1099px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0e0703;
+  }
+  #game-container {
+    width: 100vw;
+    /* Tall enough for a comfortable HUD + room, but never the full
+       viewport height — that's what was causing the stretched look. */
+    height: min(100vh, calc(100vw * 1.35));
+  }
+}
+
 /* ═══ Headings ═══ */
 h1, h2, h3 {
   font-family: 'Cinzel', 'IM Fell English SC', Georgia, serif;
@@ -2899,14 +2921,14 @@ body:has(#screen-title.active) #game-container {
     letter-spacing: 0.4px !important;
     min-width: 0;
   }
-  /* Replace verbose text with single-glyph labels on mobile to save room. */
-  #btn-handbook   { font-size: 0 !important; padding: 4px 8px !important; }
-  #btn-handbook::before   { content: '📖'; font-size: 0.95rem; }
-  #btn-main-menu  { font-size: 0 !important; padding: 4px 8px !important; }
-  #btn-main-menu::before  { content: '🏠'; font-size: 0.95rem; }
-  #btn-pause      { font-size: 0 !important; padding: 4px 8px !important; }
-  #btn-pause::before      { content: '⏸'; font-size: 0.95rem; }
-  body.paused #btn-pause::before { content: '▶'; }
+  /* Replace verbose text with single-glyph labels on mobile to save room.
+     We hide the .btn-label span instead of using font-size: 0 + ::before,
+     because iOS/Safari color-emoji glyphs ignore font-size: 0 and would
+     render BOTH the original emoji and the pseudo-element emoji. */
+  #btn-handbook,
+  #btn-main-menu,
+  #btn-pause { padding: 4px 8px !important; font-size: 0.95rem !important; }
+  #hud-actions .btn-label { display: none !important; }
   #ai-status {
     font-size: 0 !important;
     padding: 4px !important;
@@ -3094,8 +3116,10 @@ body:has(#screen-title.active) #game-container {
   position: absolute;
   left: 5%;
   right: 40%;
-  bottom: 5%;
-  height: 30%;
+  /* Sit a touch lower so the top of the order art doesn't get clipped by
+     the upper edge of the orders band on desktop. */
+  bottom: 3%;
+  height: 26%;
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -3108,11 +3132,13 @@ body:has(#screen-title.active) #game-container {
   scrollbar-width: none;
 }
 #counter-orders::-webkit-scrollbar { display: none; }
+/* Mobile: lift the orders so they rest ON the painted counter rather than
+   slipping down past it. */
 @media (max-width: 800px) {
-  #counter-orders { left: 3%; right: 42%; bottom: 5%; height: 26%; }
+  #counter-orders { left: 3%; right: 42%; bottom: 11%; height: 22%; }
 }
 @media (max-width: 480px) {
-  #counter-orders { left: 2%; right: 44%; bottom: 4%; height: 24%; }
+  #counter-orders { left: 2%; right: 44%; bottom: 13%; height: 20%; }
 }
 
 /* The counter art stays painted on every tab, but the interactive overlays
@@ -3209,7 +3235,9 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   pointer-events: auto;
   position: relative;
   flex: 0 0 auto;
-  width: clamp(144px, 18vw, 260px);
+  /* Slightly smaller so the full top of the parchment art fits inside the
+     orders band without being clipped on desktop. */
+  width: clamp(120px, 15vw, 220px);
   aspect-ratio: 4 / 5;
   background: transparent;
   border: none;
@@ -3274,6 +3302,4 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   .counter-order .co-num { font-size: 0.55rem; padding: 1px 4px; }
 }
 
-/* The legacy chandelier emoji painted at the top of the lobby is redundant
-   now that the General Background already shows shop ornamentation. */
 #workspace-lobby #lobby-customer-area::before { display: none; }
