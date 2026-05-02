@@ -3242,12 +3242,13 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   pointer-events: auto;
   position: relative;
   flex: 0 0 auto;
-  /* Smaller card so the full parchment art (4:5 portrait) doesn't get
-     clipped at the top by the orders band — combined with overflow-y:
-     visible on the band, the card can sit fully visible above the
-     painted counter. */
-  width: clamp(110px, 12vw, 175px);
-  aspect-ratio: 4 / 5;
+  /* Card aspect matches the OrderN.svg viewBox (787.5 × 562.5 = 7:5
+     landscape). Earlier the card was 4:5 portrait, which combined with
+     object-fit: contain on the inner art gave the parchment a tall empty
+     band at the top and made the parchment look cropped. Matching the
+     natural aspect lets the art render edge-to-edge with no clipping. */
+  width: clamp(140px, 16vw, 240px);
+  aspect-ratio: 7 / 5;
   background: transparent;
   border: none;
   padding: 0;
@@ -3306,7 +3307,9 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   pointer-events: none;
 }
 @media (max-width: 800px) {
-  .counter-order { width: clamp(58px, 18vw, 100px); }
+  /* Card is now 7:5 landscape (matches OrderN.svg) — bump width on mobile
+     since the card is shorter, so it remains readable on small screens. */
+  .counter-order { width: clamp(80px, 22vw, 130px); }
   .counter-order .co-state { font-size: 0.65rem; }
   .counter-order .co-num { font-size: 0.55rem; padding: 1px 4px; }
 }
