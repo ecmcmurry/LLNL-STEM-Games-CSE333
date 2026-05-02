@@ -66,12 +66,12 @@ function handleOrientation(e) {
     let dx, dz;
     if (angle === 90) {
         // Landscape: physical top of device points LEFT of screen
-        dx =  (e.beta  - calibBeta);
-        dz = -(e.gamma - calibGamma);
-    } else if (angle === -90 || angle === 270) {
-        // Landscape: physical top of device points RIGHT of screen
         dx = -(e.beta  - calibBeta);
         dz =  (e.gamma - calibGamma);
+    } else if (angle === -90 || angle === 270) {
+        // Landscape: physical top of device points RIGHT of screen
+        dx =  (e.beta  - calibBeta);
+        dz = -(e.gamma - calibGamma);
     } else {
         // Portrait fallback
         dx = e.gamma - calibGamma;
