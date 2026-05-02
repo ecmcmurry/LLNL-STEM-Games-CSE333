@@ -3125,7 +3125,7 @@ s.anvil-icon-img {
   /* Band height is just where the cards rest; cards (aspect-ratio 4/5) are
      allowed to extend ABOVE the band so their parchment tops aren't
      clipped by overflow:hidden. Width is what controls visible card size. */
-  height: 22%;
+  height: 16%;
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
