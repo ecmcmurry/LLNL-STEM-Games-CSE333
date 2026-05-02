@@ -1,0 +1,3542 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forge & Fortune: Materials Science Edition</title>
+    <style>
+      :root {
+        --bg: #1a1210;
+        --panel: #f4e9d8;
+        --primary: #c0392b;
+        --secondary: #d35400;
+        --text: #2c3e50;
+        --money: #27ae60;
+        --rep: #2980b9;
+        --danger: #c0392b;
+        --pass: #27ae60;
+        --fail: #e74c3c;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      #game-container {
+        width: 98vw;
+        height: 96vh;
+        max-width: 1600px;
+        background: var(--panel);
+        border: 8px solid #4a362c;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ── Screens ── */
+      .screen {
+        display: none;
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+      }
+      .screen.active {
+        display: flex;
+      }
+
+      /* ── HUD ── */
+      #hud {
+        background: rgba(43, 29, 24, 1);
+        color: white;
+        padding: 0 16px 0 0;
+        display: none;
+        justify-content: space-between;
+        align-items: stretch;
+        font-size: 1.1rem;
+        font-weight: bold;
+        z-index: 100;
+        border-bottom: 4px solid #2b1d18;
+        flex-shrink: 0;
+        gap: 0;
+        min-height: 52px;
+      }
+      #hud-logo {
+        display: flex;
+        align-items: center;
+        background: var(--primary);
+        padding: 0 20px;
+        margin-right: 18px;
+        gap: 8px;
+        font-size: 1.05rem;
+        letter-spacing: 0.5px;
+        border-right: 4px solid #8e1c12;
+        flex-shrink: 0;
+        white-space: nowrap;
+      }
+      #hud-logo .logo-icon {
+        font-size: 1.5rem;
+      }
+      #hud-logo .logo-text {
+        line-height: 1.1;
+      }
+      #hud-logo .logo-text strong {
+        display: block;
+        font-size: 1.1rem;
+      }
+      #hud-logo .logo-text small {
+        font-size: 0.65rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      #hud-stats {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        padding: 10px 0;
+      }
+      .hud-stat {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 14px;
+      }
+      .hud-divider {
+        width: 2px;
+        background: rgba(255, 255, 255, 0.15);
+        align-self: stretch;
+        margin: 8px 8px;
+      }
+      .money-text {
+        color: #2ecc71;
+      }
+      .rep-text {
+        color: #3498db;
+      }
+
+      #btn-handbook {
+        background: #34495e;
+        font-size: 0.9rem;
+        padding: 7px 12px;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0 3px 0 #1a252f;
+      }
+      #btn-handbook:active {
+        transform: translateY(3px);
+        box-shadow: none;
+      }
+
+      /* ── Game UI wrapper ── */
+      #game-ui {
+        display: none;
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: hidden;
+      }
+      #game-ui.active {
+        display: flex;
+      }
+
+      /* ── Tabs ── */
+      #tab-bar {
+        display: flex;
+        width: 100%;
+        background: #2c3e50;
+        height: 55px;
+        flex-shrink: 0;
+      }
+      .tab-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: #95a5a6;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        border-right: 2px solid #1a252f;
+      }
+      .tab-btn.active-tab {
+        background: var(--panel);
+        color: var(--text);
+        border-top: 5px solid var(--primary);
+      }
+
+      /* ── Main Area ── */
+      #main-area {
+        display: flex;
+        flex-grow: 1;
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+      }
+      .workspace {
+        display: none;
+        flex-grow: 1;
+        position: relative;
+        overflow-y: auto;
+      }
+      .workspace.active {
+        display: flex;
+      }
+
+      /* ── Order Paper Scroll ── */
+      #order-scroll {
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 340px;
+        background: #fffdf0;
+        border-left: 6px solid #d35400;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+      }
+      #order-scroll.open {
+        transform: translateX(0);
+      }
+      #scroll-tab {
+        position: absolute;
+        left: -46px;
+        top: 20px;
+        width: 40px;
+        background: #d35400;
+        color: white;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        padding: 15px 0;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 10px 0 0 10px;
+        border: 4px solid #a04000;
+        border-right: none;
+        box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
+        user-select: none;
+        font-size: 1.1rem;
+      }
+      #scroll-content {
+        padding: 20px;
+        width: 100%;
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+      .scroll-title {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-top: 0;
+        border-bottom: 2px dashed #bdc3c7;
+        padding-bottom: 10px;
+        font-family: "Courier New", Courier, monospace;
+        font-weight: bold;
+      }
+
+      /* ── Inventory Tray ── */
+      #inventory-tray-wrapper {
+        flex-shrink: 0;
+        width: 100%;
+        background: #2c3e50;
+        border-top: 5px solid #1a252f;
+        z-index: 60;
+        position: relative;
+      }
+      #inventory-tray-label {
+        font-size: 0.7rem;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        padding: 5px 18px 0;
+      }
+      #inventory-tray {
+        height: 130px;
+        display: flex;
+        align-items: center;
+        padding: 6px 18px 10px;
+        gap: 12px;
+        overflow-x: auto;
+        width: 100%;
+      }
+      #inventory-tray::-webkit-scrollbar {
+        height: 4px;
+      }
+      #inventory-tray::-webkit-scrollbar-track {
+        background: #1a252f;
+      }
+      #inventory-tray::-webkit-scrollbar-thumb {
+        background: #546e7a;
+        border-radius: 2px;
+      }
+
+      .inv-item {
+        min-width: 110px;
+        height: 108px;
+        background: #ecf0f1;
+        border: 4px solid #7f8c8d;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        font-size: 0.85rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 6px;
+        flex-shrink: 0;
+        transition:
+          transform 0.12s,
+          box-shadow 0.12s;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+      }
+      .inv-item:active {
+        cursor: grabbing;
+      }
+      .inv-item.raw {
+        border-color: #7f8c8d;
+        background: #ecf0f1;
+      }
+      .inv-item.heating {
+        border-color: #e74c3c;
+        background: #fadbd8;
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+      }
+      .inv-item.heated {
+        border-color: #e67e22;
+        background: #fef5e7;
+        box-shadow: 0 0 10px rgba(230, 126, 34, 0.5);
+      }
+      .inv-item.forging {
+        border-color: #8e44ad;
+        background: #f4ecf7;
+      }
+      .inv-item.finished {
+        border-color: #2980b9;
+        background: #ebf5fb;
+        box-shadow: 0 0 10px rgba(41, 128, 185, 0.4);
+      }
+      .inv-item.selected {
+        transform: translateY(-12px);
+        box-shadow: 0 14px 22px rgba(0, 0, 0, 0.55);
+        border-color: var(--primary);
+        border-width: 5px;
+      }
+
+      /* ── LOBBY workspace ── */
+      #workspace-lobby {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-end;
+        padding: 0 0 0 15%;
+      }
+      .customer-slot {
+        width: 380px;
+        height: 85%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .customer-sprite {
+        width: 100%;
+        height: 100%;
+        border-radius: 30px 30px 0 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
+        padding: 20px 20px 0 20px;
+        transform-origin: bottom center;
+      }
+      .customer-sprite:hover {
+        transform: scale(1.02);
+        border-color: var(--secondary);
+      }
+      .customer-sprite.has-customer {
+        border-style: solid;
+        border-color: var(--secondary);
+        background: linear-gradient(180deg, #fff9f5 0%, #fef0e6 100%);
+        box-shadow: 0 -4px 20px rgba(211, 84, 0, 0.15);
+      }
+
+      .customer-img {
+        width: 100%;
+        height: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        object-position: bottom;
+      }
+
+      .customer-bubble {
+        position: absolute;
+        top: -20px;
+        background: white;
+        border: 4px solid #333;
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 1.15rem;
+        text-align: left;
+        width: 100%;
+        max-width: 340px;
+        display: none;
+        z-index: 10;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        line-height: 1.4;
+      }
+      .customer-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 10px solid transparent;
+        border-top-color: #333;
+      }
+      .customer-slot.occupied.revealed .customer-bubble {
+        display: block;
+      }
+      .cust-img-above {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        height: 100%;
+        justify-content: flex-end;
+        filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+        transition: transform 0.2s;
+      }
+      .customer-slot:hover .cust-img-above {
+        transform: translateY(-6px) scale(1.04);
+      }
+      .cust-name-label {
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: var(--text);
+        text-align: center;
+        order: -1;
+        letter-spacing: 0.3px;
+      }
+
+      /* ── MELT workspace ── */
+      #workspace-melt {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .melt-layout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        gap: 60px;
+      }
+      .melt-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .furnace {
+        width: 250px;
+        height: 450px;
+        background: #2c3e50;
+        border: 8px solid #1a252f;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 25px;
+        cursor: pointer;
+        position: relative;
+        transition: 0.2s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      .furnace:hover {
+        transform: scale(1.02);
+        border-color: var(--primary);
+      }
+      .furnace-bar-bg {
+        width: 80px;
+        height: 320px;
+        background: #111;
+        border-radius: 40px;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 20px;
+        border: 4px solid #000;
+      }
+      .furnace-fill {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 0%;
+        background: linear-gradient(to top, #f1c40f, #e74c3c, #8e44ad);
+        transition: height 0.1s linear;
+      }
+      .furnace-target {
+        position: absolute;
+        width: 100%;
+        height: 6px;
+        background: #2ecc71;
+        z-index: 2;
+        border-top: 2px dashed #fff;
+        border-bottom: 2px dashed #fff;
+        transition: bottom 0.3s ease;
+      }
+      .furnace-temp-text {
+        color: white;
+        font-weight: bold;
+        font-size: 1.8rem;
+        text-align: center;
+      }
+      .furnace-label {
+        color: #95a5a6;
+        font-size: 1rem;
+        text-align: center;
+        margin-top: 8px;
+      }
+
+      /* ── FORGE workspace ── */
+      #workspace-forge {
+        flex-direction: row;
+        align-items: stretch;
+        padding: 0;
+        overflow: hidden;
+      }
+      #forge-design-panel {
+        width: 300px;
+        flex-shrink: 0;
+        background: white;
+        border-right: 4px solid #bdc3c7;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      #forge-empty-msg {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+        color: #7f8c8d;
+      }
+      #forge-active-content {
+        display: none;
+        flex-direction: column;
+        flex: 1;
+        gap: 0;
+      }
+
+      .fdp-section {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e0e0e0;
+        padding: 14px 16px;
+      }
+      .fdp-section h4 {
+        margin: 0 0 10px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #555;
+      }
+      .thick-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .thick-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1;
+        background: var(--secondary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #a04000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: 0.1s;
+      }
+      .thick-btn:active {
+        transform: translateY(4px);
+        box-shadow: none;
+      }
+      #thickness-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        flex: 1;
+        height: 10px;
+        border-radius: 5px;
+        outline: none;
+        cursor: pointer;
+        border: none;
+      }
+      #thickness-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--secondary);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+      #thickness-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--secondary);
+        cursor: pointer;
+        border: 3px solid white;
+      }
+      #thickness-display-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: 4px;
+      }
+      #thickness-value {
+        font-size: 2.8rem;
+        font-weight: bold;
+        color: var(--secondary);
+        line-height: 1;
+      }
+      .thick-unit {
+        font-size: 0.9rem;
+        color: #888;
+        margin-left: 3px;
+      }
+      .thick-range {
+        font-size: 0.72rem;
+        color: #bbb;
+      }
+
+      .stat-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0;
+      }
+      .stat-label {
+        width: 88px;
+        flex-shrink: 0;
+        font-size: 0.8rem;
+        color: #555;
+      }
+      .stat-bar-bg {
+        flex: 1;
+        height: 12px;
+        background: #e8e8e8;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .stat-bar-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 6px;
+        transition:
+          width 0.22s,
+          background 0.22s;
+      }
+      .stat-val {
+        width: 70px;
+        text-align: right;
+        font-size: 0.78rem;
+        font-weight: bold;
+      }
+      .pass-bar {
+        background: var(--pass);
+      }
+      .fail-bar {
+        background: var(--fail);
+      }
+      .neutral-bar {
+        background: var(--secondary);
+      }
+
+      .ccheck {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        font-size: 0.82rem;
+        margin: 4px 0;
+      }
+      .ccheck-pass {
+        background: #d5f5e3;
+        border: 1px solid #a9dfbf;
+      }
+      .ccheck-fail {
+        background: #fadbd8;
+        border: 1px solid #f1948a;
+      }
+
+      /* Right: Anvil zone */
+      #forge-hammer-zone {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 20px;
+        position: relative;
+        background: #ecf0f1;
+      }
+      #forge-hammer-title {
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      #visual-anvil {
+        width: 88%;
+        max-width: 520px;
+        height: 190px;
+        background: #555;
+        border: 6px solid #333;
+        border-bottom: 48px solid #222;
+        border-radius: 14px 14px 0 0;
+        cursor: pointer;
+        color: white;
+        font-size: 1.6rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.06s;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+      #timing-container {
+        width: 88%;
+        max-width: 580px;
+        height: 52px;
+        background: #95a5a6;
+        border-radius: 10px;
+        border: 5px solid #34495e;
+        position: relative;
+        overflow: hidden;
+        display: none;
+      }
+      #timing-target {
+        position: absolute;
+        height: 100%;
+        background: var(--pass);
+        top: 0;
+      }
+      #timing-pointer {
+        position: absolute;
+        height: 100%;
+        width: 10px;
+        background: #fff;
+        top: 0;
+        left: 0;
+        z-index: 5;
+        border-left: 3px solid #2c3e50;
+        border-right: 3px solid #2c3e50;
+        transform: translateX(-50%);
+      }
+      #progress-bar-container {
+        width: 88%;
+        max-width: 580px;
+        height: 22px;
+        background: #bdc3c7;
+        border-radius: 11px;
+        border: 3px solid #7f8c8d;
+        overflow: hidden;
+        display: none;
+      }
+      #progress-bar {
+        height: 100%;
+        width: 0%;
+        background: var(--secondary);
+        transition: width 0.12s;
+      }
+      .miss-text {
+        color: var(--danger);
+        font-size: 2.8rem;
+        font-weight: bold;
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: floatUp 0.6s forwards;
+        pointer-events: none;
+        text-shadow: 2px 2px 0 #fff;
+        z-index: 20;
+      }
+      @keyframes floatUp {
+        0% {
+          top: 35%;
+          opacity: 1;
+        }
+        100% {
+          top: 5%;
+          opacity: 0;
+        }
+      }
+      #forge-hint {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        text-align: center;
+        max-width: 420px;
+        line-height: 1.5;
+      }
+
+      /* ── Toast ── */
+      #toast {
+        position: absolute;
+        top: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2c3e50;
+        color: white;
+        padding: 12px 28px;
+        border-radius: 10px;
+        border: 3px solid #f39c12;
+        font-size: 1.1rem;
+        font-weight: bold;
+        z-index: 9999;
+        transition: top 0.4s ease-in-out;
+        text-align: center;
+        pointer-events: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+      }
+
+      /* ── Buttons ── */
+      h1,
+      h2,
+      h3 {
+        color: var(--primary);
+        text-align: center;
+        margin-top: 0;
+        text-transform: uppercase;
+      }
+      .btn {
+        background: var(--secondary);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.1s;
+        margin: 10px;
+        box-shadow: 0 5px 0 #a04000;
+        text-transform: uppercase;
+        text-align: center;
+      }
+      .btn:hover {
+        background: #e67e22;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 0 #a04000;
+      }
+      .btn:active {
+        transform: translateY(5px);
+        box-shadow: 0 0 0 #a04000;
+      }
+
+      /* ── Modals ── */
+      .modal-overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.82);
+        z-index: 300;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 28px;
+        border-radius: 15px;
+        border: 6px solid #2c3e50;
+        width: 92%;
+        max-width: 780px;
+        max-height: 90%;
+        overflow-y: auto;
+        position: relative;
+      }
+      #material-modal .modal-content {
+        padding: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-width: 1050px;
+        height: 88vh;
+        max-height: 88vh;
+      }
+      .close-btn {
+        position: absolute;
+        top: 12px;
+        right: 20px;
+        font-size: 2.5rem;
+        color: #e74c3c;
+        cursor: pointer;
+        font-weight: bold;
+        line-height: 1;
+      }
+
+      /* Modal internal layout classes */
+      .modal-body-flex {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        min-height: 0;
+      }
+      .modal-col-left {
+        width: 220px;
+        flex-shrink: 0;
+        background: linear-gradient(180deg, #fff9f5, #fef0e6);
+        border-right: 3px solid #f0d8c0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        gap: 12px;
+      }
+      .modal-col-mid {
+        width: 280px;
+        flex-shrink: 0;
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 3px solid #e0e0e0;
+        background: #fafafa;
+      }
+      .modal-col-right {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: white;
+      }
+
+      #materials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 12px;
+      }
+      .material-card {
+        background: #ecf0f1;
+        border: 4px solid #bdc3c7;
+        border-radius: 10px;
+        padding: 12px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        transition: 0.15s;
+      }
+      .material-card:hover {
+        border-color: var(--secondary);
+        transform: scale(1.02);
+      }
+      .material-card:active {
+        transform: scale(0.97);
+      }
+      .mat-emoji {
+        font-size: 2.5rem;
+      }
+      .mat-stats {
+        font-size: 0.85rem;
+        background: #fff;
+        padding: 8px;
+        margin-top: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        text-align: left;
+        line-height: 1.5;
+      }
+      .mat-cost {
+        color: var(--money);
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-top: 8px;
+      }
+      .mat-disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .heat-option {
+        background: #ecf0f1;
+        border: 4px solid #bdc3c7;
+        border-radius: 10px;
+        padding: 16px;
+        margin: 12px 0;
+        cursor: pointer;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        font-size: 1.1rem;
+        transition: 0.15s;
+      }
+      .heat-option:hover {
+        border-color: var(--secondary);
+        background: #fef9f5;
+      }
+      .heat-option:active {
+        transform: scale(0.98);
+      }
+      .heat-icon {
+        font-size: 2rem;
+        flex-shrink: 0;
+      }
+      .heat-effect {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 4px;
+      }
+
+      .grade-stamp {
+        font-size: 6rem;
+        font-weight: bold;
+        padding: 8px 36px;
+        border: 8px solid;
+        border-radius: 15px;
+        transform: rotate(-10deg);
+        margin: 16px;
+        display: inline-block;
+      }
+      .review-constraint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin: 5px 0;
+        font-size: 1rem;
+      }
+      .rev-pass {
+        background: #d5f5e3;
+        border: 1px solid #82e0aa;
+      }
+      .rev-fail {
+        background: #fadbd8;
+        border: 1px solid #f1948a;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        font-size: 1.2rem;
+        margin: 8px 0;
+        border-bottom: 1px dashed #bdc3c7;
+        padding-bottom: 6px;
+      }
+
+      /* ── MOBILE RESPONSIVE QUERIES ── */
+      @media (max-width: 800px) {
+        #game-container {
+          border: none;
+          border-radius: 0;
+          width: 100vw;
+          height: 100vh;
+          max-height: none;
+        }
+
+        /* HUD adjustments */
+        #hud {
+          font-size: 0.85rem;
+          padding: 5px 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 5px;
+          min-height: auto;
+        }
+        #hud-logo {
+          display: none;
+        }
+        .hud-stat {
+          margin-right: 5px;
+        }
+        .hud-divider {
+          margin: 4px 4px;
+        }
+        #btn-handbook {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          font-size: 0.75rem;
+          padding: 4px 8px;
+        }
+
+        .tab-btn {
+          font-size: 0.9rem;
+        }
+
+        /* Lobby */
+        #workspace-lobby {
+          padding: 10px;
+          justify-content: center;
+          align-items: center;
+        }
+        .customer-slot {
+          width: 95%;
+          height: 80%;
+          justify-content: center;
+        }
+        .customer-sprite {
+          border-radius: 20px 20px 0 0;
+          padding: 10px;
+        }
+        .customer-img {
+          max-height: 250px;
+        }
+        .cust-name-label {
+          font-size: 1.1rem;
+          margin-bottom: 5px;
+        }
+        .customer-bubble {
+          max-width: 90%;
+          top: -10px;
+          font-size: 1rem;
+          padding: 10px;
+        }
+
+        /* Melt */
+        #workspace-melt {
+          padding: 10px;
+        }
+        .melt-layout {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .furnace {
+          height: 300px;
+          width: 200px;
+          padding: 15px;
+        }
+        .furnace-bar-bg {
+          height: 200px;
+          width: 60px;
+        }
+        .melt-controls {
+          gap: 15px;
+        }
+        .melt-controls button {
+          padding: 15px 30px !important;
+          font-size: 1.2rem !important;
+        }
+
+        /* Forge */
+        #workspace-forge {
+          flex-direction: column;
+          overflow-y: auto;
+        }
+        #forge-design-panel {
+          width: 100%;
+          height: 50%;
+          max-height: 50vh;
+          border-right: none;
+          border-bottom: 4px solid #bdc3c7;
+          flex-shrink: 0;
+        }
+        #forge-hammer-zone {
+          height: 50%;
+          padding: 10px;
+          gap: 10px;
+        }
+        #visual-anvil {
+          width: 95%;
+          height: 120px;
+          font-size: 1.2rem;
+          border-bottom: 20px solid #222;
+          margin-top: 10px;
+        }
+        #timing-container {
+          margin-top: 10px;
+          height: 40px;
+        }
+
+        /* Modals */
+        .modal-body-flex {
+          flex-direction: column;
+          overflow-y: auto;
+        }
+        .modal-col-left,
+        .modal-col-mid {
+          width: 100%;
+          border-right: none;
+          border-bottom: 3px solid #e0e0e0;
+          padding: 15px;
+        }
+        .modal-col-right {
+          padding: 15px;
+        }
+        #order-cust-img {
+          max-height: 150px !important;
+        }
+        #materials-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .grade-stamp {
+          font-size: 4rem;
+          padding: 10px 20px;
+        }
+
+        /* Order Scroll */
+        #order-scroll {
+          width: 85vw;
+        }
+        #scroll-tab {
+          left: -35px;
+          width: 35px;
+          font-size: 0.9rem;
+          padding: 10px 0;
+        }
+
+        /* Tray */
+        #inventory-tray-wrapper {
+          height: 110px;
+        }
+        #inventory-tray {
+          height: 100%;
+          padding: 5px 10px;
+        }
+        .inv-item {
+          min-width: 80px;
+          height: 80px;
+          font-size: 0.7rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="game-container">
+      <div id="toast"></div>
+
+      <!-- ══ HUD ══════════════════════════════════════════════ -->
+      <div id="hud">
+        <div id="hud-logo">
+          <span class="logo-icon">⚒️</span>
+          <div class="logo-text">
+            <strong>Forge &amp; Fortune</strong>
+            <small>Materials Science</small>
+          </div>
+        </div>
+        <div id="hud-stats">
+          <div class="hud-stat">📅 Day <span id="hud-day">1</span></div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat" style="color: #f1c40f">
+            ⏰ <span id="hud-time">6:00 AM</span>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat">👥 Today: <span id="hud-cust">0</span></div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat rep-text">
+            ⭐ Rep: <span id="hud-rep">50</span>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat money-text">
+            💰 $<span id="hud-money">200</span>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat" style="color: #e67e22; font-size: 0.9rem">
+            🏠 Rent: $<span id="hud-rent">75</span>/day
+          </div>
+        </div>
+        <button type="button" id="btn-handbook" onclick="toggleHandbook()">
+          📖 Handbook
+        </button>
+      </div>
+
+      <!-- ══ MENU ══════════════════════════════════════════════ -->
+      <div id="menu-screen" class="screen active">
+        <h1 style="font-size: 4rem; margin-bottom: 8px">
+          ⚒️ Forge &amp; Fortune
+        </h1>
+        <p
+          style="
+            font-size: 1.3rem;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            text-align: center;
+          "
+        >
+          Select materials. Set thickness. Satisfy clients.
+        </p>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="startGame()"
+        >
+          Begin Shift
+        </button>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="showScreen('info-screen')"
+        >
+          How to Play
+        </button>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="showScreen('settings-screen')"
+        >
+          Settings
+        </button>
+      </div>
+
+      <!-- ══ HOW TO PLAY ═══════════════════════════════════════ -->
+      <div id="info-screen" class="screen">
+        <h2 style="font-size: 2.2rem">How to Play</h2>
+        <div
+          style="
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            border: 4px solid #bdc3c7;
+            max-width: 800px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            overflow-y: auto;
+          "
+        >
+          <p>
+            <strong>1. LOBBY</strong> — Customers arrive with engineering design
+            problems. Click a customer to read their requirements, then choose a
+            material to start their order.
+          </p>
+          <p>
+            <strong>2. INVENTORY & CLICK-TO-MOVE</strong> — Orders stay in your
+            bottom tray. You can <strong>Drag & Drop</strong> OR
+            <strong>Click</strong> an item in the tray, then click its
+            destination (Furnace, Anvil, or Customer).
+          </p>
+          <p>
+            <strong>3. MELT STATION</strong> — Move a raw item into the furnace.
+            <strong>Click and HOLD</strong> the "🔥 Hold to Heat" button to
+            raise the temperature. When it hits the green target, click "✅ Take
+            Out".
+          </p>
+          <p>
+            <strong>4. FORGE STATION</strong> — Move a heated item onto the
+            anvil. The <em>left panel</em> shows live design stats as you adjust
+            <strong>thickness</strong> (1–10 mm). Green ✅ = constraint met.
+            Once happy, hammer 5 times in the fast green zone!
+          </p>
+          <p>
+            <strong>5. HEAT TREATMENT</strong> — After forging, choose a cooling
+            method. Quenching boosts strength but kills ductility. Annealing
+            maximises ductility but weakens the part.
+          </p>
+          <p>
+            <strong>6. DELIVERY</strong> — Go back to the Lobby. Move the
+            finished item to the customer to deliver and get graded!
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn"
+          style="margin-top: 20px"
+          onclick="showScreen('menu-screen')"
+        >
+          Back
+        </button>
+      </div>
+
+      <!-- ══ SETTINGS ══════════════════════════════════════════ -->
+      <div id="settings-screen" class="screen">
+        <h2>Settings</h2>
+        <div
+          style="
+            background: white;
+            padding: 36px;
+            border-radius: 15px;
+            border: 4px solid #bdc3c7;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin: 24px 0;
+          "
+        >
+          <strong>Audio:</strong>
+          <button
+            type="button"
+            id="audio-btn"
+            class="btn"
+            style="background: #27ae60; margin: 0; width: 120px"
+            onclick="toggleAudio()"
+          >
+            ON
+          </button>
+        </div>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="showScreen('menu-screen')"
+        >
+          Back
+        </button>
+      </div>
+
+      <!-- ══ GAME UI ════════════════════════════════════════════ -->
+      <div
+        id="game-ui"
+        class="screen"
+        style="padding: 0; justify-content: flex-start"
+      >
+        <div id="tab-bar">
+          <button
+            type="button"
+            class="tab-btn active-tab"
+            onclick="switchTab('lobby')"
+          >
+            🏠 LOBBY
+          </button>
+          <button type="button" class="tab-btn" onclick="switchTab('melt')">
+            🔥 MELT STATION
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            style="border-right: none"
+            onclick="switchTab('forge')"
+          >
+            ⚒️ FORGE STATION
+          </button>
+        </div>
+
+        <div id="main-area">
+          <!-- Scroll UI for Order Info -->
+          <div id="order-scroll">
+            <div id="scroll-tab" onclick="toggleScroll()">📜 ORDER INFO</div>
+            <div id="scroll-content">
+              <h2 class="scroll-title">Active Order</h2>
+              <div
+                id="scroll-details"
+                style="font-size: 1.1rem; line-height: 1.5; color: #333"
+              >
+                No active order.
+              </div>
+            </div>
+          </div>
+
+          <!-- LOBBY -->
+          <div id="workspace-lobby" class="workspace active">
+            <div
+              class="customer-slot"
+              id="cust-slot-0"
+              onclick="interactCustomer(0)"
+              ondragover="event.preventDefault()"
+              ondrop="handleDropCustomer(event, 0)"
+            ></div>
+          </div>
+
+          <!-- MELT -->
+          <div id="workspace-melt" class="workspace">
+            <div class="melt-layout">
+              <div
+                class="furnace"
+                id="single-furnace"
+                onclick="interactFurnace(0)"
+                ondragover="event.preventDefault()"
+                ondrop="handleDropFurnace(event, 0)"
+              >
+                <div class="furnace-bar-bg">
+                  <div class="furnace-fill" id="furnace-fill-0"></div>
+                  <div class="furnace-target" id="furnace-tgt-0"></div>
+                </div>
+                <div class="furnace-temp-text" id="furnace-txt-0">IDLE</div>
+                <div class="furnace-label">Main Furnace</div>
+              </div>
+              <div class="melt-controls">
+                <button
+                  type="button"
+                  class="btn"
+                  id="heat-btn"
+                  onmousedown="startHeating()"
+                  onmouseup="stopHeating()"
+                  onmouseleave="stopHeating()"
+                  ontouchstart="startHeating()"
+                  ontouchend="stopHeating()"
+                  style="padding: 25px 40px; font-size: 1.5rem"
+                >
+                  🔥 Hold to Heat
+                </button>
+                <button
+                  type="button"
+                  class="btn"
+                  onclick="finishHeating()"
+                  style="
+                    background: var(--pass);
+                    padding: 20px 40px;
+                    font-size: 1.3rem;
+                  "
+                >
+                  ✅ Take Out
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FORGE -->
+          <div id="workspace-forge" class="workspace">
+            <!-- ── LEFT: Design Engineering Panel ── -->
+            <div id="forge-design-panel">
+              <div id="forge-empty-msg">
+                <div style="font-size: 3rem; margin-bottom: 12px">🔨</div>
+                <p style="font-size: 0.95rem; line-height: 1.5; color: #7f8c8d">
+                  Select a
+                  <strong style="color: var(--secondary)">heated item</strong>
+                  from the tray to start forging.
+                </p>
+              </div>
+
+              <div
+                id="forge-active-content"
+                style="display: none; flex-direction: column"
+              >
+                <div
+                  style="
+                    padding: 12px 16px;
+                    background: var(--secondary);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 0.95rem;
+                    flex-shrink: 0;
+                  "
+                >
+                  🔧 DESIGN ENGINEERING PANEL
+                </div>
+                <div class="fdp-section" style="background: white">
+                  <div
+                    id="forge-mat-name"
+                    style="
+                      font-size: 1.15rem;
+                      font-weight: bold;
+                      color: var(--primary);
+                    "
+                  ></div>
+                  <div
+                    id="forge-mat-desc"
+                    style="font-size: 0.8rem; color: #888; margin-top: 3px"
+                  ></div>
+                </div>
+                <div class="fdp-section">
+                  <h4>📋 Order Requirements</h4>
+                  <div id="constraint-checks"></div>
+                </div>
+                <div class="fdp-section">
+                  <h4>📐 Wall Thickness</h4>
+                  <div class="thick-row">
+                    <button
+                      type="button"
+                      class="thick-btn"
+                      onclick="adjustThickness(-1)"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="range"
+                      id="thickness-slider"
+                      min="1"
+                      max="10"
+                      value="3"
+                      oninput="setThickness(parseInt(this.value))"
+                    />
+                    <button
+                      type="button"
+                      class="thick-btn"
+                      onclick="adjustThickness(1)"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div id="thickness-display-row">
+                    <div>
+                      <span id="thickness-value">3</span
+                      ><span class="thick-unit">mm</span>
+                    </div>
+                    <span class="thick-range">1 mm (thin) → 10 mm (thick)</span>
+                  </div>
+                </div>
+                <div class="fdp-section">
+                  <h4>📊 Live Performance Estimates</h4>
+                  <div class="stat-row">
+                    <span class="stat-label">⚡ Strength</span>
+                    <div class="stat-bar-bg">
+                      <div class="stat-bar-fill" id="bar-strength"></div>
+                    </div>
+                    <span class="stat-val"
+                      ><span id="stat-strength">—</span> MPa</span
+                    >
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">⚖️ Weight</span>
+                    <div class="stat-bar-bg">
+                      <div class="stat-bar-fill" id="bar-weight"></div>
+                    </div>
+                    <span class="stat-val"
+                      ><span id="stat-weight">—</span> g/cm²</span
+                    >
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">💲 Cost</span>
+                    <div class="stat-bar-bg">
+                      <div class="stat-bar-fill" id="bar-cost"></div>
+                    </div>
+                    <span class="stat-val">$<span id="stat-cost">—</span></span>
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">🔄 Ductility</span>
+                    <div class="stat-bar-bg">
+                      <div class="stat-bar-fill" id="bar-ductility"></div>
+                    </div>
+                    <span class="stat-val"
+                      ><span id="stat-ductility">—</span></span
+                    >
+                  </div>
+                  <div class="stat-row">
+                    <span class="stat-label">🌡️ Heat Lim.</span>
+                    <div class="stat-bar-bg">
+                      <div class="stat-bar-fill" id="bar-thermal"></div>
+                    </div>
+                    <span class="stat-val"
+                      ><span id="stat-thermal">—</span>°C</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── RIGHT: Anvil + Timing ── -->
+            <div id="forge-hammer-zone">
+              <div id="forge-hammer-title">FORGING PRESS</div>
+              <div
+                id="visual-anvil"
+                onmousedown="hammer(event)"
+                ontouchstart="hammer(event)"
+                ondragover="event.preventDefault()"
+                ondrop="handleDropAnvil(event)"
+              >
+                Load a Heated Item
+              </div>
+              <div id="timing-container">
+                <div id="timing-target"></div>
+                <div id="timing-pointer"></div>
+              </div>
+              <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+              </div>
+              <p id="forge-hint">
+                Select a heated item from the tray, tune the thickness on the
+                left until all constraints are green, then hammer 5× in the
+                zone.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="inventory-tray-wrapper">
+          <div id="inventory-tray-label">📦 Work-in-Progress Tray</div>
+          <div id="inventory-tray"></div>
+        </div>
+      </div>
+
+      <!-- ══ DAY SUMMARY ════════════════════════════════════════ -->
+      <div id="day-summary-screen" class="screen">
+        <h2 id="day-end-title" style="font-size: 3rem">End of Day 1</h2>
+        <div
+          style="
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            border: 4px solid #bdc3c7;
+            margin-bottom: 28px;
+            width: 90%;
+            max-width: 480px;
+          "
+        >
+          <div class="summary-row">
+            <span>Customers Served Today:</span><span id="sum-cust">0</span>
+          </div>
+          <div class="summary-row">
+            <span>Start Funds:</span
+            ><span>$<span id="sum-start-money">0</span></span>
+          </div>
+          <div class="summary-row">
+            <span>Earnings:</span
+            ><span>$<span id="sum-end-money">0</span></span>
+          </div>
+          <div
+            class="summary-row"
+            style="color: var(--danger); font-weight: bold"
+          >
+            <span>Shop Rent:</span><span>-$<span id="sum-rent">75</span></span>
+          </div>
+          <hr style="margin: 16px 0; border: 1px solid #bdc3c7" />
+          <div class="summary-row" style="font-weight: bold; font-size: 1.6rem">
+            <span>Net Funds:</span
+            ><span id="sum-net-money" class="money-text">$0</span>
+          </div>
+          <div class="summary-row" style="margin-top: 8px">
+            <span>Reputation:</span
+            ><span id="sum-rep-display" class="rep-text">50 (+0)</span>
+          </div>
+        </div>
+        <p
+          id="sum-next-rent"
+          style="
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 0 0 16px;
+          "
+        ></p>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="startNextDay()"
+        >
+          Start Next Day →
+        </button>
+      </div>
+
+      <!-- ══ WEEK SUMMARY ═══════════════════════════════════════ -->
+      <div id="week-summary-screen" class="screen">
+        <h2 style="font-size: 3rem">End of the Week</h2>
+        <div
+          id="final-verdict"
+          style="
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 24px 16px;
+            line-height: 1.6;
+            max-width: 800px;
+          "
+        ></div>
+        <button
+          type="button"
+          class="btn"
+          style="width: 280px"
+          onclick="resetGame()"
+        >
+          Play Again
+        </button>
+      </div>
+
+      <!-- ══ MODALS ══════════════════════════════════════════════ -->
+
+      <!-- Handbook -->
+      <div id="handbook-modal" class="modal-overlay">
+        <div class="modal-content">
+          <span class="close-btn" onclick="toggleHandbook()">×</span>
+          <h2 style="color: #2c3e50; margin-top: 0">📖 Engineering Handbook</h2>
+          <div
+            style="
+              background: #fff3cd;
+              border: 1px solid #ffc107;
+              border-radius: 6px;
+              padding: 8px 14px;
+              margin-bottom: 16px;
+              font-size: 0.9rem;
+              color: #856404;
+            "
+          >
+            ⏸️ <strong>Game paused</strong> while you read — close to resume
+            your shift.
+          </div>
+          <div
+            style="
+              font-size: 1.1rem;
+              line-height: 1.7;
+              color: #333;
+              text-align: left;
+            "
+          >
+            <p>
+              <strong>Yield Strength (σ<sub>y</sub>) [MPa]:</strong> Maximum
+              stress before permanent deformation. Scales with thickness —
+              thicker cross-section → higher load capacity.
+            </p>
+            <p>
+              <strong>Weight (Area Density) [kg/m²]:</strong> = material density
+              × thickness. Light materials + thin gauge = lowest weight.
+            </p>
+            <p>
+              <strong>Cost [$]:</strong> = material unit cost × thickness.
+              Expensive materials at thin gauge can still undercut cheap ones at
+              thick gauge.
+            </p>
+            <p>
+              <strong>Ductility (Fracture Strain ε):</strong> A material
+              property — NOT affected by thickness. ε &gt; 0.05 = ductile; ε ≤
+              0.05 = brittle.
+            </p>
+            <p>
+              <strong>Thermal Limit [°C]:</strong> Maximum service temperature.
+              A material property — NOT affected by thickness.
+            </p>
+            <h3 style="color: var(--primary)">Heat Treatments</h3>
+            <ul>
+              <li>
+                <strong>Furnace Cool (Anneal):</strong> Relieves internal
+                stresses. Boosts ductility, lowers strength.
+              </li>
+              <li>
+                <strong>Air Cool (Normalize):</strong> Returns part to baseline
+                material properties.
+              </li>
+              <li>
+                <strong>Water Quench:</strong> Forms Martensite in steels →
+                massive strength increase but becomes brittle!
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Screen: Customer portrait + request brief + material selection all in one -->
+      <div id="material-modal" class="modal-overlay">
+        <div
+          class="modal-content"
+          style="
+            max-width: 1050px;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div
+            style="
+              background: var(--secondary);
+              color: white;
+              padding: 14px 24px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-shrink: 0;
+            "
+          >
+            <div style="font-size: 1.3rem; font-weight: bold">
+              📋 Order #<span id="mat-modal-orderid"></span> — Review &amp;
+              Select Material
+            </div>
+            <span
+              class="close-btn"
+              onclick="closeModal('material-modal')"
+              style="
+                position: static;
+                font-size: 2rem;
+                color: white;
+                opacity: 0.8;
+              "
+              >×</span
+            >
+          </div>
+          <div class="modal-body-flex">
+            <div class="modal-col-left" id="order-customer-panel">
+              <img
+                id="order-cust-img"
+                class="customer-img"
+                src="RabbitCustomer.png"
+                onerror="
+                  this.style.display = 'none';
+                  document.getElementById('order-cust-emoji').style.display =
+                    'block';
+                "
+              />
+              <div
+                id="order-cust-emoji"
+                style="display: none; font-size: 5rem"
+              ></div>
+              <div
+                id="order-cust-name"
+                style="
+                  font-size: 1.1rem;
+                  font-weight: bold;
+                  text-align: center;
+                  color: var(--text);
+                "
+              ></div>
+              <div
+                id="order-cust-type"
+                style="
+                  font-size: 0.8rem;
+                  color: #999;
+                  text-align: center;
+                  font-style: italic;
+                "
+              ></div>
+            </div>
+            <div class="modal-col-mid">
+              <h3
+                style="
+                  margin: 0 0 10px;
+                  font-size: 1rem;
+                  color: var(--primary);
+                  text-transform: uppercase;
+                "
+              >
+                📝 What They Need
+              </h3>
+              <p
+                id="order-req-text"
+                style="
+                  font-size: 0.95rem;
+                  line-height: 1.6;
+                  color: #333;
+                  margin: 0 0 16px;
+                  background: white;
+                  padding: 12px;
+                  border-radius: 8px;
+                  border: 2px solid #e8d5c0;
+                "
+              ></p>
+              <div
+                id="tip-container"
+                style="
+                  margin-top: 14px;
+                  padding: 10px;
+                  background: #fff3cd;
+                  border: 1px solid #ffc107;
+                  border-radius: 6px;
+                  font-size: 0.82rem;
+                  color: #856404;
+                  line-height: 1.5;
+                "
+              ></div>
+            </div>
+            <div class="modal-col-right">
+              <h3
+                style="
+                  margin: 0 0 12px;
+                  font-size: 1rem;
+                  color: var(--primary);
+                  text-transform: uppercase;
+                "
+              >
+                🔩 Select a Material
+              </h3>
+              <div id="materials-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Heat Treatment -->
+      <div id="heattreat-modal" class="modal-overlay">
+        <div class="modal-content">
+          <h2 style="font-size: 2rem; margin-top: 0">🌡️ Heat Treatment</h2>
+          <p style="text-align: center; font-size: 1.1rem; margin-bottom: 18px">
+            Choose a cooling method for
+            <strong>Order #<span id="ht-modal-itemid"></span></strong
+            >.<br /><small style="color: #777"
+              >This is your final chance to tune ductility vs. strength.</small
+            >
+          </p>
+          <div class="heat-option" onclick="applyHeatTreatment('anneal')">
+            <div class="heat-icon">🧱</div>
+            <div>
+              <strong>Furnace Cool (Anneal)</strong>
+              <div class="heat-effect">
+                Strength ×0.75 | Ductility ×1.4 — Great for ductility-required
+                orders
+              </div>
+            </div>
+          </div>
+          <div class="heat-option" onclick="applyHeatTreatment('normalize')">
+            <div class="heat-icon">💨</div>
+            <div>
+              <strong>Air Cool (Normalize)</strong>
+              <div class="heat-effect">
+                Strength ×1.0 | Ductility ×1.0 — Balanced, no change
+              </div>
+            </div>
+          </div>
+          <div class="heat-option" onclick="applyHeatTreatment('quench')">
+            <div class="heat-icon">🌊</div>
+            <div>
+              <strong>Water Quench</strong>
+              <div class="heat-effect">
+                Strength ×1.8 (steel) | Ductility ×0.15 — Use only when strength
+                is paramount!
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review / Grading -->
+      <div id="review-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center; max-width: 680px">
+          <h2 style="font-size: 2rem; margin-top: 0">📋 Quality Review</h2>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 24px;
+              margin-bottom: 16px;
+              flex-wrap: wrap;
+            "
+          >
+            <div id="grade-stamp" class="grade-stamp">A</div>
+            <div style="flex: 1; min-width: 220px; text-align: left">
+              <div
+                style="
+                  font-size: 0.82rem;
+                  color: #555;
+                  margin-bottom: 4px;
+                  font-weight: bold;
+                "
+              >
+                🔩 Material Suitability
+              </div>
+              <div
+                style="
+                  height: 14px;
+                  background: #e0e0e0;
+                  border-radius: 7px;
+                  overflow: hidden;
+                  margin-bottom: 8px;
+                "
+              >
+                <div
+                  id="rev-mat-bar"
+                  style="
+                    height: 100%;
+                    width: 0%;
+                    background: var(--secondary);
+                    border-radius: 7px;
+                    transition: width 0.5s;
+                  "
+                ></div>
+              </div>
+              <div style="font-size: 0.78rem; color: #888; text-align: center">
+                Final Score
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              background: #f8f9fa;
+              border: 2px solid #e0e0e0;
+              border-radius: 8px;
+              padding: 12px 14px;
+              text-align: left;
+              width: 90%;
+              margin: 0 auto 12px;
+            "
+          >
+            <div
+              style="
+                font-weight: bold;
+                font-size: 0.85rem;
+                color: #555;
+                margin-bottom: 6px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              "
+            >
+              Material Performance
+            </div>
+            <div id="review-constraints" style="margin-top: 4px"></div>
+          </div>
+
+          <div
+            id="rev-heat-row"
+            style="
+              display: none;
+              background: #fff3cd;
+              border: 2px solid #ffc107;
+              border-radius: 8px;
+              padding: 10px 14px;
+              text-align: left;
+              width: 90%;
+              margin: 0 auto 12px;
+              font-size: 0.9rem;
+            "
+          >
+            🌡️ <strong>Heat Quality: </strong><span id="rev-heat-text"></span>
+          </div>
+
+          <div
+            style="
+              background: white;
+              border: 3px solid #bdc3c7;
+              border-radius: 8px;
+              padding: 10px 14px;
+              font-size: 1rem;
+              width: 90%;
+              margin: 0 auto 12px;
+              text-align: left;
+            "
+          >
+            <span id="feedback-text"></span>
+          </div>
+
+          <div
+            style="
+              font-size: 1.3rem;
+              font-weight: bold;
+              margin: 0 auto 16px;
+              background: rgba(0, 0, 0, 0.07);
+              padding: 12px;
+              border-radius: 10px;
+              width: 90%;
+            "
+          >
+            Pay: <span class="money-text" id="payment-sign">+$</span
+            ><span class="money-text" id="payment-text">0</span> &nbsp;|&nbsp;
+            Rep: <span id="rep-change-text" style="color: var(--rep)">+0</span>
+          </div>
+          <button
+            type="button"
+            class="btn"
+            style="width: 80%"
+            onclick="closeReviewModal()"
+          >
+            Continue Shift ▶
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════
+      // DATA (Forge 5 standard)
+      // ═══════════════════════════════════════════════════════════
+      const MATERIALS = [
+        {
+          id: "steel_mild",
+          emoji: "🔩",
+          name: "AISI 1020 Mild Steel",
+          desc: "The workhorse of structural engineering. Cheap, weldable, very ductile. Heavy.",
+          type: "ferrous",
+          yieldStrength: 210,
+          ductility: 0.25,
+          density: 7.85,
+          cost: 8,
+          thermalLimit: 420,
+          forgeTemp: 1050,
+        },
+        {
+          id: "steel_stainless",
+          emoji: "🌊",
+          name: "316L Stainless Steel",
+          desc: "Corrosion-resistant, highly ductile. Used in medical devices and marine structures.",
+          type: "ferrous",
+          yieldStrength: 290,
+          ductility: 0.4,
+          density: 8.0,
+          cost: 30,
+          thermalLimit: 800,
+          forgeTemp: 1150,
+        },
+        {
+          id: "aluminum",
+          emoji: "✈️",
+          name: "Aluminum 6061-T6",
+          desc: "Standard aerospace alloy. Light, affordable, moderate strength. Good all-rounder.",
+          type: "nonferrous",
+          yieldStrength: 276,
+          ductility: 0.12,
+          density: 2.71,
+          cost: 22,
+          thermalLimit: 170,
+          forgeTemp: 480,
+        },
+        {
+          id: "titanium",
+          emoji: "🚀",
+          name: "Ti-6Al-4V (Grade 5)",
+          desc: "Biocompatible, corrosion-proof, exceptional strength-to-weight. Very costly to machine.",
+          type: "nonferrous",
+          yieldStrength: 880,
+          ductility: 0.14,
+          density: 4.43,
+          cost: 95,
+          thermalLimit: 315,
+          forgeTemp: 950,
+        },
+        {
+          id: "cfrp",
+          emoji: "🏎️",
+          name: "CFRP (Carbon Fibre)",
+          desc: "Highest strength-to-weight of any structural material. Brittle — zero plastic deformation.",
+          type: "composite",
+          yieldStrength: 600,
+          ductility: 0.015,
+          density: 1.6,
+          cost: 180,
+          thermalLimit: 250,
+          forgeTemp: 180,
+        },
+      ];
+
+      const CUSTOMER_REQUESTS = [
+        {
+          customerName: "Aerospace Engineer",
+          emoji: "🚁",
+          type: "aerospace",
+          text: "I'm building a racing quadcopter and I need replacement arms. They've got to be strong enough to survive high-speed crashes but every extra gram kills my flight time. Keep it within my budget — nothing exotic.",
+          hint: "Light material, moderate strength. Think weight-to-strength ratio.",
+          constraints: { minStrength: 500, maxWeight: 6.0, maxCost: 200 },
+        },
+        {
+          customerName: "Automotive Designer",
+          emoji: "🚗",
+          type: "automotive",
+          text: "Give me a front crumple-zone bracket. It needs to absorb energy on impact — if it shatters instead of bends, people get hurt. I can't spend a fortune, so keep costs down.",
+          hint: "High ductility is the key here. Material choice matters more than anything.",
+          constraints: { minDuctility: 0.22, maxCost: 250 },
+        },
+        {
+          customerName: "Chemical Plant Engineer",
+          emoji: "🏭",
+          type: "industrial",
+          text: "I need a reactor vessel wall section. Our process runs hot — we're talking temperatures that would destroy most metals — and there's constant mechanical pressure inside. It cannot fail.",
+          hint: "Very high thermal limit required. Only one material in the catalog can handle this.",
+          constraints: { minThermal: 700, minStrength: 1500 },
+        },
+        {
+          customerName: "Civil Engineer",
+          emoji: "🏗️",
+          type: "construction",
+          text: "I'm adding a structural column to a building and I need the base section. It's carrying enormous compressive loads — I'm not worried about weight or cost, just give me something that won't buckle.",
+          hint: "Maximum strength is the only objective. Pick the strongest and go big.",
+          constraints: { minStrength: 1500 },
+        },
+        {
+          customerName: "Orthopaedic Surgeon",
+          emoji: "⚕️",
+          type: "medical",
+          text: "I need a femur fixation plate — it goes inside a patient's leg. It has to be light so the body isn't burdened, and it absolutely cannot be brittle. One snap and the patient is back in surgery.",
+          hint: "Biocompatible, ductile, and lightweight. Titanium is the gold standard.",
+          constraints: { maxWeight: 5.0, minDuctility: 0.1, minStrength: 400 },
+        },
+        {
+          customerName: "Product Designer",
+          emoji: "💻",
+          type: "electronics",
+          text: "I want the base chassis for a new ultrabook. Super thin, super light — but it still needs to survive a 1-metre drop test. And I have strict unit cost targets, so don't go crazy with expensive alloys.",
+          hint: "Balance weight, strength, and cost. No single property dominates.",
+          constraints: { maxWeight: 4.0, minStrength: 200, maxCost: 100 },
+        },
+        {
+          customerName: "Stonemason",
+          emoji: "⛏️",
+          type: "artisan",
+          text: "I need a new chisel tip — wide base narrowing down to a sharp working edge. It takes a hammering all day, so it can't snap. But it also needs to hold that edge without deforming.",
+          hint: "Hard and impact-resistant. Strong but not overly brittle.",
+          constraints: { minStrength: 1200, minDuctility: 0.08 },
+        },
+        {
+          customerName: "Prop Maker",
+          emoji: "⚔️",
+          type: "creative",
+          text: "Give me a sword blade — long, narrow, sharp along both edges. It's for a theatre production so it has to look authentic, but it also needs to hold its shape under stage combat. Make it strong!",
+          hint: "A blade shape. Strong enough to hold its form, not too heavy.",
+          constraints: { minStrength: 600, maxWeight: 8.0 },
+        },
+      ];
+
+      class WIPItem {
+        constructor(id, material, ticketId) {
+          this.id = id;
+          this.material = material;
+          this.ticketId = ticketId;
+          this.state = "raw";
+          this.temp = 20;
+          this.peakTemp = 20;
+          this.heatPct = 1.0;
+          this.thickness = 3;
+          this.yieldMult = 1.0;
+          this.ductilityMult = 1.0;
+          this.hammerMistakes = 0;
+          this.hammerSuccesses = 0;
+          this.heatTreatment = null;
+        }
+      }
+
+      function computeDesign(item) {
+        const m = item.material,
+          t = item.thickness;
+        return {
+          strength: +(m.yieldStrength * item.yieldMult * t).toFixed(0),
+          weight: +(m.density * t).toFixed(2),
+          cost: +(m.cost * t).toFixed(0),
+          ductility: +(m.ductility * item.ductilityMult).toFixed(3),
+          thermalLimit: m.thermalLimit,
+        };
+      }
+
+      function evaluateDesign(item, ticket) {
+        const d = computeDesign(item);
+        const req = ticket.constraints;
+        let passed = 0,
+          total = 0,
+          feedback = [],
+          details = [];
+
+        function check(label, got, limit, isMax, unit) {
+          if (limit === undefined) return;
+          total++;
+          const ok = isMax ? got <= limit : got >= limit;
+          if (ok) passed++;
+          details.push({
+            label,
+            ok,
+            need: (isMax ? "≤" : "≥") + limit + unit,
+            got,
+          });
+          if (!ok) feedback.push(`${label} constraint not met`);
+        }
+
+        check("Strength", d.strength, req.minStrength, false, " MPa");
+        check("Weight", d.weight, req.maxWeight, true, " g/cm²");
+        check("Cost", d.cost, req.maxCost, true, "$");
+        check("Ductility", d.ductility, req.minDuctility, false, "");
+        check("Thermal Lim.", d.thermalLimit, req.minThermal, false, "°C");
+
+        const score = total > 0 ? Math.round((passed / total) * 100) : 100;
+        return { score, feedback, design: d, details, passed, total };
+      }
+
+      const heatTreatments = {
+        anneal: {
+          apply: (mat) =>
+            mat.type === "ferrous"
+              ? { yieldMult: 0.75, ductMult: 1.4 }
+              : { yieldMult: 0.85, ductMult: 1.2 },
+        },
+        normalize: { apply: (mat) => ({ yieldMult: 1.0, ductMult: 1.0 }) },
+        quench: {
+          apply: (mat) =>
+            mat.type === "ferrous"
+              ? { yieldMult: 1.8, ductMult: 0.15 }
+              : { yieldMult: 1.1, ductMult: 0.9 },
+        },
+      };
+
+      // ═══════════════════════════════════════════════════════════
+      // GAME STATE
+      // ═══════════════════════════════════════════════════════════
+      let state = {
+        audio: true,
+        day: 1,
+        maxDays: 5,
+        money: 200,
+        reputation: 50,
+        dailyRent: 75,
+        startOfDayMoney: 200,
+        startOfDayRep: 50,
+        customersServedToday: 0,
+        totalCustomersServed: 0,
+        timeMinutes: 360,
+        gameInterval: null,
+        gamePaused: false,
+        activeTab: "lobby",
+        customers: [null],
+        tickets: [],
+        inventory: [],
+        furnaceItem: null,
+        heatingInterval: null,
+        selectedInvId: null,
+        activeForgeItemId: null,
+        ticketCounter: 1,
+        itemCounter: 1,
+        sliderPos: 0,
+        sliderDir: 1,
+        sliderSpeed: 2,
+        sliderInterval: null,
+        targetStart: 40,
+        targetWidth: 20,
+      };
+
+      let pendingReviewCleanup = null;
+
+      // ═══════════════════════════════════════════════════════════
+      // AUDIO (Safely Scoped)
+      // ═══════════════════════════════════════════════════════════
+      let audioCtx = null;
+      function playTone(freq, type, dur) {
+        if (!state.audio) return;
+        try {
+          const AudioCtxClass =
+            window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtxClass) return;
+          if (!audioCtx) audioCtx = new AudioCtxClass();
+          if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          gain.gain.exponentialRampToValueAtTime(
+            0.00001,
+            audioCtx.currentTime + dur,
+          );
+          osc.stop(audioCtx.currentTime + dur);
+        } catch (e) {}
+      }
+
+      function toggleAudio() {
+        state.audio = !state.audio;
+        const btn = document.getElementById("audio-btn");
+        btn.innerText = state.audio ? "ON" : "OFF";
+        btn.style.background = state.audio ? "#27ae60" : "#c0392b";
+        if (state.audio) playTone(440, "sine", 0.1);
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // UI HELPERS
+      // ═══════════════════════════════════════════════════════════
+      let toastTimer = null;
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg;
+        t.style.top = "20px";
+        playTone(600, "sine", 0.15);
+        setTimeout(() => playTone(800, "sine", 0.2), 200);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          t.style.top = "-120px";
+        }, 3200);
+      }
+
+      function showScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        document.getElementById("hud").style.display =
+          id === "game-ui" ? "flex" : "none";
+      }
+      function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+      }
+      function toggleHandbook() {
+        const m = document.getElementById("handbook-modal");
+        if (m.style.display === "flex") {
+          m.style.display = "none";
+          if (state.gamePaused) {
+            state.gamePaused = false;
+            if (!state.gameInterval)
+              state.gameInterval = setInterval(gameLoop, 250);
+          }
+        } else {
+          m.style.display = "flex";
+          if (state.gameInterval) {
+            state.gamePaused = true;
+            clearInterval(state.gameInterval);
+            state.gameInterval = null;
+          }
+        }
+      }
+
+      function formatTime(mins) {
+        let h = Math.floor(mins / 60),
+          m = mins % 60;
+        let ampm = h >= 12 ? "PM" : "AM";
+        let dh = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        return `${dh}:${m < 10 ? "0" + m : m} ${ampm}`;
+      }
+
+      function toggleScroll() {
+        document.getElementById("order-scroll").classList.toggle("open");
+        playTone(400, "sine", 0.1);
+      }
+
+      function populateScroll() {
+        const details = document.getElementById("scroll-details");
+        let activeTicket = null;
+
+        // Find ticket related to selected item, or default to the first active ticket
+        if (state.selectedInvId) {
+          const item = state.inventory.find(
+            (i) => i.id === state.selectedInvId,
+          );
+          if (item)
+            activeTicket = state.tickets.find((t) => t.id === item.ticketId);
+        } else if (state.tickets.length > 0) {
+          activeTicket = state.tickets[0];
+        }
+
+        if (activeTicket) {
+          let cHtml = "";
+          const req = activeTicket.constraints;
+          if (req.minStrength)
+            cHtml += `<div>⚡ Strength ≥ ${req.minStrength} MPa</div>`;
+          if (req.maxWeight)
+            cHtml += `<div>⚖️ Weight ≤ ${req.maxWeight} kg</div>`;
+          if (req.maxCost) cHtml += `<div>💲 Cost ≤ $${req.maxCost}</div>`;
+          if (req.minDuctility)
+            cHtml += `<div>🔄 Ductility ≥ ${req.minDuctility}</div>`;
+          if (req.minThermal)
+            cHtml += `<div>🌡️ Heat ≥ ${req.minThermal}°C</div>`;
+
+          details.innerHTML = `<strong>Order #:</strong> ${activeTicket.id}<br><br><strong>Material:</strong> <span style="color:var(--primary)">${activeTicket.material.name}</span><br><br>
+            <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; font-style: italic; margin-bottom: 10px;">"${activeTicket.reqText}"</div>
+            <strong>Engineering Constraints:</strong><div style="margin-top: 5px; font-size: 0.95rem; color: #555;">${cHtml}</div>`;
+        } else {
+          details.innerHTML = "No active order in progress.";
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // DRAG & DROP
+      // ═══════════════════════════════════════════════════════════
+      function handleDragStart(e, id) {
+        e.dataTransfer.setData("text/plain", id);
+        state.selectedInvId = parseInt(id);
+        updateUI();
+      }
+      function handleDropCustomer(e, idx) {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        if (id) {
+          state.selectedInvId = parseInt(id);
+          interactCustomer(idx);
+        }
+      }
+      function handleDropFurnace(e, idx) {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        if (id) {
+          state.selectedInvId = parseInt(id);
+          interactFurnace(idx);
+        }
+      }
+      function handleDropAnvil(e) {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        if (id) loadAnvil(parseInt(id));
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // MAIN GAME LOOP
+      // ═══════════════════════════════════════════════════════════
+      function startGame() {
+        try {
+          if (state.audio) {
+            const AudioCtxClass =
+              window.AudioContext || window.webkitAudioContext;
+            if (AudioCtxClass && !audioCtx) {
+              audioCtx = new AudioCtxClass();
+              audioCtx.resume().catch(() => {});
+            }
+          }
+        } catch (e) {
+          console.warn("Audio initialization bypassed.");
+        }
+
+        showScreen("game-ui");
+        startDay();
+      }
+
+      function startDay() {
+        state.customers = [null];
+        state.tickets = [];
+        state.inventory = [];
+        state.furnaceItem = null;
+        state.selectedInvId = null;
+        state.activeForgeItemId = null;
+        state.customersServedToday = 0;
+        state.startOfDayMoney = state.money;
+        state.startOfDayRep = state.reputation;
+        state.timeMinutes = 360;
+        state.ticketCounter = 1;
+        state.gamePaused = false;
+        state.dailyRent = 75 + (state.day - 1) * 25;
+        pendingReviewCleanup = null;
+
+        const rentEl = document.getElementById("hud-rent");
+        if (rentEl) rentEl.innerText = state.dailyRent;
+
+        switchTab("lobby");
+        clearInterval(state.gameInterval);
+        state.gameInterval = setInterval(gameLoop, 250);
+
+        if (state.day > 1)
+          showToast(`⚒️ Day ${state.day} — Rent is $${state.dailyRent} today!`);
+        spawnCustomer();
+      }
+
+      function spawnCustomer() {
+        if (!state.customers[0]) {
+          const req =
+            CUSTOMER_REQUESTS[
+              Math.floor(Math.random() * CUSTOMER_REQUESTS.length)
+            ];
+          state.customers[0] = {
+            id: state.ticketCounter++,
+            request: req,
+            ordered: false,
+            revealed: false,
+            tipBought: false,
+          };
+          playTone(500, "sine", 0.15);
+          updateUI();
+        }
+      }
+
+      function gameLoop() {
+        state.timeMinutes += 1;
+        document.getElementById("hud-time").innerText = formatTime(
+          state.timeMinutes,
+        );
+        document.getElementById("hud-cust").innerText =
+          state.customersServedToday;
+
+        if (state.timeMinutes >= 1080) forceEndDay();
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // UI RENDERER
+      // ═══════════════════════════════════════════════════════════
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        state.selectedInvId = null;
+        document
+          .querySelectorAll(".workspace")
+          .forEach((w) => w.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active-tab"));
+        document.getElementById(`workspace-${tabName}`).classList.add("active");
+        const tabIdx = { lobby: 0, melt: 1, forge: 2 }[tabName] ?? 0;
+        document
+          .querySelectorAll(".tab-btn")
+          [tabIdx].classList.add("active-tab");
+        updateUI();
+      }
+
+      function updateUI() {
+        document.getElementById("hud-day").innerText = state.day;
+        document.getElementById("hud-rep").innerText = state.reputation;
+        document.getElementById("hud-money").innerText = state.money;
+
+        populateScroll();
+
+        // ── LOBBY ──
+        const slot = document.getElementById(`cust-slot-0`);
+        const cust = state.customers[0];
+        const sig = cust
+          ? `${cust.id}-${cust.ordered}-${cust.revealed}`
+          : "empty";
+        if (slot.dataset.sig !== sig) {
+          if (cust) {
+            const req = cust.request;
+            const selectedItem = state.inventory.find(
+              (i) => i.id === state.selectedInvId,
+            );
+            let bubbleTxt = cust.ordered
+              ? `⏳ Working on Order #${cust.id}…`
+              : `<strong>${req.customerName}</strong><br/>${req.text}`;
+            if (
+              cust.ordered &&
+              selectedItem &&
+              selectedItem.state === "finished"
+            )
+              bubbleTxt = `✅ Click me to Deliver Order #${cust.id}!`;
+
+            slot.innerHTML = `
+              <div class="customer-bubble">${bubbleTxt}</div>
+              <div class="cust-img-above">
+                <div class="cust-name-label">Customer #${cust.id}</div>
+                <img class="customer-img" src="RabbitCustomer.png" onerror="this.style.display='none'; document.getElementById('order-cust-emoji').style.display='block';" />
+                <div id="order-cust-emoji" style="display:none; font-size:4rem;">${req.emoji}</div>
+              </div>`;
+            slot.classList.add("occupied");
+            if (cust.revealed) slot.classList.add("revealed");
+            else slot.classList.remove("revealed");
+          } else {
+            slot.innerHTML = `<div class="customer-sprite"><div style="font-size:2.5rem; opacity:.3">👤</div><div style="font-size:.85rem; color:#bbb; margin-top:6px">No customer</div></div>`;
+            slot.classList.remove("occupied", "revealed");
+          }
+          slot.dataset.sig = sig;
+        }
+
+        // ── MELT ──
+        const selectedItem = state.inventory.find(
+          (i) => i.id === state.selectedInvId,
+        );
+        if (state.furnaceItem) {
+          const item = state.inventory.find((i) => i.id === state.furnaceItem);
+          if (item) {
+            const maxGauge = 1500;
+            const tgtPct = (item.material.forgeTemp / maxGauge) * 100;
+            document.getElementById("furnace-tgt-0").style.bottom =
+              `${tgtPct}%`;
+
+            if (item.state !== "heating") {
+              const pct = Math.min(100, (item.temp / maxGauge) * 100);
+              document.getElementById("furnace-fill-0").style.height =
+                `${pct}%`;
+              const heatFrac = item.temp / item.material.forgeTemp;
+              const fillEl = document.getElementById("furnace-fill-0");
+
+              if (heatFrac >= 1.0)
+                fillEl.style.background =
+                  "linear-gradient(to top, #27ae60, #2ecc71)";
+              else if (heatFrac >= 0.7)
+                fillEl.style.background =
+                  "linear-gradient(to top, #e67e22, #f39c12)";
+              else
+                fillEl.style.background =
+                  "linear-gradient(to top, #c0392b, #e74c3c)";
+
+              document.getElementById("furnace-txt-0").innerText =
+                item.state === "heated"
+                  ? `READY`
+                  : `${Math.floor(item.temp)}°C`;
+              document.getElementById("furnace-txt-0").style.color =
+                heatFrac >= 1.0 ? "#2ecc71" : "white";
+            }
+          }
+        } else {
+          document.getElementById("furnace-txt-0").innerText =
+            selectedItem && selectedItem.state === "raw"
+              ? "CLICK TO LOAD"
+              : "IDLE";
+          document.getElementById("furnace-txt-0").style.color = "white";
+          document.getElementById("furnace-fill-0").style.height = "0%";
+          document.getElementById("furnace-fill-0").style.background =
+            "linear-gradient(to top, #f1c40f, #e74c3c, #8e44ad)";
+          document.getElementById("furnace-tgt-0").style.bottom = "66%";
+        }
+
+        // ── FORGE ──
+        const forgeItem = getActiveItem();
+        if (forgeItem) {
+          document.getElementById("timing-container").style.display = "block";
+          document.getElementById("progress-bar-container").style.display =
+            "block";
+          document.getElementById("timing-pointer").style.left =
+            state.sliderPos + "%";
+          document.getElementById("timing-target").style.left =
+            state.targetStart + "%";
+          document.getElementById("timing-target").style.width =
+            state.targetWidth + "%";
+          document.getElementById("progress-bar").style.width =
+            (forgeItem.hammerSuccesses / 5) * 100 + "%";
+          document.getElementById("visual-anvil").innerHTML =
+            `🔨 TAP! (${forgeItem.hammerSuccesses}/5)`;
+        } else {
+          document.getElementById("timing-container").style.display = "none";
+          document.getElementById("progress-bar-container").style.display =
+            "none";
+          document.getElementById("visual-anvil").innerHTML =
+            selectedItem && selectedItem.state === "heated"
+              ? "Click to Place Item"
+              : "Load a Heated Item";
+        }
+        updateForgePanel();
+
+        // ── INVENTORY TRAY ──
+        const tray = document.getElementById("inventory-tray");
+        const visItems = state.inventory.filter((i) => {
+          if (i.id === state.furnaceItem || i.id === state.activeForgeItemId)
+            return false;
+          return true;
+        });
+        const traySig = visItems
+          .map((i) => `${i.id}-${i.state}-${state.selectedInvId === i.id}`)
+          .join("|");
+
+        if (tray.dataset.sig !== traySig) {
+          tray.innerHTML = "";
+          if (visItems.length === 0) {
+            tray.innerHTML = `<span style="color:#dfe6e9; font-style:italic; font-size:.9rem; padding:0 10px">No items on counter. Process orders to see them here.</span>`;
+          } else {
+            visItems.forEach((item) => {
+              const isSel = state.selectedInvId === item.id;
+              const stateLabel =
+                {
+                  raw: "RAW",
+                  heating: "HEATING🔥",
+                  heated: "READY🔶",
+                  forging: "FORGING",
+                  finished: "DONE✅",
+                }[item.state] || item.state;
+              tray.innerHTML += `<div class="inv-item ${item.state}${isSel ? " selected" : ""}" draggable="true" ondragstart="handleDragStart(event,${item.id})" onclick="handleTrayClick(${item.id})">
+                <div style="font-size:1.4rem">${item.material.emoji}</div><div style="font-size:.72rem; font-weight:bold">#${item.ticketId}</div><div style="font-size:.68rem; margin-top:2px">${stateLabel}</div>
+              </div>`;
+            });
+          }
+          tray.dataset.sig = traySig;
+        }
+      }
+
+      function handleTrayClick(id) {
+        state.selectedInvId = state.selectedInvId === id ? null : id;
+        updateUI();
+        const scroll = document.getElementById("order-scroll");
+        if (state.selectedInvId && !scroll.classList.contains("open")) {
+          scroll.classList.add("open");
+          playTone(400, "sine", 0.1);
+        }
+      }
+
+      function getActiveItem() {
+        return state.inventory.find((i) => i.id === state.activeForgeItemId);
+      }
+
+      function updateForgePanel() {
+        const item = getActiveItem();
+        const emptyMsg = document.getElementById("forge-empty-msg");
+        const activeContent = document.getElementById("forge-active-content");
+
+        if (!item) {
+          emptyMsg.style.display = "flex";
+          activeContent.style.display = "none";
+          return;
+        }
+        emptyMsg.style.display = "none";
+        activeContent.style.display = "flex";
+
+        document.getElementById("forge-mat-name").innerText =
+          item.material.emoji + " " + item.material.name;
+        document.getElementById("forge-mat-desc").innerText =
+          item.material.desc;
+
+        const t = item.thickness;
+        const slider = document.getElementById("thickness-slider");
+        if (slider) {
+          slider.value = t;
+          const pct = ((t - 1) / 9) * 100;
+          slider.style.background = `linear-gradient(to right, var(--secondary) 0%, var(--secondary) ${pct}%, #ddd ${pct}%)`;
+        }
+        document.getElementById("thickness-value").innerText = t;
+
+        const d = computeDesign(item);
+        const ticket = state.tickets.find((tk) => tk.id === item.ticketId);
+        const req = ticket ? ticket.constraints : {};
+        const MAXES = {
+          strength: 9000,
+          weight: 80,
+          cost: 1800,
+          ductility: 0.4,
+          thermalLimit: 850,
+        };
+
+        function updateBar(barId, valId, val, max, limit, isMax) {
+          const el = document.getElementById(barId);
+          const vEl = document.getElementById(valId);
+          if (!el || !vEl) return;
+          const pct = Math.min(100, (val / max) * 100);
+          el.style.width = pct + "%";
+          if (limit !== undefined) {
+            const ok = isMax ? val <= limit : val >= limit;
+            el.className = "stat-bar-fill " + (ok ? "pass-bar" : "fail-bar");
+          } else {
+            el.className = "stat-bar-fill neutral-bar";
+          }
+          vEl.innerText = val;
+        }
+
+        updateBar(
+          "bar-strength",
+          "stat-strength",
+          d.strength,
+          MAXES.strength,
+          req.minStrength,
+          false,
+        );
+        updateBar(
+          "bar-weight",
+          "stat-weight",
+          d.weight,
+          MAXES.weight,
+          req.maxWeight,
+          true,
+        );
+        updateBar(
+          "bar-cost",
+          "stat-cost",
+          d.cost,
+          MAXES.cost,
+          req.maxCost,
+          true,
+        );
+        updateBar(
+          "bar-ductility",
+          "stat-ductility",
+          d.ductility,
+          MAXES.ductility,
+          req.minDuctility,
+          false,
+        );
+        updateBar(
+          "bar-thermal",
+          "stat-thermal",
+          d.thermalLimit,
+          MAXES.thermalLimit,
+          req.minThermal,
+          false,
+        );
+
+        const clist = document.getElementById("constraint-checks");
+        if (!ticket) {
+          clist.innerHTML =
+            "<em style='color:#aaa; font-size:.82rem;'>Load an order first.</em>";
+          return;
+        }
+
+        const checks = [];
+        function addCheck(label, got, limit, isMax, fmt) {
+          if (limit === undefined) return;
+          const ok = isMax ? got <= limit : got >= limit;
+          checks.push(
+            `<div class="ccheck ${ok ? "ccheck-pass" : "ccheck-fail"}">${ok ? "✅" : "❌"} <strong>${label}</strong><span style="color:#777; font-size:.75rem; margin-left:4px;">${isMax ? "≤" : "≥"} ${fmt(limit)}</span><span class="ccheck-val">${fmt(got)}</span></div>`,
+          );
+        }
+        addCheck(
+          "Strength",
+          d.strength,
+          req.minStrength,
+          false,
+          (v) => v + " MPa",
+        );
+        addCheck("Weight", d.weight, req.maxWeight, true, (v) => v + " g/cm²");
+        addCheck("Cost", d.cost, req.maxCost, true, (v) => "$" + v);
+        addCheck("Ductility", d.ductility, req.minDuctility, false, (v) => v);
+        addCheck(
+          "Thermal Lim.",
+          d.thermalLimit,
+          req.minThermal,
+          false,
+          (v) => v + "°C",
+        );
+        clist.innerHTML = checks.length
+          ? checks.join("")
+          : "<em style='color:#aaa;font-size:.82rem;'>No constraints for this order.</em>";
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // LOBBY INTERACTIONS
+      // ═══════════════════════════════════════════════════════════
+      function buyTip() {
+        const tipCost = Math.round(state.dailyRent / 10);
+        if (state.money < tipCost) {
+          showToast("❌ Insufficient funds for tip!");
+          return;
+        }
+        state.money -= tipCost;
+        state.customers[0].tipBought = true;
+        document.getElementById("hud-money").innerText = state.money;
+        playTone(600, "sine", 0.1);
+
+        const tipContainer = document.getElementById("tip-container");
+        if (tipContainer)
+          tipContainer.innerHTML = `💡 <strong>Engineering Tip:</strong> ${state.customers[0].request.hint}`;
+      }
+
+      function interactCustomer(idx) {
+        const cust = state.customers[0];
+        if (!cust) return;
+
+        if (!cust.ordered) {
+          if (!cust.revealed) {
+            cust.revealed = true;
+            updateUI();
+          }
+
+          document.getElementById("mat-modal-orderid").innerText = cust.id;
+          document.getElementById("order-cust-name").innerText =
+            cust.request.customerName;
+          document.getElementById("order-cust-type").innerText = cust.request
+            .type
+            ? cust.request.type.toUpperCase()
+            : "";
+          document.getElementById("order-req-text").innerText =
+            cust.request.text;
+
+          const tipCost = Math.round(state.dailyRent / 10);
+          const tipContainer = document.getElementById("tip-container");
+          if (tipContainer) {
+            if (cust.tipBought) {
+              tipContainer.innerHTML = `💡 <strong>Engineering Tip:</strong> ${cust.request.hint}`;
+            } else {
+              tipContainer.innerHTML = `💡 <strong>Engineering Tip available!</strong><br><button type="button" class="btn" style="margin: 8px 0 0 0; padding: 6px 12px; font-size: 0.85rem; background: #f39c12; box-shadow: 0 3px 0 #d35400;" onclick="buyTip()">Buy Tip for $${tipCost}</button>`;
+            }
+          }
+
+          const grid = document.getElementById("materials-grid");
+          grid.innerHTML = "";
+          MATERIALS.forEach((mat) => {
+            const canAfford = state.money >= mat.cost;
+            const card = document.createElement("div");
+            card.className =
+              "material-card" + (canAfford ? "" : " mat-disabled");
+            card.innerHTML = `<div class="mat-emoji">${mat.emoji}</div><strong style="font-size:.95rem">${mat.name}</strong><div class="mat-stats">⚡ σ_y: <strong>${mat.yieldStrength} MPa</strong><br/>⚖️ ρ: <strong>${mat.density} g/cm³</strong><br/>🔄 ε_f: <strong>${mat.ductility}</strong><br/>🌡️ T_max: <strong>${mat.thermalLimit}°C</strong><br/><em style="color:#777; font-size:.78rem">${mat.desc}</em></div><div class="mat-cost">−$${mat.cost}/mm</div>`;
+            if (canAfford) card.onclick = () => buyMaterial(mat);
+            grid.appendChild(card);
+          });
+          document.getElementById("material-modal").style.display = "flex";
+        } else if (state.selectedInvId) {
+          const item = state.inventory.find(
+            (i) => i.id === state.selectedInvId,
+          );
+          if (!item) return;
+          if (item.state !== "finished") {
+            showToast("⚠️ This item isn't finished yet!");
+            return;
+          }
+          if (item.ticketId !== cust.id) {
+            showToast("❌ Wrong order — check the ticket number!");
+            return;
+          }
+          gradeAndDeliver(item, cust, 0);
+        } else {
+          showToast(
+            "👆 Select a finished item from the tray below to deliver!",
+          );
+        }
+      }
+
+      function buyMaterial(mat) {
+        if (state.money < mat.cost) {
+          showToast("❌ Insufficient funds!");
+          return;
+        }
+        state.money -= mat.cost;
+        state.customers[0].ordered = true;
+
+        const ticket = {
+          id: state.customers[0].id,
+          material: mat,
+          emoji: state.customers[0].request.emoji,
+          reqText: state.customers[0].request.text,
+          constraints: state.customers[0].request.constraints,
+        };
+        state.tickets.push(ticket);
+        state.inventory.push(new WIPItem(state.itemCounter++, mat, ticket.id));
+
+        playTone(400, "square", 0.12);
+        showToast(`📦 Order #${state.customers[0].id} started — heat it up!`);
+        closeModal("material-modal");
+        document.getElementById("order-scroll").classList.add("open");
+        updateUI();
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // MELT INTERACTIONS
+      // ═══════════════════════════════════════════════════════════
+      function interactFurnace(idx) {
+        if (!state.furnaceItem && state.selectedInvId) {
+          const item = state.inventory.find(
+            (i) => i.id === state.selectedInvId,
+          );
+          if (!item) return;
+          if (item.state !== "raw") {
+            showToast("⚠️ Only raw items can be loaded into a furnace.");
+            return;
+          }
+
+          item.state = "heating";
+          item.temp = 20;
+          state.furnaceItem = item.id;
+          state.selectedInvId = null;
+          showToast(`🔥 Loaded ${item.material.name}. Hold Heat!`);
+          updateUI();
+        } else if (!state.furnaceItem && !state.selectedInvId) {
+          showToast("👆 Select a raw item from the tray first!");
+        }
+      }
+
+      function startHeating() {
+        if (!state.furnaceItem) return;
+        clearInterval(state.heatingInterval);
+
+        state.heatingInterval = setInterval(() => {
+          let item = state.inventory.find((i) => i.id === state.furnaceItem);
+          if (!item) return;
+
+          const maxGauge = 1500;
+          const rate = maxGauge / 40;
+          item.temp += rate;
+          if (item.temp > maxGauge) item.temp = maxGauge;
+          if (item.temp > item.peakTemp) item.peakTemp = item.temp;
+
+          const pct = Math.min(100, (item.temp / maxGauge) * 100);
+          document.getElementById("furnace-fill-0").style.height = `${pct}%`;
+          document.getElementById("furnace-txt-0").innerText =
+            `${Math.floor(item.temp)}°C`;
+
+          const heatFrac = item.temp / item.material.forgeTemp;
+          const fillEl = document.getElementById("furnace-fill-0");
+          if (heatFrac >= 1.0)
+            fillEl.style.background =
+              "linear-gradient(to top, #27ae60, #2ecc71)";
+          else if (heatFrac >= 0.7)
+            fillEl.style.background =
+              "linear-gradient(to top, #e67e22, #f39c12)";
+          else
+            fillEl.style.background =
+              "linear-gradient(to top, #c0392b, #e74c3c)";
+
+          if (Math.floor(item.temp) % 100 === 0)
+            playTone(200 + item.temp / 5, "sawtooth", 0.05);
+        }, 50);
+      }
+
+      function stopHeating() {
+        clearInterval(state.heatingInterval);
+      }
+
+      function finishHeating() {
+        if (!state.furnaceItem) {
+          showToast("⚠️ Load a raw material into the furnace first!");
+          return;
+        }
+        stopHeating();
+
+        let item = state.inventory.find((i) => i.id === state.furnaceItem);
+        const target = item.material.forgeTemp;
+        item.heatPct = Math.min(1.0, item.temp / target);
+        item.state = "heated";
+        state.furnaceItem = null;
+
+        playTone(300, "sine", 0.3);
+        if (item.heatPct >= 1.0)
+          showToast(`✅ ${item.material.name} fully heated — ready to forge!`);
+        else if (item.heatPct >= 0.7)
+          showToast(`⚠️ Removed early — expect reduced quality!`);
+        else showToast(`❌ Severely underdone — part will be weak!`);
+
+        updateUI();
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // FORGE INTERACTIONS
+      // ═══════════════════════════════════════════════════════════
+      function loadAnvil(itemId) {
+        if (state.activeForgeItemId) {
+          showToast("⚠️ Finish the current item first!");
+          return;
+        }
+        const item = state.inventory.find((i) => i.id === itemId);
+        if (!item || item.state !== "heated") return;
+
+        state.activeForgeItemId = itemId;
+        item.state = "forging";
+        state.selectedInvId = null;
+
+        state.targetWidth = Math.max(12, 30 - state.day * 3);
+        state.targetStart = Math.random() * (100 - state.targetWidth);
+        state.sliderPos = 0;
+        state.sliderDir = 1;
+        state.sliderSpeed = 1.0 + state.day * 0.4;
+
+        clearInterval(state.sliderInterval);
+        state.sliderInterval = setInterval(updateSlider, 20); // 60 FPS slider
+
+        showToast(
+          "⚒️ Set thickness on the left, then hammer 5× in the green zone!",
+        );
+        updateUI();
+      }
+
+      function updateSlider() {
+        state.sliderPos += state.sliderSpeed * state.sliderDir;
+        if (state.sliderPos >= 100) {
+          state.sliderPos = 100;
+          state.sliderDir = -1;
+        } else if (state.sliderPos <= 0) {
+          state.sliderPos = 0;
+          state.sliderDir = 1;
+        }
+        document.getElementById("timing-pointer").style.left =
+          state.sliderPos + "%";
+      }
+
+      function setThickness(val) {
+        const item = getActiveItem();
+        if (!item) return;
+        item.thickness = Math.max(1, Math.min(10, val));
+        updateForgePanel();
+      }
+
+      function adjustThickness(delta) {
+        const item = getActiveItem();
+        if (!item) {
+          showToast("⚠️ Load a heated item onto the anvil first!");
+          return;
+        }
+        setThickness(item.thickness + delta);
+        playTone(delta > 0 ? 440 : 330, "sine", 0.07);
+      }
+
+      function hammer(e) {
+        if (!state.activeForgeItemId) {
+          if (state.selectedInvId) loadAnvil(state.selectedInvId);
+          else showToast("👆 Select a heated item from the tray first!");
+          return;
+        }
+
+        const item = getActiveItem();
+        if (!item || item.hammerSuccesses >= 5) return;
+
+        const tol = 6.0;
+        const inZone =
+          state.sliderPos >= state.targetStart - tol &&
+          state.sliderPos <= state.targetStart + state.targetWidth + tol;
+        const anvil = document.getElementById("visual-anvil");
+
+        if (inZone) {
+          item.hammerSuccesses++;
+          playTone(260, "square", 0.1);
+          anvil.style.transform = "translateY(5px) scale(0.98)";
+          anvil.style.borderColor = "var(--money)";
+        } else {
+          item.hammerMistakes++;
+          playTone(100, "sawtooth", 0.18);
+          anvil.style.transform = "translateX(5px)";
+          anvil.style.borderColor = "var(--danger)";
+          const miss = document.createElement("div");
+          miss.className = "miss-text";
+          miss.innerText = "MISS!";
+          anvil.appendChild(miss);
+          setTimeout(() => miss.remove(), 600);
+        }
+
+        setTimeout(() => {
+          anvil.style.transform = "none";
+          anvil.style.borderColor = "#333";
+        }, 100);
+
+        if (item.hammerSuccesses >= 5) {
+          clearInterval(state.sliderInterval);
+          document.getElementById("heattreat-modal").style.display = "flex";
+        }
+        updateUI();
+      }
+
+      function applyHeatTreatment(type) {
+        const item = getActiveItem();
+        if (!item) return;
+        const ht = heatTreatments[type].apply(item.material);
+        item.yieldMult = ht.yieldMult;
+        item.ductilityMult = ht.ductMult;
+        item.heatTreatment = type;
+        item.state = "finished";
+        state.activeForgeItemId = null;
+
+        playTone(300, "square", 0.3);
+        closeModal("heattreat-modal");
+        showToast(
+          `✅ Order #${item.ticketId} is finished — deliver it in the Lobby!`,
+        );
+        updateUI();
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // DELIVERY & GRADING
+      // ═══════════════════════════════════════════════════════════
+      function gradeAndDeliver(item, cust, slotIdx) {
+        const ticket = state.tickets.find((t) => t.id === item.ticketId);
+        if (!ticket) {
+          showToast("❌ No ticket found for this order!");
+          return;
+        }
+
+        const result = evaluateDesign(item, ticket);
+        const { score, feedback, design, details } = result;
+
+        let gradeTier;
+        if (score >= 90) gradeTier = 4;
+        else if (score >= 65) gradeTier = 3;
+        else if (score >= 40) gradeTier = 2;
+        else if (score >= 15) gradeTier = 1;
+        else gradeTier = 0;
+
+        if (item.hammerMistakes > 0) {
+          gradeTier = Math.max(
+            0,
+            gradeTier - (item.hammerMistakes >= 4 ? 2 : 1),
+          );
+          feedback.push("Forging inaccuracies noted.");
+        }
+
+        if (item.heatPct < 1.0) {
+          const heatPenalty =
+            item.heatPct < 0.5
+              ? 3
+              : item.heatPct < 0.7
+                ? 2
+                : item.heatPct < 0.9
+                  ? 1
+                  : 0;
+          gradeTier = Math.max(0, gradeTier - heatPenalty);
+          feedback.push(
+            `Insufficient heating (${Math.floor(item.heatPct * 100)}% of target temperature).`,
+          );
+        }
+
+        const grade = ["F", "D", "C", "B", "A"][gradeTier];
+        const repChange = [-30, -15, -5, 5, 12][gradeTier];
+        const flatPay = [3, 12, 25, 42, 60][gradeTier];
+        const matBonus = Math.floor(design.cost * 0.05);
+        const repMult =
+          state.reputation >= 75 ? 1.15 : state.reputation <= 30 ? 0.8 : 1.0;
+        const finalPay = Math.max(
+          0,
+          Math.floor((flatPay + matBonus) * repMult),
+        );
+
+        state.money = state.money + finalPay;
+        state.reputation = Math.max(
+          0,
+          Math.min(100, state.reputation + repChange),
+        );
+
+        const gradeColors = [
+          "#c0392b",
+          "#d35400",
+          "#f39c12",
+          "#2ecc71",
+          "#27ae60",
+        ];
+        const stamp = document.getElementById("grade-stamp");
+        stamp.innerText = grade;
+        stamp.style.color = stamp.style.borderColor = gradeColors[gradeTier];
+
+        const matBar = document.getElementById("rev-mat-bar");
+        if (matBar) {
+          matBar.style.width = "0%";
+          setTimeout(() => {
+            matBar.style.width = score + "%";
+            matBar.style.background =
+              score >= 80
+                ? "var(--pass)"
+                : score >= 50
+                  ? "#f39c12"
+                  : "var(--fail)";
+          }, 120);
+        }
+
+        const heatRow = document.getElementById("rev-heat-row");
+        const heatTxt = document.getElementById("rev-heat-text");
+        if (heatRow && heatTxt) {
+          if (item.heatPct < 1.0) {
+            heatRow.style.display = "block";
+            heatTxt.innerText = `${Math.floor(item.heatPct * 100)}% of forging temperature reached.`;
+          } else {
+            heatRow.style.display = "none";
+          }
+        }
+
+        let cHtml = "";
+        details.forEach((d) => {
+          cHtml += `<div class="review-constraint ${d.ok ? "rev-pass" : "rev-fail"}">${d.ok ? "✅" : "❌"} <strong>${d.label}</strong><span style="color:#555; margin-left:auto; font-size:.85rem;">Required ${d.need} &nbsp;·&nbsp; Got <strong>${d.got}</strong></span></div>`;
+        });
+        document.getElementById("review-constraints").innerHTML =
+          cHtml ||
+          `<em style="color:#aaa;font-size:.85rem;">No specific material constraints for this order.</em>`;
+        document.getElementById("feedback-text").innerText = feedback.length
+          ? feedback.join(" ")
+          : "🏆 Outstanding — all constraints satisfied!";
+        document.getElementById("payment-sign").innerText = "+$";
+        document.getElementById("payment-text").innerText = finalPay;
+        document.getElementById("payment-sign").style.color = "var(--money)";
+        document.getElementById("payment-text").style.color = "var(--money)";
+        document.getElementById("rep-change-text").innerText =
+          (repChange >= 0 ? "+" : "") + repChange;
+        document.getElementById("rep-change-text").style.color =
+          repChange >= 0 ? "var(--rep)" : "var(--danger)";
+
+        playTone(
+          gradeTier >= 3 ? 600 : 200,
+          gradeTier >= 3 ? "sine" : "sawtooth",
+          0.4,
+        );
+        pendingReviewCleanup = {
+          itemId: item.id,
+          slotIdx,
+          ticketId: ticket.id,
+        };
+        updateUI();
+
+        document.getElementById("order-scroll").classList.remove("open");
+        document.getElementById("review-modal").style.display = "flex";
+      }
+
+      function closeReviewModal() {
+        if (pendingReviewCleanup) {
+          const { itemId, slotIdx, ticketId } = pendingReviewCleanup;
+          state.inventory = state.inventory.filter((i) => i.id !== itemId);
+          state.tickets = state.tickets.filter((t) => t.id !== ticketId);
+          state.customers[0] = null;
+          state.customersServedToday++;
+          state.totalCustomersServed++;
+          state.selectedInvId = null;
+          pendingReviewCleanup = null;
+          spawnCustomer();
+        }
+        document.getElementById("review-modal").style.display = "none";
+        updateUI();
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // SHIFT MANAGEMENT
+      // ═══════════════════════════════════════════════════════════
+      function forceEndDay() {
+        clearInterval(state.gameInterval);
+        showToast("🛎️ 6:00 PM — Shift's over!");
+        setTimeout(() => {
+          ["review-modal", "heattreat-modal", "material-modal"].forEach(
+            closeModal,
+          );
+          endDay();
+        }, 1800);
+      }
+
+      function endDay() {
+        document.getElementById("day-end-title").innerText =
+          `End of Day ${state.day}`;
+        document.getElementById("sum-cust").innerText =
+          state.customersServedToday;
+        document.getElementById("sum-start-money").innerText =
+          state.startOfDayMoney;
+        document.getElementById("sum-end-money").innerText = state.money;
+        document.getElementById("sum-rent").innerText = state.dailyRent;
+
+        state.money -= state.dailyRent;
+        const moneyDelta = state.money - state.startOfDayMoney;
+        const repDelta = state.reputation - state.startOfDayRep;
+
+        document.getElementById("sum-net-money").innerText =
+          `$${state.money} (Net: ${moneyDelta >= 0 ? "+" : ""}$${Math.abs(moneyDelta)})`;
+        document.getElementById("sum-net-money").style.color =
+          moneyDelta >= 0 ? "var(--money)" : "var(--danger)";
+        document.getElementById("sum-rep-display").innerText =
+          `${state.reputation} (${repDelta >= 0 ? "+" : ""}${repDelta})`;
+        document.getElementById("sum-rep-display").style.color =
+          repDelta >= 0 ? "var(--rep)" : "var(--danger)";
+
+        updateUI();
+        if (state.money < 0) {
+          gameOver(
+            "You couldn't pay your shop rent. The landlord closed you down.",
+          );
+          return;
+        }
+        if (state.money < state.dailyRent && state.day < state.maxDays) {
+          gameOver(
+            `You paid rent but can't cover tomorrow's$${75 + state.day * 25} rent. The forge goes dark.`,
+          );
+          return;
+        }
+        showScreen("day-summary-screen");
+      }
+
+      function startNextDay() {
+        state.day++;
+        if (state.day > state.maxDays) {
+          endWeek();
+          return;
+        }
+        const nextRent = 75 + (state.day - 1) * 25;
+        const el = document.getElementById("sum-next-rent");
+        if (el)
+          el.innerText = `⚠️ Tomorrow's rent will be $${nextRent} — be ready!`;
+        showScreen("game-ui");
+        startDay();
+      }
+
+      function endWeek() {
+        const total = state.totalCustomersServed;
+        let verdict = "";
+        if (state.reputation >= 80 && state.money > 700)
+          verdict = `<strong>🏆 Master Metallurgist!</strong><br/><br/>You finished with$${state.money} and a reputation of ${state.reputation}.<br/>Total clients served this week: <strong>${total}</strong>. Your forge is thriving!`;
+        else if (state.reputation >= 40 && state.money > 0)
+          verdict = `<strong>👍 Solid Engineer.</strong><br/><br/>You survived the week with $${state.money} and a reputation of ${state.reputation}.<br/>Total clients served: <strong>${total}</strong>. Room to improve!`;
+        else
+          verdict = `<strong>😬 Struggling Shop.</strong><br/><br/>You made it through, barely. Ended with$${state.money} and rep ${state.reputation}.<br/>Total clients served: <strong>${total}</strong>. Review your material choices!`;
+        document.getElementById("final-verdict").innerHTML = verdict;
+        showScreen("week-summary-screen");
+      }
+
+      function gameOver(reason) {
+        document.getElementById("final-verdict").innerHTML =
+          `<strong style="color:var(--danger);">SHOP CLOSED.</strong><br/><br/>${reason}<br/><br/>Total clients served this playthrough: <strong>${state.totalCustomersServed}</strong>`;
+        showScreen("week-summary-screen");
+      }
+
+      function resetGame() {
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
