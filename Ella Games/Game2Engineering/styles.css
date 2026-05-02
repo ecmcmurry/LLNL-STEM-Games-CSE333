@@ -3119,13 +3119,17 @@ s.anvil-icon-img {
    makes them sit ON the counter rather than hovering. */
 #counter-orders {
   position: absolute;
+  /* Band spans the LEFT portion of the counter — the drop-off box owns
+     the right side (right: 2%, width: 28%). justify-content: center then
+     centers the card within this band so it lands ON the painted counter
+     rather than at the far left edge. */
   left: 5%;
-  right: 40%;
-  bottom: 1%;
-  /* Band height is just where the cards rest; cards (aspect-ratio 4/5) are
-     allowed to extend ABOVE the band so their parchment tops aren't
-     clipped by overflow:hidden. Width is what controls visible card size. */
-  height: 16%;
+  right: 32%;
+  bottom: 7%;
+  /* Band height is just where the cards rest; cards are allowed to extend
+     ABOVE the band (overflow-y: visible) so the gift-box art and the
+     order-number badge above it aren't clipped. */
+  height: 10%;
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -3137,6 +3141,7 @@ s.anvil-icon-img {
   overflow-y: visible;
   scrollbar-width: none;
 }
+
 #counter-orders::-webkit-scrollbar { display: none; }
 /* Mobile: lift the orders so they rest ON the painted counter rather than
    slipping down past it. */
