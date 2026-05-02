@@ -216,9 +216,9 @@ const levels = [
             {top: '71%', left: '60.26%'},
         ],
         components: [
-            {type: 'switch', label: '3s', img: 'assets/switch.gif', value: 3},
-            {type: 'switch', label: '5s', img: 'assets/switch.gif', value: 5},  
-            {type: 'switch', label: '8s', img: 'assets/switch.gif', value: 8},
+            {type: 'switch', label: '3s', img: 'assets/Wire-Horizontal2.png', value: 3},
+            {type: 'switch', label: '5s', img: 'assets/Wire-Horizontal2.png', value: 5},  
+            {type: 'switch', label: '8s', img: 'assets/Wire-Horizontal2.png', value: 8},
         ]
     },
     {
