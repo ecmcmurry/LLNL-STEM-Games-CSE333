@@ -121,11 +121,10 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     border: none;
 }
 
-/* --- HOW TO PLAY SECTION --- */
+/* --- HOW TO PLAY / WHAT YOU'LL LEARN SECTIONS --- */
 .htp-section {
-    width: 94%;
-    max-width: 960px;
-    margin: 0 auto 36px;
+    width: min(96%, 1400px);
+    margin: 0 auto clamp(28px, 4vw, 56px);
 }
 
 .htp-section.hidden { display: none; }
@@ -135,7 +134,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 18px;
+    margin-bottom: clamp(16px, 2.5vw, 28px);
 }
 .htp-heading::before,
 .htp-heading::after {
@@ -148,36 +147,39 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.68rem;
+    font-size: clamp(0.75rem, 1.4vw, 1.05rem);
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.55);
     white-space: nowrap;
 }
 .htp-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: clamp(22px, 2.5vw, 30px);
+    height: clamp(22px, 2.5vw, 30px);
     line-height: 1;
     background: rgba(219, 170, 0, 0.12);
     border: 1px solid rgba(219, 170, 0, 0.35);
     border-radius: 50%;
-    font-size: 0.65rem;
+    font-size: clamp(0.7rem, 1.2vw, 0.9rem);
     font-weight: 800;
     color: #dbaa00;
     flex-shrink: 0;
 }
 
-/* 3-column grid, stacks on mobile */
+/* 3-column grid → 2-col → 1-col */
 .htp-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    gap: clamp(12px, 2vw, 22px);
 }
-@media (max-width: 600px) {
+@media (max-width: 860px) {
+    .htp-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
     .htp-grid { grid-template-columns: 1fr; }
 }
 
@@ -186,8 +188,8 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     background: linear-gradient(160deg, rgba(15, 45, 82, 0.35), rgba(7, 24, 40, 0.6));
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-top: 3px solid var(--card-accent, #dbaa00);
-    border-radius: 10px;
-    padding: 20px 18px 18px;
+    border-radius: 12px;
+    padding: clamp(18px, 2.5vw, 32px) clamp(16px, 2.2vw, 28px);
     transition: background 0.2s, transform 0.15s;
     position: relative;
     overflow: hidden;
@@ -197,21 +199,21 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 60px;
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--card-accent, #dbaa00) 8%, transparent), transparent);
+    height: 70px;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--card-accent, #dbaa00) 10%, transparent), transparent);
     pointer-events: none;
 }
 .htp-card:hover {
     background: linear-gradient(160deg, rgba(15, 45, 82, 0.55), rgba(7, 24, 40, 0.75));
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
 /* Title — white, reads naturally */
 .htp-card-title {
-    font-size: 1rem;
+    font-size: clamp(1rem, 1.8vw, 1.35rem);
     font-weight: 700;
     color: #ffffff;
-    margin-bottom: 8px;
+    margin-bottom: clamp(6px, 1vw, 10px);
     letter-spacing: 0.2px;
     position: relative;
 }
@@ -219,7 +221,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 /* Coloured category tag under the title */
 .htp-card-tag {
     display: inline-block;
-    font-size: 0.58rem;
+    font-size: clamp(0.6rem, 1vw, 0.75rem);
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -227,15 +229,15 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     background: color-mix(in srgb, var(--card-accent, #dbaa00) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--card-accent, #dbaa00) 35%, transparent);
     border-radius: 4px;
-    padding: 2px 8px;
-    margin-bottom: 12px;
+    padding: 3px 10px;
+    margin-bottom: clamp(10px, 1.5vw, 16px);
     position: relative;
 }
 
 .htp-card-body {
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.55);
-    line-height: 1.65;
+    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.7;
     margin: 0;
     position: relative;
 }
