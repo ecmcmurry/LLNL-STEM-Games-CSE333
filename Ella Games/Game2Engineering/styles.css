@@ -1835,18 +1835,20 @@ img,
 }
 
 /* HUD stat row in pixel-screen monospace.
-   Font kept moderate so all six stats (Day · Time · Today · Rep · Money ·
-   Rent) fit on one row on typical desktop viewports — at 1.35rem the row
-   was overflowing and silently clipping the Money + Rent stats since
-   #hud-stats has scrollbar-width: none. */
+   Font + margins tightened so all five stats (Day · Time · Today · Rep ·
+   Money) fit between the logo block and the actions block on typical
+   desktop viewports — #hud-stats has overflow-x: auto with no scrollbar,
+   so any overflow silently clips the rightmost stats (Money was getting
+   cut off). */
 #hud-stats, .hud-stat, #hud-time {
   font-family: 'VT323', 'Special Elite', monospace !important;
-  font-size: 1.1rem !important;
-  letter-spacing: 0.5px;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.2px;
   font-weight: normal;
 }
-.hud-stat { margin-right: 10px !important; }
-.hud-divider { margin: 10px 4px !important; }
+.hud-stat { margin-right: 2px !important; }
+.hud-divider { margin: 10px 1px !important; }
+#hud-stats { padding: 0 6px !important; }
 #hud-logo .logo-text strong {
   font-family: 'Press Start 2P', 'Cinzel', monospace !important;
   font-size: 0.78rem !important; letter-spacing: 1.5px;
@@ -2911,10 +2913,7 @@ body:has(#screen-title.active) #game-container {
   /* Hide the chunkier secondary stats — rent and customer counter — on the
      smallest screens; rent shows in the day-end summary, customers can be
      read at a glance from the lobby. */
-  .hud-stat:nth-child(5),  /* "👥 Today" */
-  .hud-stat:nth-child(11)  /* "🏠 Rent" */ {
-    display: none;
-  }
+  .hud-stat:nth-child(5) { display: none; } /* "👥 Today" */
   #hud-actions {
     flex: 0 0 auto;
     flex-wrap: nowrap !important;
@@ -3137,12 +3136,17 @@ s.anvil-icon-img {
   gap: clamp(6px, 1.4vw, 16px);
   pointer-events: none;
   z-index: 5;
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: none;
+  /* Both axes must be `visible` together. Declaring `overflow-x: auto`
+     (or any non-visible value) forces `overflow-y` to compute as `auto`
+     in every browser — you can't have one axis scroll and the other
+     visible because the clip context would be inconsistent. That was
+     silently clipping the entire (square) order card whenever it
+     extended above the band's top edge to sit centered on the counter,
+     making the gift-box artwork disappear. Cards are few enough that
+     horizontal scrolling is unnecessary; let extras clip at the band's
+     right edge instead. */
+  overflow: visible;
 }
-
-#counter-orders::-webkit-scrollbar { display: none; }
 /* Mobile: lift the orders so they rest ON the painted counter rather than
    slipping down past it. */
 @media (max-width: 800px) {
