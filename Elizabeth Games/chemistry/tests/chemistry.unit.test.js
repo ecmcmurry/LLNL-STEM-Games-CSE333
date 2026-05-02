@@ -1,5 +1,6 @@
 const { checkPPEAnswers, calculateReaction, setAlpha, mixColors, distance, buildRunSummary, buildSystemPrompt } = require("../utils.js");
-const { REACTIONS } = require("../reactions.js");
+const { REACTIONS } = require('../reactions.js');
+global.REACTIONS = REACTIONS;
 
 describe("checkPPEAnswers", () => {
     
