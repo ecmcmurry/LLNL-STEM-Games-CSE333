@@ -1,7 +1,8 @@
-
 import { getNextCustomer, negotiate, getAutopsy, pingAI } from './ai.js';
 
-
+// ═══════════════════════════════════════════════════════════
+// MATERIALS — physical props + per-material phase regions
+// ═══════════════════════════════════════════════════════════
 const MATERIALS = [
   {
     id: 'steel_mild', emoji: '🔩', name: 'AISI 1020 Mild Steel',
@@ -73,7 +74,9 @@ const HEAT_TREAT_OUTCOMES = {
 const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 const IS_MOBILE = IS_TOUCH && Math.min(window.innerWidth, window.innerHeight) < 900;
 
-
+// ─── Customer art ───────────────────────────────────────────
+// Three character sets: rabbit + bird + bobcat. Each has Regular/Happy/Upset.
+// `pickCharacter()` returns one randomly when a customer spawns.
 const CHARACTERS = ['rabbit', 'bird', 'bobcat'];
 function pickCharacter() {
   return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
@@ -2402,7 +2405,11 @@ function setPaused(p) {
   document.body.classList.toggle('paused', p);
   $('pause-overlay').classList.toggle('active', p);
   $('btn-pause').classList.toggle('active-pause', p);
-  $('btn-pause').textContent = p ? '▶ Resume' : '⏸ Pause';
+  // Preserve the .btn-label span (hidden on mobile) so the emoji-only mobile
+  // view stays intact across pause/resume.
+  $('btn-pause').innerHTML = p
+    ? '<span class="btn-pause-glyph">▶</span><span class="btn-label"> Resume</span>'
+    : '<span class="btn-pause-glyph">⏸</span><span class="btn-label"> Pause</span>';
   if (p) {
     // freeze the customer-spawn timer too — clearing it is fine, the gameLoop
     // will re-schedule once we resume.
