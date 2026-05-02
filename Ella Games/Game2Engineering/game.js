@@ -1,10 +1,7 @@
-// game.js — Forge & Fortune main client logic.
-// Papa's-style single-customer flow with WIP tray + click-to-move.
+
 import { getNextCustomer, negotiate, getAutopsy, pingAI } from './ai.js';
 
-// ═══════════════════════════════════════════════════════════
-// MATERIALS — physical props + per-material phase regions
-// ═══════════════════════════════════════════════════════════
+
 const MATERIALS = [
   {
     id: 'steel_mild', emoji: '🔩', name: 'AISI 1020 Mild Steel',
@@ -76,9 +73,7 @@ const HEAT_TREAT_OUTCOMES = {
 const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 const IS_MOBILE = IS_TOUCH && Math.min(window.innerWidth, window.innerHeight) < 900;
 
-// ─── Customer art ───────────────────────────────────────────
-// Three character sets: rabbit + bird + bobcat. Each has Regular/Happy/Upset.
-// `pickCharacter()` returns one randomly when a customer spawns.
+
 const CHARACTERS = ['rabbit', 'bird', 'bobcat'];
 function pickCharacter() {
   return CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
@@ -301,6 +296,21 @@ function tipCost() {
 // Returns true if game-over was triggered. Skipped during tutorial.
 function checkBankruptcy() {
   if (state.tutorialActive) return false;
+  if (state.money < 0) {
+    setTimeout(() => gameOver(`Bankrupt — you went into the red and can't pay your bills.`), 200);
+    return true;
+  }
+  // If there's an order on the counter that still needs more money to push
+  // through (e.g. extra-thick forge cost), and the player can't cover it,
+  // the shift collapses immediately — no way to finish the order.
+  const stuckItem = state.inventory.find(it => {
+    const minNeeded = (it.material && it.material.cost) ? it.material.cost : 0;
+    return state.money < minNeeded;
+  });
+  if (stuckItem) {
+    setTimeout(() => gameOver(`Bankrupt — not enough money to finish the order on the counter.`), 200);
+    return true;
+  }
   if (state.money < MIN_UPFRONT && state.inventory.length === 0) {
     setTimeout(() => gameOver(`Bankrupt — you can't afford even the cheapest material ($${MIN_UPFRONT}).`), 200);
     return true;
@@ -532,6 +542,7 @@ function renderTray() {
   if (state.inventory.length === 0) {
     tray.innerHTML = '<div class="inv-empty-msg">Tray empty — accept an order from a customer to start working.</div>';
     refreshDropOffBox();
+    renderCounterOrders(); // clear stale order art from the counter
     return;
   }
   state.inventory.forEach(it => {
@@ -728,12 +739,14 @@ function bindTrayClick(el, item) {
 function refreshDropOffBox() {
   const box = $('drop-off-box');
   const overlay = $('counter-dropoff');
+  const roomDrop = $('room-dropoff');
   const armedItem = state.deliveryReadyId
     ? state.inventory.find(x => x.id === state.deliveryReadyId && x.state === 'finished')
     : null;
   if (armedItem) {
     if (box) box.classList.add('armed');
     if (overlay) overlay.classList.add('armed');
+    if (roomDrop) roomDrop.classList.add('armed');
     const ticket = state.pendingTickets.find(t => t.id === armedItem.ticketId);
     if ($('drop-off-hint')) {
       $('drop-off-hint').textContent = ticket
@@ -745,11 +758,20 @@ function refreshDropOffBox() {
         ? `Drop off Order #${ticket.orderNumber}`
         : 'Drop off the selected finished order';
     }
+    if (roomDrop) {
+      roomDrop.title = ticket
+        ? `Drop off Order #${ticket.orderNumber}`
+        : 'Drop off the selected finished order';
+    }
   } else {
     if (box) box.classList.remove('armed');
     if (overlay) {
       overlay.classList.remove('armed');
       overlay.title = 'Tap a finished order on the counter first';
+    }
+    if (roomDrop) {
+      roomDrop.classList.remove('armed');
+      roomDrop.title = 'Tap a finished order on the counter first';
     }
     if ($('drop-off-hint')) $('drop-off-hint').textContent = 'tap a finished order first';
     state.deliveryReadyId = null;
@@ -829,16 +851,20 @@ function onTrayItemClick(item) {
     state.deliveryReadyId = null;
     switchTab('forge');
   } else if (item.state === 'finished') {
-    // Two-step delivery: first tap arms the drop-off, second tap on the
-    // drop-off box completes the hand-off. Tapping the same item again toggles.
     if (state.deliveryReadyId === item.id) {
+      // Second tap on the same armed order → deliver immediately (no need to
+      // hunt for the drop-off box; clicking the order a second time also works).
       state.deliveryReadyId = null;
-      showToast('Order set down.');
+      refreshDropOffBox();
+      renderTray();
+      audioBeep(540, 0.08); audioBeep(720, 0.10);
+      deliverFinishedItem(item);
+      return; // skip the renderTray() at the bottom
     } else {
       state.deliveryReadyId = item.id;
       const ticket = state.pendingTickets.find(t => t.id === item.ticketId);
-      showToast(`Picked up Order #${ticket ? ticket.orderNumber : '—'} — tap DROP OFF to deliver.`);
-      switchTab('lobby'); // bring the player to the counter to drop off
+      showToast(`Order #${ticket ? ticket.orderNumber : '—'} picked up — tap the DROP-OFF BOX or tap this order again to deliver.`);
+      switchTab('lobby');
     }
     refreshDropOffBox();
   } else if (item.state === 'forging') {
@@ -1208,7 +1234,11 @@ function proceedToForge(simWasFailed) {
   const item = state.designItem; if (!item) return;
   const extraMm = Math.max(0, +state.thickness - 2);
   const extraCost = Math.round(extraMm * item.material.cost);
-  if (state.money < extraCost) { showToast('Not enough money for that thickness.'); return; }
+  if (state.money < extraCost) {
+    showToast('Not enough money to forge that thickness.');
+    setTimeout(() => gameOver('Bankrupt — could not afford to finish the order.'), 200);
+    return;
+  }
   state.money -= extraCost;
   updateHud();
   state.forgingItem = item;
@@ -2313,7 +2343,7 @@ function tutorialStart() {
     {
       title: 'To the Anvil', target: '#visual-anvil',
       text: "On desktop, tap the anvil (or press SPACE) the moment the white marker crosses the green band. On mobile, shake the phone instead. Misses bruise the metal; the design panel slid aside — use the 📐 DESIGN tab on the left to peek at the brief while you work. We'll auto-finish the strokes.",
-      before: () => { proceedToForge(false); }
+      before: () => { proceedToForge(false); }, delay: 500
     },
     {
       title: 'Forged!', target: '#inventory-tray',
