@@ -1,0 +1,1607 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forge & Fortune: Materials Science Edition</title>
+    <style>
+      :root {
+        --bg-color: #2b1d18;
+        --panel-bg: #f4e9d8;
+        --primary: #c0392b;
+        --secondary: #d35400;
+        --text-dark: #2c3e50;
+        --money: #27ae60;
+        --rep: #2980b9;
+        --danger: #c0392b;
+        --brittle: #c0392b;
+        --ductile: #27ae60;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        user-select: none;
+      }
+
+      /* Mobile Game Container */
+      #game-container {
+        width: 100%;
+        max-width: 600px;
+        height: 100dvh;
+        max-height: 950px;
+        background-color: var(--panel-bg);
+        border: 6px solid #4a362c;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      @media (max-width: 600px) {
+        #game-container {
+          border: none;
+          border-radius: 0;
+          max-height: 100dvh;
+        }
+      }
+
+      .screen {
+        display: none;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        padding-top: 100px;
+        padding-bottom: 30px;
+        box-sizing: border-box;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+      }
+      .active {
+        display: flex;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--primary);
+        text-align: center;
+        margin-top: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: 3rem;
+        text-shadow: 2px 2px 0px #f39c12;
+        margin-bottom: 20px;
+        line-height: 1.1;
+      }
+
+      .btn {
+        background-color: var(--secondary);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.1s;
+        margin: 10px;
+        box-shadow: 0 5px 0 #a04000;
+        text-transform: uppercase;
+        width: 80%;
+        max-width: 350px;
+      }
+      .btn:hover {
+        background-color: #e67e22;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 0 #a04000;
+      }
+      .btn:active {
+        transform: translateY(5px);
+        box-shadow: 0 0 0 #a04000;
+      }
+
+      /* HUD & Toasts */
+      #hud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(43, 29, 24, 0.95);
+        color: white;
+        padding: 15px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.1rem;
+        font-weight: bold;
+        z-index: 10;
+        border-bottom: 4px solid #4a362c;
+        flex-wrap: wrap;
+      }
+      .hud-stat {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 2px 5px;
+      }
+      .money-text {
+        color: #2ecc71;
+      }
+      .rep-text {
+        color: #3498db;
+      }
+      .danger-text {
+        color: #e74c3c;
+      }
+
+      #btn-handbook {
+        background: #34495e;
+        font-size: 0.9rem;
+        padding: 8px 12px;
+        margin: 0;
+        box-shadow: 0 4px 0 #2c3e50;
+        width: auto;
+      }
+
+      #toast {
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2c3e50;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        border: 3px solid #f39c12;
+        font-weight: bold;
+        z-index: 100;
+        transition: top 0.5s ease-in-out;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        width: 80%;
+      }
+
+      /* Asset Placeholders */
+      .asset-placeholder {
+        background: rgba(0, 0, 0, 0.1);
+        border: 2px dashed #7f8c8d;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #7f8c8d;
+        font-weight: bold;
+        font-style: italic;
+        text-align: center;
+        font-size: 1rem;
+        padding: 5px;
+        box-sizing: border-box;
+      }
+
+      /*Shop Layout */
+      .shop-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+      #visual-customer {
+        width: 180px;
+        height: 220px;
+        flex-shrink: 0;
+      }
+
+      .dialogue-box {
+        background: white;
+        border: 4px solid #7f8c8d;
+        border-radius: 10px;
+        padding: 15px 20px;
+        font-size: 1.25rem;
+        position: relative;
+        width: 90%;
+        box-sizing: border-box;
+        text-align: center;
+        line-height: 1.5;
+        margin: 0;
+      }
+      .dialogue-box::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -20px;
+        transform: translateX(-50%);
+        border-width: 0 15px 20px 15px;
+        border-style: solid;
+        border-color: transparent transparent #7f8c8d transparent;
+      }
+
+      /* Bottom-Docked Materials Grid */
+      #materials-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+        padding-bottom: 20px;
+      }
+      .material-card {
+        background: #ecf0f1;
+        border: 4px solid #bdc3c7;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+        transition:
+          transform 0.1s,
+          border-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .material-card:active {
+        transform: scale(0.95);
+      }
+      .mat-cost {
+        color: var(--money);
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-top: 8px;
+      }
+      .mat-stats {
+        font-size: 0.85rem;
+        background: #fff;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        padding: 8px;
+        margin: 5px 0;
+        text-align: left;
+        line-height: 1.4;
+      }
+
+      /* Enlarged Timing Minigame */
+      #visual-anvil {
+        width: 90%;
+        max-width: 350px;
+        height: 200px;
+        background: #555;
+        border: 4px solid #333;
+        cursor: pointer;
+        color: white;
+        font-size: 1.5rem;
+        border-bottom: 40px solid #222;
+        border-radius: 10px 10px 0 0;
+        position: relative;
+        transition: transform 0.05s;
+        margin-top: 20px;
+      }
+
+      #timing-container {
+        width: 90%;
+        max-width: 400px;
+        height: 40px;
+        background: #95a5a6;
+        border-radius: 5px;
+        margin-top: 30px;
+        border: 4px solid #34495e;
+        position: relative;
+        overflow: hidden;
+      }
+      #timing-target {
+        position: absolute;
+        height: 100%;
+        background: var(--money);
+        top: 0;
+      }
+      #timing-pointer {
+        position: absolute;
+        height: 100%;
+        width: 8px;
+        background: var(--danger);
+        top: 0;
+        left: 0%;
+        z-index: 5;
+        border-left: 2px solid #fff;
+        border-right: 2px solid #fff;
+        transform: translateX(-50%);
+      }
+
+      #progress-bar-container {
+        width: 90%;
+        max-width: 400px;
+        height: 30px;
+        background: #bdc3c7;
+        border-radius: 12px;
+        margin-top: 15px;
+        border: 3px solid #7f8c8d;
+        overflow: hidden;
+      }
+      #progress-bar {
+        height: 100%;
+        width: 0%;
+        background: var(--secondary);
+        transition: width 0.1s;
+      }
+
+      /* Enlarged Melt Screen */
+      .gauge-container {
+        width: 90px;
+        height: 350px;
+        background: #ddd;
+        border: 6px solid #2c3e50;
+        border-radius: 45px;
+        position: relative;
+        overflow: hidden;
+        margin: 20px 0;
+      }
+      .gauge-fill {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 0%;
+        background: linear-gradient(to top, #f1c40f, #e74c3c, #8e44ad);
+        transition: height 0.1s;
+      }
+      .target-line {
+        position: absolute;
+        width: 100%;
+        height: 8px;
+        background: #2c3e50;
+        z-index: 2;
+        border-top: 3px dashed #fff;
+        border-bottom: 3px dashed #fff;
+      }
+
+      /* Heat Treat Screen */
+      .heat-option {
+        background: white;
+        border: 4px solid #bdc3c7;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        width: 90%;
+        cursor: pointer;
+        transition: 0.1s;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .heat-option:active {
+        transform: scale(0.95);
+        border-color: var(--secondary);
+      }
+      .heat-icon {
+        font-size: 3rem;
+      }
+
+      /* Handbook*/
+      #handbook-modal {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        background: white;
+        border: 6px solid #2c3e50;
+        border-radius: 15px;
+        z-index: 50;
+        padding: 20px;
+        overflow-y: auto;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+      }
+      .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 2.5rem;
+        color: #e74c3c;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      /* Result Screen */
+      .grade-stamp {
+        font-size: 6rem;
+        font-weight: bold;
+        padding: 10px 40px;
+        border: 8px solid;
+        border-radius: 15px;
+        transform: rotate(-10deg);
+        margin: 20px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        font-size: 1.3rem;
+        margin: 8px 0;
+        border-bottom: 1px dashed #bdc3c7;
+      }
+      .calc-box {
+        background: #ecf0f1;
+        border: 2px solid #bdc3c7;
+        border-radius: 5px;
+        padding: 15px;
+        font-size: 1rem;
+        text-align: left;
+        margin-bottom: 20px;
+        width: 90%;
+      }
+
+      .miss-text {
+        color: var(--danger);
+        font-size: 2.5rem;
+        font-weight: bold;
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: floatUp 0.6s forwards;
+        pointer-events: none;
+        text-shadow: 2px 2px 0 #fff;
+        z-index: 20;
+      }
+      @keyframes floatUp {
+        0% {
+          top: 30%;
+          opacity: 1;
+        }
+        100% {
+          top: -10%;
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="toast">Reputation updated!</div>
+
+      <div id="hud" style="display: none">
+        <div class="hud-stat">📅 Day: <span id="hud-day">1</span>/5</div>
+        <div class="hud-stat" style="color: #f1c40f">
+          ⏰ <span id="hud-time">6:00 AM</span>
+        </div>
+        <div class="hud-stat">👥 Cust: <span id="hud-cust">0</span></div>
+        <div class="hud-stat rep-text">
+          ⭐ Rep: <span id="hud-rep">50</span>
+        </div>
+        <div class="hud-stat money-text">
+          💰 $<span id="hud-money">200</span>
+        </div>
+        <button id="btn-handbook" class="btn" onclick="toggleHandbook()">
+          Handbook
+        </button>
+      </div>
+
+      <div id="handbook-modal">
+        <span class="close-btn" onclick="toggleHandbook()">×</span>
+        <h2 style="color: #2c3e50">Materials Engineering Handbook</h2>
+        <div style="font-size: 1.1rem; line-height: 1.6; color: #333">
+          <p>
+            <strong>Time is Money:</strong> Your shift runs strictly from
+            <strong>6:00 AM to 6:00 PM</strong>. Serve as many customers as
+            possible before the clock runs out to maximize profits! 1 in-game
+            hour takes 15 real-world seconds.
+          </p>
+          <hr />
+          <p>
+            <strong>Yield Strength (σ_y):</strong> The amount of stress (in MPa)
+            a material can withstand before it plastically (permanently)
+            deforms. Essential for load-bearing parts!
+          </p>
+          <p>
+            <strong>Fracture Strain (ε):</strong> A measure of ductility.
+            Materials with ε > 0.05 are ductile (they bend before breaking).
+            Materials with ε ≤ 0.05 are brittle (they shatter).
+          </p>
+          <h3 style="color: #c0392b">Heat Treatments (Cooling Rates)</h3>
+          <p>
+            The speed at which you cool a forged part alters its crystalline
+            microstructure, drastically changing its properties!
+          </p>
+          <ul>
+            <li>
+              <strong>Furnace Cool (Anneal):</strong> Very slow cooling.
+              Relieves internal stresses, maximizing Ductility (ε), but lowers
+              Yield Strength.
+            </li>
+            <li>
+              <strong>Air Cool (Normalize):</strong> Moderate cooling in ambient
+              air. Returns the metal to its balanced, baseline properties.
+            </li>
+            <li>
+              <strong>Water Quench:</strong> Rapid cooling. In Carbon Steels,
+              this traps carbon atoms, forming extremely hard
+              <em>Martensite</em>. It massively increases Yield Strength but
+              makes the part dangerously brittle!
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
+        id="menu-screen"
+        class="screen active"
+        style="justify-content: center"
+      >
+        <h1>Forge & Fortune</h1>
+        <p
+          style="
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #7f8c8d;
+            text-align: center;
+          "
+        >
+          Manage materials. Nail the temps. Pay your rent.
+        </p>
+        <button class="btn" onclick="startGame()">Begin Game</button>
+        <button class="btn" onclick="toggleHandbook()">
+          Engineering Primer
+        </button>
+        <button class="btn" onclick="showScreen('settings-screen')">
+          Settings
+        </button>
+      </div>
+
+      <div id="settings-screen" class="screen" style="justify-content: center">
+        <h2>Settings</h2>
+        <div
+          style="
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            border: 4px solid #7f8c8d;
+            font-size: 1.5rem;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+          "
+        >
+          <strong>Audio:</strong>
+          <button
+            id="audio-btn"
+            class="btn"
+            style="background: #27ae60; margin: 0; width: auto"
+            onclick="toggleAudio()"
+          >
+            ON
+          </button>
+        </div>
+        <button class="btn" onclick="showScreen('menu-screen')">
+          Back to Menu
+        </button>
+      </div>
+
+      <div id="shop-screen" class="screen">
+        <div class="shop-header">
+          <div id="visual-customer" class="asset-placeholder">
+            Customer Art Asset
+          </div>
+          <div class="dialogue-box">
+            <span id="customer-dialogue">"I need a..."</span>
+          </div>
+        </div>
+        <h3 style="margin-top: 10px; margin-bottom: 10px; font-size: 1.3rem">
+          Purchase Material:
+        </h3>
+        <div id="materials-grid"></div>
+      </div>
+
+      <div id="melt-screen" class="screen">
+        <h2>Phase 1: Melting</h2>
+        <p style="font-size: 1.2rem">
+          Heat to exactly:
+          <strong
+            id="target-temp-text"
+            style="color: var(--primary); font-size: 1.6rem"
+            >1000°C</strong
+          >
+        </p>
+
+        <div
+          style="
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+          "
+        >
+          <div class="gauge-container">
+            <div id="melt-target-line" class="target-line"></div>
+            <div id="melt-fill" class="gauge-fill"></div>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              gap: 30px;
+            "
+          >
+            <div style="font-size: 3rem; font-weight: bold; text-align: center">
+              <span id="current-temp">20</span>°C
+            </div>
+            <button
+              class="btn"
+              id="heat-btn"
+              style="width: 100%; max-width: 200px; padding: 20px"
+              onmousedown="startHeating()"
+              onmouseup="stopHeating()"
+              onmouseleave="stopHeating()"
+              ontouchstart="startHeating()"
+              ontouchend="stopHeating()"
+            >
+              🔥 Hold to Heat
+            </button>
+            <button
+              class="btn"
+              style="
+                background: var(--money);
+                width: 100%;
+                max-width: 200px;
+                padding: 20px;
+              "
+              onclick="pourMetal()"
+            >
+              💧 Pour Mold
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="forge-screen" class="screen">
+        <h2>Phase 2: Forging</h2>
+        <p
+          style="
+            margin-top: 0;
+            color: #7f8c8d;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1rem;
+            width: 90%;
+          "
+        >
+          Strike the Anvil when the pointer is in the
+          <span style="color: var(--money)">GREEN ZONE</span>!
+        </p>
+
+        <div
+          id="visual-anvil"
+          class="asset-placeholder"
+          onmousedown="hammer(event)"
+          ontouchstart="hammer(event)"
+        >
+          Tap to Hammer!<br />(Anvil Art Here)
+        </div>
+
+        <div id="timing-container">
+          <div id="timing-target"></div>
+          <div id="timing-pointer"></div>
+        </div>
+
+        <div id="progress-bar-container"><div id="progress-bar"></div></div>
+      </div>
+
+      <div id="heat-treat-screen" class="screen">
+        <h2>Phase 3: Heat Treat</h2>
+        <p
+          style="
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 90%;
+          "
+        >
+          Choose a cooling rate to lock in the final microstructure.
+        </p>
+
+        <div class="heat-option" onclick="applyHeatTreatment('anneal')">
+          <div class="heat-icon">🧱</div>
+          <div>
+            <strong>Furnace Cool (Anneal)</strong><br />
+            <span style="font-size: 0.9rem; color: #7f8c8d"
+              >Maximizes ductility (ε), lowers Yield.</span
+            >
+          </div>
+        </div>
+
+        <div class="heat-option" onclick="applyHeatTreatment('normalize')">
+          <div class="heat-icon">💨</div>
+          <div>
+            <strong>Air Cool (Normalize)</strong><br />
+            <span style="font-size: 0.9rem; color: #7f8c8d"
+              >Maintains balanced baseline properties.</span
+            >
+          </div>
+        </div>
+
+        <div class="heat-option" onclick="applyHeatTreatment('quench')">
+          <div class="heat-icon">🌊</div>
+          <div>
+            <strong>Water Quench</strong><br />
+            <span style="font-size: 0.9rem; color: #7f8c8d"
+              >Rapid cool. Forms Martensite in Steels. Huge strength boost,
+              highly brittle!</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div id="result-screen" class="screen">
+        <h2 style="margin-bottom: 5px">Quality Assurance</h2>
+        <div id="grade-stamp" class="grade-stamp">A</div>
+
+        <div class="calc-box" id="calc-readout">
+          <strong>Final Microstructure Specs:</strong><br />
+          Base Yield: X MPa → Final:
+          <strong style="color: var(--primary)">Y MPa</strong><br />
+          Base Strain: X → Final:
+          <strong style="color: var(--primary)">Y</strong>
+        </div>
+
+        <div
+          style="
+            background: white;
+            border: 4px solid #7f8c8d;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.15rem;
+            width: 90%;
+            text-align: center;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            box-sizing: border-box;
+          "
+        >
+          <span id="feedback-text">"Great job!"</span>
+        </div>
+
+        <div
+          style="
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            box-sizing: border-box;
+          "
+        >
+          Pay: <span class="money-text" id="payment-sign">+$</span
+          ><span class="money-text" id="payment-text">0</span><br />
+          Rep: <span id="rep-change-text" style="color: var(--rep)">+0</span>
+        </div>
+
+        <button class="btn" onclick="endCustomer()">Next Customer</button>
+      </div>
+
+      <div
+        id="day-summary-screen"
+        class="screen"
+        style="justify-content: center"
+      >
+        <h2 id="day-end-title" style="font-size: 2.5rem">End of Day 1</h2>
+        <div
+          style="
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            border: 4px solid #7f8c8d;
+            margin-bottom: 30px;
+            width: 90%;
+            box-sizing: border-box;
+          "
+        >
+          <div class="summary-row">
+            <span>Customers Served:</span><span id="sum-cust">0</span>
+          </div>
+          <div class="summary-row">
+            <span>Start Funds:</span
+            ><span>$<span id="sum-start-money">0</span></span>
+          </div>
+          <div class="summary-row">
+            <span>End Funds:</span
+            ><span>$<span id="sum-end-money">0</span></span>
+          </div>
+          <div class="summary-row danger-text" style="font-weight: bold">
+            <span>Shop Rent:</span> <span>-$75</span>
+          </div>
+          <hr style="margin: 15px 0; border: 1px solid #bdc3c7" />
+          <div class="summary-row" style="font-weight: bold; font-size: 1.5rem">
+            <span>Net Funds:</span
+            ><span id="sum-net-money" class="money-text">$0</span>
+          </div>
+          <br />
+          <div class="summary-row" style="font-weight: bold">
+            <span>Reputation:</span
+            ><span id="sum-rep-display" class="rep-text">50 (+0)</span>
+          </div>
+        </div>
+        <button class="btn" onclick="startNextDay()">Start Next Day</button>
+      </div>
+
+      <div
+        id="week-summary-screen"
+        class="screen"
+        style="justify-content: center"
+      >
+        <h2 style="font-size: 2.5rem">End of the Week</h2>
+        <div
+          id="final-verdict"
+          style="
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 30px 10px;
+            line-height: 1.6;
+          "
+        ></div>
+        <button class="btn" onclick="resetGame()">Play Again</button>
+      </div>
+    </div>
+
+    <script>
+      // genersl stem data
+      // These are roughly accurate baseline approximations for educational purposes.
+      const materials = [
+        {
+          id: "steel1018",
+          name: "1018 Steel",
+          cost: 20,
+          meltTemp: 1520,
+          yieldStrength: 370,
+          strain: 0.15,
+          type: "ferrous",
+          desc: "Low-carbon. Cheap & tough.",
+        },
+        {
+          id: "steel1045",
+          name: "1045 Steel",
+          cost: 35,
+          meltTemp: 1500,
+          yieldStrength: 450,
+          strain: 0.12,
+          type: "ferrous",
+          desc: "Med-carbon. Heat treatable.",
+        },
+        {
+          id: "steel1095",
+          name: "1095 Steel",
+          cost: 50,
+          meltTemp: 1480,
+          yieldStrength: 530,
+          strain: 0.05,
+          type: "ferrous",
+          desc: "High-carbon. Can be very hard.",
+        },
+        {
+          id: "al6061",
+          name: "6061-T6 Alum",
+          cost: 45,
+          meltTemp: 580,
+          yieldStrength: 275,
+          strain: 0.12,
+          type: "non-ferrous",
+          desc: "Aerospace grade. Light.",
+        },
+        {
+          id: "copper",
+          name: "OFC Copper",
+          cost: 60,
+          meltTemp: 1085,
+          yieldStrength: 33,
+          strain: 0.5,
+          type: "non-ferrous",
+          desc: "Pure copper. Extremely ductile.",
+        },
+        {
+          id: "inconel",
+          name: "Inconel 718",
+          cost: 120,
+          meltTemp: 1336,
+          yieldStrength: 1030,
+          strain: 0.12,
+          type: "superalloy",
+          desc: "Superalloy. Extreme strength.",
+        },
+      ];
+
+      //heat treating logic
+      // This object defines how different cooling rates affect the microstructure of metals.
+      // Quenching a ferrous metal (steel) locks carbon into Martensite, doubling yield strength but ruining strain.
+      const heatTreatments = {
+        anneal: {
+          name: "Furnace Cool (Anneal)",
+          apply: (mat) =>
+            mat.type === "ferrous"
+              ? { yield: mat.yieldStrength * 0.7, strain: mat.strain * 1.5 }
+              : { yield: mat.yieldStrength * 0.8, strain: mat.strain * 1.2 },
+        },
+        normalize: {
+          name: "Air Cool (Normalize)",
+          apply: (mat) => ({ yield: mat.yieldStrength, strain: mat.strain }),
+        },
+        quench: {
+          name: "Water Quench",
+          apply: (mat) =>
+            mat.type === "ferrous"
+              ? { yield: mat.yieldStrength * 2.0, strain: mat.strain * 0.1 }
+              : { yield: mat.yieldStrength * 1.1, strain: mat.strain * 0.9 },
+        },
+      };
+
+      // ==========================================
+      // CUSTOMER EVALUATION LOGIC
+      // ==========================================
+      // Each customer has a specific mathematical threshold. The game passes the post-heat-treated
+      // stats (finalStats) into the 'eval' function to determine if the part is safe for use.
+      const customerRequests = [
+        {
+          text: "I am designing a heavy load-bearing crane hook. It MUST withstand at least 800 MPa of stress without yielding (σ_y ≥ 800), but it CANNOT be brittle (ε ≥ 0.05) to avoid sudden snapping under dynamic loads.",
+          eval: (finalStats) =>
+            finalStats.yield >= 800 && finalStats.strain >= 0.05
+              ? { pass: true }
+              : {
+                  pass: false,
+                  msg: `It failed! The hook needs σ_y ≥ 800 and ε ≥ 0.05. Yours was Yield: ${finalStats.yield.toFixed(0)} MPa, Strain: ${finalStats.strain.toFixed(3)}.`,
+                },
+        },
+        {
+          text: "I need to manufacture incredibly thin wire. I need a material with massive ductility to draw it out. Fracture Strain must be extremely high (ε > 0.40). Strength does not matter.",
+          eval: (finalStats) =>
+            finalStats.strain > 0.4
+              ? { pass: true }
+              : {
+                  pass: false,
+                  msg: `Too brittle! I couldn't draw it into wire. I needed ε > 0.40, but yours was ${finalStats.strain.toFixed(3)}.`,
+                },
+        },
+        {
+          text: "I am forging a combat blade. I need extreme edge retention and hardness. Yield strength must be over 900 MPa (σ_y ≥ 900). I don't care if it's highly brittle (ε ≤ 0.05).",
+          eval: (finalStats) =>
+            finalStats.yield >= 900
+              ? { pass: true }
+              : {
+                  pass: false,
+                  msg: `Too soft! The edge rolled immediately. I needed Yield ≥ 900 MPa, but yours was only ${finalStats.yield.toFixed(0)} MPa.`,
+                },
+        },
+        {
+          text: "I need a standard chassis part. It needs moderate strength (σ_y ≥ 250 MPa) but must remain somewhat ductile (ε > 0.10) to crumple safely in a crash.",
+          eval: (finalStats) =>
+            finalStats.yield >= 250 && finalStats.strain > 0.1
+              ? { pass: true }
+              : {
+                  pass: false,
+                  msg: `Unsafe! It needs to be moderate strength AND ductile. Yours was Yield: ${finalStats.yield.toFixed(0)}, Strain: ${finalStats.strain.toFixed(3)}.`,
+                },
+        },
+      ];
+
+      // game state
+      let state = {
+        audio: true,
+        day: 1,
+        maxDays: 5,
+        money: 200,
+        reputation: 50,
+        dailyRent: 75,
+        startOfDayMoney: 200,
+        startOfDayRep: 50,
+        customersToday: 0,
+        timeMinutes: 360,
+        clockInterval: null, // Start at 360 mins (6:00 AM)
+        currentOrder: null,
+        selectedMat: null,
+        finalStats: null,
+        appliedHeatTreatment: null,
+        meltTemp: 20,
+        maxGaugeTemp: 2000,
+        heatingInterval: null,
+        hammerSuccesses: 0,
+        hammerMistakes: 0,
+        sliderPos: 0,
+        sliderDir: 1,
+        sliderSpeed: 2,
+        sliderInterval: null,
+        targetStart: 40,
+        targetWidth: 20,
+      };
+
+      // audio
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let audioCtx;
+      function playTone(freq, type, duration) {
+        if (!state.audio) return;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(
+          0.00001,
+          audioCtx.currentTime + duration,
+        );
+        osc.stop(audioCtx.currentTime + duration);
+      }
+
+      // screen activation/deactivation
+      function showScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+
+      function toggleHandbook() {
+        const modal = document.getElementById("handbook-modal");
+        modal.style.display =
+          modal.style.display === "block" ? "none" : "block";
+      }
+
+      function updateHUD() {
+        document.getElementById("hud-day").innerText = state.day;
+        document.getElementById("hud-cust").innerText = state.customersToday;
+        document.getElementById("hud-rep").innerText = state.reputation;
+        document.getElementById("hud-money").innerText = state.money;
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.innerText = msg;
+        toast.style.top = "20px";
+        playTone(600, "sine", 0.2);
+        setTimeout(() => playTone(800, "sine", 0.3), 200);
+        setTimeout(() => {
+          toast.style.top = "-100px";
+        }, 3000);
+      }
+
+      function toggleAudio() {
+        state.audio = !state.audio;
+        const btn = document.getElementById("audio-btn");
+        btn.innerText = state.audio ? "ON" : "OFF";
+        btn.style.background = state.audio ? "#27ae60" : "#c0392b";
+        if (state.audio) {
+          if (!audioCtx) audioCtx = new AudioContext();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+          playTone(440, "sine", 0.1);
+        }
+      }
+
+      //time logic
+      // Formats raw minutes into a 12-hour AM/PM display string
+      function formatTime(totalMins) {
+        let h = Math.floor(totalMins / 60);
+        let m = totalMins % 60;
+        let ampm = h >= 12 ? "PM" : "AM";
+        let displayH = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        let displayM = m < 10 ? "0" + m : m;
+        return `${displayH}:${displayM} ${ampm}`;
+      }
+
+      // Starts the daily timer. 1 in-game minute passes every 500ms real-time.
+      function startClock() {
+        clearInterval(state.clockInterval);
+        document.getElementById("hud-time").innerText = formatTime(
+          state.timeMinutes,
+        );
+
+        state.clockInterval = setInterval(() => {
+          state.timeMinutes += 1;
+          document.getElementById("hud-time").innerText = formatTime(
+            state.timeMinutes,
+          );
+
+          // If it hits 18:00 (6:00 PM = 1080 minutes), the shift ends immediately!
+          if (state.timeMinutes >= 1080) {
+            forceEndDay();
+          }
+        }, 250);
+      }
+
+      // Halts all gameplay intervals instantly to stop the player from making progress after 6 PM.
+      function forceEndDay() {
+        clearInterval(state.clockInterval);
+        clearInterval(state.heatingInterval);
+        clearInterval(state.sliderInterval);
+
+        showToast("🛎️ 6:00 PM! The work day is over!");
+
+        // Delay briefly so the player registers the toast message, then pull up the summary
+        setTimeout(endDay, 1500);
+      }
+
+      // game variables, general
+      function resetGame() {
+        state = {
+          audio: state.audio,
+          day: 1,
+          maxDays: 5,
+          money: 200,
+          reputation: 50,
+          dailyRent: 75,
+          startOfDayMoney: 200,
+          startOfDayRep: 50,
+          customersToday: 0,
+          timeMinutes: 360,
+          clockInterval: null,
+          currentOrder: null,
+          selectedMat: null,
+          finalStats: null,
+          appliedHeatTreatment: null,
+          meltTemp: 20,
+          maxGaugeTemp: 2000,
+          heatingInterval: null,
+          hammerSuccesses: 0,
+          hammerMistakes: 0,
+          sliderPos: 0,
+          sliderDir: 1,
+          sliderSpeed: 2,
+          sliderInterval: null,
+          targetStart: 40,
+          targetWidth: 20,
+        };
+        document.getElementById("hud").style.display = "none";
+        showScreen("menu-screen");
+      }
+
+      function startGame() {
+        if (state.audio && !audioCtx) {
+          audioCtx = new AudioContext();
+          audioCtx.resume();
+        }
+        document.getElementById("hud").style.display = "flex";
+        startDay();
+      }
+
+      function startDay() {
+        state.customersToday = 0;
+        state.startOfDayMoney = state.money;
+        state.startOfDayRep = state.reputation;
+
+        // Reset clock to 6AM
+        state.timeMinutes = 360;
+        updateHUD();
+        startClock();
+
+        if (state.day > 1) {
+          let msg =
+            state.reputation > 60
+              ? "Reputation is HIGH! Customers tip well."
+              : state.reputation < 40
+                ? "Reputation is LOW! Customers demand discounts."
+                : "Another day at the forge.";
+          showToast(msg);
+        }
+        nextCustomer();
+      }
+
+      function nextCustomer() {
+        state.currentOrder =
+          customerRequests[Math.floor(Math.random() * customerRequests.length)];
+        document.getElementById("customer-dialogue").innerText =
+          `"${state.currentOrder.text}"`;
+        updateHUD();
+
+        const grid = document.getElementById("materials-grid");
+        grid.innerHTML = "";
+        materials.forEach((mat) => {
+          const btn = document.createElement("div");
+          btn.className = "material-card";
+          const affordable = state.money >= mat.cost;
+          btn.style.opacity = affordable ? "1" : "0.5";
+
+          btn.innerHTML = `
+                <div>
+                    <strong>${mat.name}</strong>
+                    <div class="mat-stats">
+                        σ_y: ${mat.yieldStrength} MPa<br>
+                        ε: ${mat.strain}<br>
+                        <i style="color:#7f8c8d; font-size:0.7rem;">${mat.desc}</i>
+                    </div>
+                </div>
+                <div class="mat-cost">-$${mat.cost}</div>
+            `;
+          if (affordable) btn.onclick = () => buyMaterial(mat);
+          else btn.onclick = () => alert("Not enough funds for this material!");
+
+          grid.appendChild(btn);
+        });
+        showScreen("shop-screen");
+      }
+
+      function buyMaterial(mat) {
+        state.money -= mat.cost;
+        state.selectedMat = mat;
+        updateHUD();
+        playTone(400, "square", 0.1);
+        startMeltingPhase();
+      }
+
+      //Melting phase
+      function startMeltingPhase() {
+        state.meltTemp = 20;
+        //based on max temp, specific to material, for the sake of time
+        state.maxGaugeTemp = Math.max(1000, state.selectedMat.meltTemp * 1.4);
+
+        document.getElementById("current-temp").innerText = state.meltTemp;
+        document.getElementById("target-temp-text").innerText =
+          state.selectedMat.meltTemp + "°C";
+        document.getElementById("melt-fill").style.height = "0%";
+        document.getElementById("melt-target-line").style.bottom =
+          (state.selectedMat.meltTemp / state.maxGaugeTemp) * 100 + "%";
+
+        showScreen("melt-screen");
+      }
+
+      function startHeating() {
+        clearInterval(state.heatingInterval);
+        const heatSpeed = Math.max(30, state.maxGaugeTemp / 25);
+        state.heatingInterval = setInterval(() => {
+          state.meltTemp += heatSpeed;
+          if (state.meltTemp > state.maxGaugeTemp)
+            state.meltTemp = state.maxGaugeTemp;
+          document.getElementById("current-temp").innerText = Math.floor(
+            state.meltTemp,
+          );
+          document.getElementById("melt-fill").style.height =
+            (state.meltTemp / state.maxGaugeTemp) * 100 + "%";
+          //state.meltTemp changes sound volume based on progress of heating
+          if (Math.floor(state.meltTemp) % 100 === 0)
+            playTone(200 + state.meltTemp / 5, "sawtooth", 0.05);
+        }, 30);
+      }
+
+      function stopHeating() {
+        clearInterval(state.heatingInterval);
+      }
+
+      function pourMetal() {
+        stopHeating();
+        playTone(300, "sine", 0.5); //creates sound (frequency, wavelength, duration)
+        startForgePhase();
+      }
+
+      // Forging Phase
+      function startForgePhase() {
+        state.hammerSuccesses = 0;
+        state.hammerMistakes = 0;
+        document.getElementById("progress-bar").style.width = "0%";
+
+        state.targetWidth = Math.max(12, 30 - state.day * 3);
+        state.targetStart = Math.random() * (100 - state.targetWidth);
+        document.getElementById("timing-target").style.left =
+          state.targetStart + "%";
+        document.getElementById("timing-target").style.width =
+          state.targetWidth + "%";
+
+        state.sliderPos = 0;
+        state.sliderSpeed = 2 + state.day * 0.8;
+        clearInterval(state.sliderInterval);
+        state.sliderInterval = setInterval(updateSlider, 20);
+
+        showScreen("forge-screen");
+      }
+
+      // updates position of the slider based on current placement
+      function updateSlider() {
+        state.sliderPos += state.sliderSpeed * state.sliderDir;
+        if (state.sliderPos >= 100) {
+          state.sliderPos = 100;
+          state.sliderDir = -1;
+        } else if (state.sliderPos <= 0) {
+          state.sliderPos = 0;
+          state.sliderDir = 1;
+        }
+        document.getElementById("timing-pointer").style.left =
+          state.sliderPos + "%";
+      }
+
+      function hammer(e) {
+        if (state.hammerSuccesses >= 5) return;
+
+        // The pointer/finger has a physical width, so we add a 4 percent tolerance to
+        // the mathematical bounding box. This ensures that if the user visually clips
+        // the edge of the green box, it still counts as a fair success.
+        const tolerance = 4.0;
+        const inZone =
+          state.sliderPos >= state.targetStart - tolerance &&
+          state.sliderPos <= state.targetStart + state.targetWidth + tolerance;
+
+        const anvil = document.getElementById("visual-anvil");
+
+        if (inZone) {
+          state.hammerSuccesses++;
+          document.getElementById("progress-bar").style.width =
+            (state.hammerSuccesses / 5) * 100 + "%";
+
+          playTone(250, "square", 0.1);
+          anvil.style.transform = "translateY(5px) scale(0.98)";
+          anvil.style.borderColor = "var(--money)";
+        } else {
+          state.hammerMistakes++;
+          playTone(100, "sawtooth", 0.2);
+          anvil.style.transform = "translateX(5px)";
+          anvil.style.borderColor = "var(--danger)";
+
+          const missText = document.createElement("div");
+          missText.className = "miss-text";
+          missText.innerText = "MISS!";
+          anvil.appendChild(missText);
+          setTimeout(() => missText.remove(), 600);
+        }
+
+        setTimeout(() => {
+          anvil.style.transform = "translateY(0) scale(1)";
+          anvil.style.borderColor = "#333";
+        }, 100);
+
+        if (state.hammerSuccesses >= 5) {
+          clearInterval(state.sliderInterval);
+          setTimeout(() => showScreen("heat-treat-screen"), 400);
+        }
+      }
+
+      // Heat treatment
+      function applyHeatTreatment(type) {
+        state.appliedHeatTreatment = heatTreatments[type];
+        state.finalStats = state.appliedHeatTreatment.apply(state.selectedMat);
+        playTone(300, "square", 0.3);
+        setTimeout(gradeItem, 400);
+      }
+
+      // Forging grading mechanic
+      function gradeItem() {
+        const evalResult = state.currentOrder.eval(state.finalStats);
+        const tempDiff = Math.abs(state.meltTemp - state.selectedMat.meltTemp);
+
+        let gradeTier = 4; // Tiers: 4=A, 3=B, 2=C, 1=D, 0=F
+        let feedback = "";
+
+        const readout = document.getElementById("calc-readout");
+        readout.innerHTML = `
+            <strong>Final Specs (${state.appliedHeatTreatment.name}):</strong><br>
+            Yield: ${state.selectedMat.yieldStrength} → <strong style="color:var(--primary)">${state.finalStats.yield.toFixed(0)} MPa</strong><br>
+            Strain: ${state.selectedMat.strain} → <strong style="color:var(--primary)">${state.finalStats.strain.toFixed(3)}</strong>
+        `;
+
+        if (!evalResult.pass) {
+          // Immediate, hard coded fail if the material simply doesn't meet the physics requirements
+          gradeTier = 0;
+          feedback = `QA FAILED: ${evalResult.msg} Try a different material or cooling rate!`;
+        } else {
+          // Temperature Accuracy Stepping:
+          // The tolerance is ~5% of the total melting temp.
+          // If they miss by 3x the tolerance, drop to B. 6x drops to C, etc.
+          const tolerance = Math.max(20, state.selectedMat.meltTemp * 0.05);
+          if (tempDiff <= tolerance) {
+            gradeTier = 4;
+          } else if (tempDiff <= tolerance * 3) {
+            gradeTier = 3;
+          } else if (tempDiff <= tolerance * 6) {
+            gradeTier = 2;
+          } else {
+            gradeTier = 1;
+          }
+
+          if (gradeTier === 4)
+            feedback =
+              "Material specs, heat treatment, and thermal accuracy are perfect.";
+          else if (gradeTier === 3)
+            feedback =
+              "You missed the ideal melting temp slightly, but it holds up.";
+          else if (gradeTier === 2)
+            feedback =
+              "You severely over/under heated it. The structure is weakened.";
+          else
+            feedback =
+              "You completely botched the melting process. It shattered!";
+
+          // Forging Penalty: Missing the green zone reduces the overall grade tier calculated above.
+          if (state.hammerMistakes > 0) {
+            if (state.hammerMistakes === 1) {
+              gradeTier = Math.max(1, gradeTier - 1);
+              feedback += ` The forging is a bit sloppy (1 missed strike).`;
+            } else if (state.hammerMistakes <= 3) {
+              gradeTier = Math.max(1, gradeTier - 2);
+              feedback += ` The shape is uneven due to poor hammering (${state.hammerMistakes} missed strikes).`;
+            } else {
+              gradeTier = 1;
+              feedback += ` You practically destroyed the structural integrity with careless hammering (${state.hammerMistakes} misses)!`;
+            }
+          }
+        }
+
+        let grade = "F";
+        let repChange = 0;
+        let basePay = 0;
+        if (gradeTier === 4) {
+          grade = "A";
+          basePay = state.selectedMat.cost * 3;
+          repChange = 10;
+        } else if (gradeTier === 3) {
+          grade = "B";
+          basePay = Math.floor(state.selectedMat.cost * 2);
+          repChange = 3;
+        } else if (gradeTier === 2) {
+          grade = "C";
+          basePay = Math.floor(state.selectedMat.cost * 1.2);
+          repChange = -5;
+        } else if (gradeTier === 1) {
+          grade = "D";
+          basePay = Math.floor(state.selectedMat.cost * 0.5);
+          repChange = -15;
+        } else {
+          grade = "F";
+          basePay = Math.floor(state.selectedMat.cost * 0.2);
+          repChange = -30;
+        }
+
+        let repMult = 1.0;
+        if (state.reputation >= 80) repMult = 1.3;
+        if (state.reputation <= 30) repMult = 0.7;
+
+        let finalPay = Math.floor(basePay * repMult);
+        state.money += finalPay;
+        state.reputation += repChange;
+        if (state.reputation > 100) state.reputation = 100;
+        if (state.reputation < 0) state.reputation = 0;
+
+        const stamp = document.getElementById("grade-stamp");
+        stamp.innerText = grade;
+        const paySign = document.getElementById("payment-sign");
+        const payText = document.getElementById("payment-text");
+
+        if (grade === "A") {
+          stamp.style.color = stamp.style.borderColor = "#27ae60";
+          playTone(600, "sine", 0.4);
+        } else if (grade === "B") {
+          stamp.style.color = stamp.style.borderColor = "#2ecc71";
+          playTone(500, "sine", 0.4);
+        } else if (grade === "C") {
+          stamp.style.color = stamp.style.borderColor = "#f39c12";
+          playTone(400, "sine", 0.4);
+        } else {
+          stamp.style.color = stamp.style.borderColor = "#c0392b";
+          playTone(200, "sawtooth", 0.5);
+        }
+
+        document.getElementById("feedback-text").innerHTML = feedback;
+        paySign.innerText = finalPay >= 0 ? "+$" : "-$";
+        paySign.style.color = finalPay >= 0 ? "var(--money)" : "var(--danger)";
+        payText.innerText = Math.abs(finalPay);
+        payText.style.color = finalPay >= 0 ? "var(--money)" : "var(--danger)";
+
+        const repEl = document.getElementById("rep-change-text");
+        repEl.innerText = (repChange >= 0 ? "+" : "") + repChange;
+        repEl.style.color = repChange >= 0 ? "var(--rep)" : "var(--danger)";
+
+        updateHUD();
+        showScreen("result-screen");
+      }
+
+      function endCustomer() {
+        state.customersToday++;
+        updateHUD();
+
+        // Bankrupt check before pulling next customer
+        if (state.money < 20) {
+          clearInterval(state.clockInterval);
+          gameOver(
+            "You ran out of money and can't afford materials! Your forge is bankrupt.",
+          );
+          return;
+        }
+
+        // As long as it is before 6:00 PM, a new customer will approach
+        if (state.timeMinutes < 1080) {
+          nextCustomer();
+        }
+      }
+
+      // End of day and week visuals and rent payments mechanics / game over
+      function endDay() {
+        clearInterval(state.clockInterval);
+
+        document.getElementById("day-end-title").innerText =
+          `End of Day ${state.day}`;
+        document.getElementById("sum-cust").innerText = state.customersToday;
+        document.getElementById("sum-start-money").innerText =
+          state.startOfDayMoney;
+        document.getElementById("sum-end-money").innerText = state.money;
+
+        // Process daily rent
+        state.money -= state.dailyRent;
+        let moneyDelta = state.money - state.startOfDayMoney;
+        let repDelta = state.reputation - state.startOfDayRep;
+
+        let netStr = (moneyDelta >= 0 ? "+$" : "-$") + Math.abs(moneyDelta);
+        let repStr = `${state.reputation} (${repDelta >= 0 ? "+" : ""}${repDelta})`;
+
+        const netEl = document.getElementById("sum-net-money");
+        netEl.innerText = `$${state.money} (Net: ${netStr})`;
+        netEl.style.color = moneyDelta >= 0 ? "var(--money)" : "var(--danger)";
+
+        const repEl = document.getElementById("sum-rep-display");
+        repEl.innerText = repStr;
+        repEl.style.color = repDelta >= 0 ? "var(--rep)" : "var(--danger)";
+
+        updateHUD();
+
+        if (state.money < 0) {
+          gameOver(
+            "You couldn't pay your shop rent of $75! The landlord evicted you.",
+          );
+          return;
+        }
+        if (state.money < 20 && state.day < state.maxDays) {
+          gameOver(
+            "You paid rent, but now you don't even have $20 left to buy cheap steel for tomorrow! Your forge is bankrupt.",
+          );
+          return;
+        }
+
+        showScreen("day-summary-screen");
+      }
+
+      function startNextDay() {
+        state.day++;
+        if (state.day > state.maxDays) {
+          endWeek();
+        } else {
+          startDay();
+        }
+      }
+
+      function endWeek() {
+        clearInterval(state.clockInterval);
+        document.getElementById("hud").style.display = "none";
+        let verdict = "";
+        if (state.reputation >= 80 && state.money > 800) {
+          verdict = `<strong>Master Metallurgist!</strong><br><br>You ended the week with $${state.money} and a stellar reputation of ${state.reputation}. You easily paid rent and grew a massive business!`;
+        } else if (state.reputation >= 40 && state.money > 0) {
+          verdict = `<strong>Stable Business.</strong><br><br>You survived the week with $${state.money} and a reputation of ${state.reputation}. You paid rent, but it's a grind!`;
+        } else {
+          verdict = `<strong>Struggling Shop.</strong><br><br>You survived, but just barely. You ended with $${state.money} and a poor reputation of ${state.reputation}.`;
+        }
+        document.getElementById("final-verdict").innerHTML = verdict;
+        showScreen("week-summary-screen");
+      }
+
+      function gameOver(reason) {
+        clearInterval(state.clockInterval);
+        document.getElementById("hud").style.display = "none";
+        document.getElementById("final-verdict").innerHTML =
+          `<strong style="color:var(--danger);">BANKRUPT!</strong><br><br>${reason}`;
+        showScreen("week-summary-screen");
+      }
+    </script>
+  </body>
+</html>
