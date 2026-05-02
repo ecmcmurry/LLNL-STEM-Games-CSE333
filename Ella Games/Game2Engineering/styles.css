@@ -82,7 +82,7 @@ html, body {
     width: 100vw;
     /* Tall enough for a comfortable HUD + room, but never the full
        viewport height — that's what was causing the stretched look. */
-    height: min(100vh, calc(100vw * 1.35));
+    height: min(100vh, calc(100vw * 1.05));
   }
 }
 
@@ -1834,13 +1834,19 @@ img,
   #modal-grade .grade-stamp { font-size: 5.4rem !important; }
 }
 
-/* HUD stat row in pixel-screen monospace */
+/* HUD stat row in pixel-screen monospace.
+   Font kept moderate so all six stats (Day · Time · Today · Rep · Money ·
+   Rent) fit on one row on typical desktop viewports — at 1.35rem the row
+   was overflowing and silently clipping the Money + Rent stats since
+   #hud-stats has scrollbar-width: none. */
 #hud-stats, .hud-stat, #hud-time {
   font-family: 'VT323', 'Special Elite', monospace !important;
-  font-size: 1.35rem !important;
-  letter-spacing: 1px;
+  font-size: 1.1rem !important;
+  letter-spacing: 0.5px;
   font-weight: normal;
 }
+.hud-stat { margin-right: 10px !important; }
+.hud-divider { margin: 10px 4px !important; }
 #hud-logo .logo-text strong {
   font-family: 'Press Start 2P', 'Cinzel', monospace !important;
   font-size: 0.78rem !important; letter-spacing: 1.5px;
@@ -3116,10 +3122,11 @@ body:has(#screen-title.active) #game-container {
   position: absolute;
   left: 5%;
   right: 40%;
-  /* Sit a touch lower so the top of the order art doesn't get clipped by
-     the upper edge of the orders band on desktop. */
-  bottom: 3%;
-  height: 26%;
+  bottom: 1%;
+  /* Band height is just where the cards rest; cards (aspect-ratio 4/5) are
+     allowed to extend ABOVE the band so their parchment tops aren't
+     clipped by overflow:hidden. Width is what controls visible card size. */
+  height: 22%;
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -3128,7 +3135,7 @@ body:has(#screen-title.active) #game-container {
   pointer-events: none;
   z-index: 5;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: none;
 }
 #counter-orders::-webkit-scrollbar { display: none; }
@@ -3235,9 +3242,11 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   pointer-events: auto;
   position: relative;
   flex: 0 0 auto;
-  /* Slightly smaller so the full top of the parchment art fits inside the
-     orders band without being clipped on desktop. */
-  width: clamp(120px, 15vw, 220px);
+  /* Smaller card so the full parchment art (4:5 portrait) doesn't get
+     clipped at the top by the orders band — combined with overflow-y:
+     visible on the band, the card can sit fully visible above the
+     painted counter. */
+  width: clamp(110px, 12vw, 175px);
   aspect-ratio: 4 / 5;
   background: transparent;
   border: none;
@@ -3302,4 +3311,6 @@ body:not(.tab-lobby) #counter-orders { display: none !important; }
   .counter-order .co-num { font-size: 0.55rem; padding: 1px 4px; }
 }
 
+/* The legacy chandelier emoji painted at the top of the lobby is redundant
+   now that the General Background already shows shop ornamentation. */
 #workspace-lobby #lobby-customer-area::before { display: none; }
