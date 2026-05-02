@@ -3121,7 +3121,7 @@ s.anvil-icon-img {
   position: absolute;
   left: 5%;
   right: 40%;
-  bottom: 20%;
+  bottom: 12%;
   /* Band height is just where the cards rest; cards (aspect-ratio 4/5) are
      allowed to extend ABOVE the band so their parchment tops aren't
      clipped by overflow:hidden. Width is what controls visible card size. */
