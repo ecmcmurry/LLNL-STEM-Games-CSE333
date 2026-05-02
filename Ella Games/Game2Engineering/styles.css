@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
-   Forge & Fortune — Old Forge Workshop Theme
-   ═══════════════════════════════════════════════════════════ */
+
 
 :root {
   --bg-night: #1a0e08;
@@ -64,13 +62,6 @@ html, body {
   }
 }
 
-/* Mobile: cap the container so the room background isn't vertically
-   stretched into a tall, distorted strip on portrait phones. The
-   background SVG's natural aspect is ~787:480 (≈1.64:1); we let the
-   container go a bit taller than that for breathing room, but never as
-   tall as a full phone viewport. The container is then vertically
-   centered against a dark backdrop so the whole game reads as a single
-   framed scene rather than a stretched canvas. */
 @media (max-width: 1099px) {
   body {
     display: flex;
@@ -80,8 +71,7 @@ html, body {
   }
   #game-container {
     width: 100vw;
-    /* Tall enough for a comfortable HUD + room, but never the full
-       viewport height — that's what was causing the stretched look. */
+
     height: min(100vh, calc(100vw * 1.05));
   }
 }
@@ -335,7 +325,7 @@ h3 { font-size: 1rem; }
   font-family: 'IM Fell English', serif;
 }
 
-/* nameplate (sign hung above the customer) */
+/* nameplate, no longer in visual use*/
 .customer-nameplate {
   position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
   background:
@@ -1194,9 +1184,6 @@ h3 { font-size: 1rem; }
   body { display: block; }
   #game-container { width: 100vw; height: 100vh; border-radius: 0; border: none; }
 
-  /* Single-row HUD on mobile — no wrapping, scroll horizontally if needed.
-     Wrapping (and the heavy 3D solid shadow on .btn) used to render a
-     "phantom second row" of tabs beneath the real one. */
   #hud {
     font-size: 0.72rem;
     flex-wrap: nowrap !important;
