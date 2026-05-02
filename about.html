@@ -59,7 +59,7 @@
       }
       html.light-mode body::before { display: none; }
 
-      /* ─── Theme toggle (matches site) ─── */
+      /*  Theme toggle  */
       .theme-toggle {
         position: fixed;
         top: 1rem;
@@ -80,7 +80,7 @@
       html.light-mode .icon-sun  { display: none; }
       html.light-mode .icon-moon { display: block; }
 
-      /* ─── Back link ─── */
+      /*  Back link  */
       .back {
         display: inline-flex;
         align-items: center;
@@ -101,7 +101,7 @@
       }
       .back:hover { background: var(--accent); color: #fff; }
 
-      /* ─── Page wrapper ─── */
+      /*  Page wrapper  */
       .page {
         position: relative;
         z-index: 1;
@@ -140,7 +140,7 @@
         margin: 1.2rem auto 0;
       }
 
-      /* ─── Sections ─── */
+      /*  Sections  */
       .section {
         margin-bottom: 3.5rem;
         animation: fadeUp .7s ease both;
@@ -173,7 +173,7 @@
       }
       .section p:last-child { margin-bottom: 0; }
 
-      /* ─── Mission card ─── */
+      /*  Mission card  */
       .mission-card {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -191,7 +191,7 @@
         opacity: .9;
       }
 
-      /* ─── Team grid ─── */
+      /*  Team grid  */
       .team-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -276,7 +276,7 @@
         font-style: italic;
       }
 
-      /* ─── LLNL badge ─── */
+      /*  LLNL badge  */
       .llnl-badge {
         display: flex;
         align-items: center;
@@ -315,7 +315,7 @@
         line-height: 1.6;
       }
 
-      /* ─── Tech pills ─── */
+      /*  Tech pills  */
       .pills {
         display: flex;
         flex-wrap: wrap;
@@ -334,7 +334,7 @@
       }
       .pill:hover { border-color: var(--accent); color: var(--accent); }
 
-      /* ─── Footer line ─── */
+      /*  Footer line  */
       .about-footer {
         text-align: center;
         margin-top: 4rem;
@@ -348,13 +348,13 @@
       }
       .about-footer span { color: var(--gold); }
 
-      /* ─── Animation ─── */
+      /*  Animation  */
       @keyframes fadeUp {
         from { opacity: 0; transform: translateY(22px); }
         to   { opacity: 1; transform: translateY(0); }
       }
 
-      /* ─── Responsive ─── */
+      /*  Responsive  */
       @media (max-width: 600px) {
         .llnl-badge { flex-direction: column; text-align: center; }
         .team-grid  { grid-template-columns: 1fr; }
@@ -383,7 +383,6 @@
       <div class="hero">
         <p class="hero-eyebrow">Lawrence Livermore National Laboratory</p>
         <h1>About <span>AI Arcademia</span></h1>
-        <div class="hero-divider"></div>
       </div>
 
 
@@ -454,7 +453,7 @@
       </div>
 
       <div class="about-footer">
-        AI Arcademia &mdash; <span>LLNL</span> STEM Education Initiative &mdash; All rights reserved
+        AI Arcademia &mdash; <span>LLNL</span> STEM Education Initiative
       </div>
 
     </div>
