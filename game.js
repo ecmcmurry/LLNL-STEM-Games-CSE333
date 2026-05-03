@@ -156,8 +156,23 @@ const CARD_META = {
     tips:      { tag: 'Tips',      accent: '#e2e8f0' },   // soft white
 };
 
+function openHTPOverlay() {
+    document.getElementById('htp-overlay').classList.remove('hidden');
+    document.getElementById('game-frame').style.pointerEvents = 'none';
+}
+
+function closeHTPOverlay() {
+    document.getElementById('htp-overlay').classList.add('hidden');
+    document.getElementById('game-frame').style.pointerEvents = '';
+}
+
+function handleOverlayClick(e) {
+    if (e.target === document.getElementById('htp-overlay')) closeHTPOverlay();
+}
+
 const htpData = HTP[game];
 if (htpData) {
+    document.getElementById('htp-btn').classList.remove('hidden');
     const section = document.getElementById('how-to-play');
     const grid    = document.getElementById('htp-content');
     ['controls', 'objective', 'tips'].forEach(key => {
