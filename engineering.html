@@ -23,35 +23,51 @@
     <h1>Engineering</h1>
 
     <div class="games-wrapper">
-      <div class="game">
-        <a
-          href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune: Materials Science Edition&author=Ella&from=engineering.html"
-        >
-          Forge &amp; Fortune: Materials Science
-        </a>
-        <img src="assets/Images/Forge & Fortune.svg" alt="Game Image" />
-        <p>As a blacksmith, take customer orders, choose materials, forge them, and make a living.</p>
-        <p>Made by Ella</p>
-      </div>
+      <a href="game.html?game=Ella Games/Game2Engineering/index.html&title=Forge %26 Fortune&author=Ella&from=engineering.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/Forge & Fortune.svg" class="mc-img" alt="Forge &amp; Fortune" />
+          <span class="mc-info" data-desc="Forge &amp; Fortune — Forge materials, balance their properties, and negotiate with customers for pay." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
 
-
-<div class="game">
-        <a
-          href="game.html?game=Eli Games/StructureStrike/dist/index.html&title=StructureStrike&author=Eli&from=engineering.html"
-        >
-          StructureStrike
-        </a>
-        <img src="assets/Images/StructureStrike.svg" alt="Game Image" />
-        <p>Build structures. Survive the forces.</p>
-        <p>Made by Eli</p>
-      </div>
+      <a href="game.html?game=Eli Games/StructureStrike/dist/index.html&title=StructureStrike&author=Eli&from=engineering.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/StructureStrike.svg" class="mc-img" alt="StructureStrike" />
+          <span class="mc-info" data-desc="StructureStrike — Build structures and survive the forces — engineer beams that hold under load." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
     </div>
+
     <script>
       function toggleTheme() {
         const isLight = document.documentElement.classList.toggle("light-mode");
         localStorage.setItem("theme", isLight ? "light" : "dark");
       }
       if (localStorage.getItem("theme") === "light") document.documentElement.classList.add("light-mode");
+
+      function showInfo(el) {
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const existing = document.getElementById('mobile-info-popup');
+        if (existing) { existing.remove(); return; }
+        const desc = el.getAttribute('data-desc');
+        const popup = document.createElement('div');
+        popup.id = 'mobile-info-popup';
+        popup.className = 'mobile-info-popup';
+        popup.textContent = desc;
+        popup.addEventListener('click', (e) => { e.stopPropagation(); popup.remove(); });
+        document.body.appendChild(popup);
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY - 8;
+        const left = Math.max(12, Math.min(rect.right - 220, window.innerWidth - 232));
+        popup.style.top = top + 'px';
+        popup.style.left = left + 'px';
+        popup.style.transform = 'translateY(-100%)';
+        setTimeout(() => popup.remove(), 4000);
+      }
+      document.addEventListener('click', () => {
+        const p = document.getElementById('mobile-info-popup');
+        if (p) p.remove();
+      });
     </script>
   </body>
 </html>
