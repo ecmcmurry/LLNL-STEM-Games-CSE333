@@ -10,6 +10,7 @@
   <body>
     <div class="top">
       <a class="back" id="back-link" href="index.html">&larr; Back</a>
+      <button class="htp-btn hidden" id="htp-btn" onclick="openHTPOverlay()">? How to Play</button>
       <h1 id="game-title"></h1>
       <button
         class="theme-toggle"
@@ -62,25 +63,36 @@
         ></iframe>
       </div>
       <div class="author-badge">Made by <span id="gameAuthor"></span></div>
+    </div>
 
-      <div id="how-to-play" class="htp-section hidden">
-        <div class="htp-heading">
-          <span class="htp-heading-label">
-            <span class="htp-icon">?</span>
-            How to Play
-          </span>
+    <!-- How to Play overlay -->
+    <div id="htp-overlay" class="htp-overlay hidden" onclick="handleOverlayClick(event)">
+      <div class="htp-overlay-inner">
+        <div class="htp-overlay-header">
+          <h2 class="htp-overlay-title">How to Play</h2>
+          <button class="htp-overlay-close" onclick="closeHTPOverlay()">&#x2715; Close</button>
         </div>
-        <div id="htp-content" class="htp-grid"></div>
-      </div>
+        <div class="htp-overlay-body">
+          <div id="how-to-play" class="htp-section hidden">
+            <div class="htp-heading">
+              <span class="htp-heading-label">
+                <span class="htp-icon">?</span>
+                How to Play
+              </span>
+            </div>
+            <div id="htp-content" class="htp-grid"></div>
+          </div>
 
-      <div id="what-youll-learn" class="htp-section hidden">
-        <div class="htp-heading">
-          <span class="htp-heading-label">
-            <span class="htp-icon">💡</span>
-            What You'll Learn
-          </span>
+          <div id="what-youll-learn" class="htp-section hidden">
+            <div class="htp-heading">
+              <span class="htp-heading-label">
+                <span class="htp-icon">💡</span>
+                What You'll Learn
+              </span>
+            </div>
+            <div id="wtl-content" class="htp-grid"></div>
+          </div>
         </div>
-        <div id="wtl-content" class="htp-grid"></div>
       </div>
     </div>
     <script>

@@ -23,32 +23,51 @@
     <h1>Technology</h1>
 
     <div class="games-wrapper">
-      <div class="game">
-        <a
-          href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=technology.html"
-          >There's a Bug in the Flower!</
-        >
-        <img src="assets/Images/Farming Learning Game.svg" alt="Game Image" />
-        <p>Plant, debug, and harvest flowers in a coding farm game.</p>
-        <p>Made by Hao</p>
-      </div>
+      <a href="game.html?game=Hao Games/code_farm/index.html&title=There's a Bug in the Flower!&author=Hao&from=technology.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/Farming Learning Game.svg" class="mc-img" alt="There's a Bug in the Flower!" />
+          <span class="mc-info" data-desc="There's a Bug in the Flower! — Debug the farm and grow your code skills — squash bugs to keep the flowers blooming." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
 
-      <div class="game">
-        <a
-          href="game.html?game=Adrian Games/Game2/Home.html&title=8 Bit Circuit Demo&author=Adrian&from=technology.html"
-          >8 Bit Circuit</a
-        >
-        <img src="assets/Images/8-BIT Circuit.svg" alt="Game Image" />
-        <p>Solve logic puzzles in this retro-inspired circuit game.</p>
-        <p>Made by Adrian</p>
-      </div>
+      <a href="game.html?game=Adrian Games/Game2/Home.html&title=8 Bit Circuit&author=Adrian&from=technology.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/8-BIT Circuit.svg" class="mc-img" alt="8 Bit Circuit" />
+          <span class="mc-info" data-desc="8 Bit Circuit — Solve logic puzzles in this retro-inspired circuit game — wire up gates to win." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
     </div>
+
     <script>
       function toggleTheme() {
         const isLight = document.documentElement.classList.toggle("light-mode");
         localStorage.setItem("theme", isLight ? "light" : "dark");
       }
       if (localStorage.getItem("theme") === "light") document.documentElement.classList.add("light-mode");
+
+      function showInfo(el) {
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const existing = document.getElementById('mobile-info-popup');
+        if (existing) { existing.remove(); return; }
+        const desc = el.getAttribute('data-desc');
+        const popup = document.createElement('div');
+        popup.id = 'mobile-info-popup';
+        popup.className = 'mobile-info-popup';
+        popup.textContent = desc;
+        popup.addEventListener('click', (e) => { e.stopPropagation(); popup.remove(); });
+        document.body.appendChild(popup);
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY - 8;
+        const left = Math.max(12, Math.min(rect.right - 220, window.innerWidth - 232));
+        popup.style.top = top + 'px';
+        popup.style.left = left + 'px';
+        popup.style.transform = 'translateY(-100%)';
+        setTimeout(() => popup.remove(), 4000);
+      }
+      document.addEventListener('click', () => {
+        const p = document.getElementById('mobile-info-popup');
+        if (p) p.remove();
+      });
     </script>
   </body>
 </html>
