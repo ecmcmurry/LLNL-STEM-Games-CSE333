@@ -105,7 +105,7 @@ function _openHistoryLightbox(src, alt, caption, note) {
     el('div', { class: 'history-lightbox__frame' },
       el('img', { class: 'history-lightbox__photo', src, alt }),
     ),
-    el('div', { class: 'history-postit__caption' }, caption),
+    el('div', { class: 'history-lightbox__caption' }, caption),
     ...(noteEl ? [noteEl] : []),
   );
 
