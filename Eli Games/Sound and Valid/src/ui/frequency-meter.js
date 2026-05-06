@@ -148,7 +148,7 @@ export class FrequencyMeter {
 
     // Scale markers at -40%, -20%, 0%, +20%, +40%
     ctx.fillStyle = "#999";
-    ctx.font = "10px sans-serif";
+    ctx.font = "12px PixelPurl, sans-serif";
     ctx.textAlign = "center";
     for (const pct of [-40, -20, 0, 20, 40]) {
       const x = centerX + (pct / 50) * halfScale;
@@ -198,7 +198,7 @@ export class FrequencyMeter {
 
       // Hz offset label above needle
       ctx.fillStyle = color;
-      ctx.font = "bold 13px sans-serif";
+      ctx.font = "bold 15px PixelPurl, sans-serif";
       ctx.textAlign = "center";
       const sign = offset >= 0 ? "+" : "";
       ctx.fillText(`${sign}${offset.toFixed(1)}%`, needleX, scaleY - 26);
@@ -232,7 +232,7 @@ export class FrequencyMeter {
       ctx.fill();
 
       ctx.fillStyle = "#666";
-      ctx.font = "10px sans-serif";
+      ctx.font = "12px PixelPurl, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("Hold it...", w / 2, barY - 4);
     }
@@ -256,7 +256,7 @@ export class FrequencyMeter {
     // Matched text
     if (this.matched) {
       ctx.fillStyle = barColor;
-      ctx.font = "bold 18px sans-serif";
+      ctx.font = "bold 20px PixelPurl, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(this.matchType === "harmonic" ? "HARMONIC!" : "MATCHED!", w / 2, h - 16);
     }
