@@ -15,9 +15,11 @@ function loadLevel() {
     } else if(level.goalType === 'voltage'){
         goalText.innerHTML = `I: <span>${level.fixedCurrent ?? '?'}</span>A &nbsp;|&nbsp; R: <span>${level.resistance ?? '?'}</span>&Omega; &nbsp;|&nbsp; Target V: <span class="unknown">${target}</span>V`;
     } else if(level.goalType === 'series'){
-        goalText.innerHTML = `Series: R_total = <span>${level.Answer}</span>&Omega;`;
+        const vSeries = level.voltage != null ? `V: <span>${level.voltage}</span>V &nbsp;|&nbsp; ` : '';
+        goalText.innerHTML = `${vSeries}Series R_total: <span>${level.Answer}</span>&Omega;`;
     } else if(level.goalType === 'parallel'){
-        goalText.innerHTML = `Parallel: R_total = <span>${level.Answer}</span>&Omega;`;
+        const vParallel = level.voltage != null ? `V: <span>${level.voltage}</span>V &nbsp;|&nbsp; ` : '';
+        goalText.innerHTML = `${vParallel}Parallel R_total: <span>${level.Answer}</span>&Omega;`;
     } else if(level.goalType === 'tau'){
         if(level.fixedCapacitor){
             goalText.innerHTML = `R: <span>${level.fixedResistor}</span>&Omega; &nbsp;|&nbsp; C: <span class="unknown">?</span>F &nbsp;|&nbsp; &tau;: <span>${level.goal}</span>s`;

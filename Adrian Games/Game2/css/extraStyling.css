@@ -1,3 +1,67 @@
+/* ====== ROTATE-DEVICE OVERLAY ======
+ * Fullscreen block shown only when a mobile device is held portrait.
+ * Hidden in landscape and on desktop (>900px wide).
+ * The phone emoji + arrow animate to hint at rotation.
+ */
+#rotate-overlay {
+    display: none; /* hidden by default — landscape & desktop never see this */
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: 'Press Start 2P', monospace;
+    text-align: center;
+    padding: 24px;
+}
+
+.rotate-phone {
+    font-size: 64px;
+    animation: tilt-hint 1.4s ease-in-out infinite;
+    display: block;
+    line-height: 1;
+}
+
+@keyframes tilt-hint {
+    0%, 100% { transform: rotate(0deg);   }
+    40%      { transform: rotate(90deg);  }
+    60%      { transform: rotate(90deg);  }
+}
+
+.rotate-title {
+    color: #ffd633;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    margin: 0;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.rotate-sub {
+    color: #ccc;
+    font-size: 0.4rem;
+    line-height: 2;
+    margin: 0;
+}
+
+.rotate-arrow {
+    font-size: 36px;
+    color: #ffd633;
+    animation: spin-arrow 2s linear infinite;
+}
+
+@keyframes spin-arrow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Show the overlay ONLY on portrait mobile */
+@media (max-width: 900px) and (orientation: portrait) {
+    #rotate-overlay { display: flex; }
+}
+
 /* ====== PORTRAIT MOBILE LAYOUT ====== */
 @media (max-width: 900px) and (orientation: portrait) {
     body {
@@ -19,7 +83,7 @@
         flex-shrink: 0;
     }
 
-    /* Component tray becomes a horizontal scroll bar below the game */
+    /* Component tray sits below the briefcase */
     .draggables {
         order: 2;
         flex-direction: column;
@@ -29,7 +93,12 @@
         gap: 8px;
     }
 
-    /* Slots go horizontal and scroll if there are many */
+    /* AI guide goes last so it doesn't push the briefcase down */
+    .aiGuide {
+        order: 3;
+    }
+
+    /* Slots go horizontal and wrap so 4 components fit in 2 rows */
     #componentSlots {
         display: flex;
         flex-direction: row;
@@ -49,6 +118,81 @@
         font-size: 0.72rem;
         padding: 14px 10px;
         letter-spacing: 1.5px;
+    }
+}
+
+/* ====== LANDSCAPE MOBILE LAYOUT ====== */
+@media (max-width: 900px) and (orientation: landscape) {
+    body {
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        overflow: hidden;
+        padding: 4px;
+        gap: 6px;
+    }
+
+    /* Briefcase scales down via JS zoom to fit the shorter landscape height */
+    .briefcase-wrapper {
+        transform-origin: top left;
+        flex-shrink: 0;
+    }
+
+    /* Component tray becomes a slim vertical sidebar */
+    .draggables {
+        flex-direction: column;
+        align-items: center;
+        width: auto;
+        min-width: 80px;
+        max-height: calc(100vh - 8px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 6px 8px;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    /* Slots stay vertical but compact — 4 components scroll if needed */
+    #componentSlots {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow-y: auto;
+    }
+
+    .slotDesign {
+        width: 52px;
+        margin-bottom: 0;
+    }
+
+    /* AI guide stays visible but compact beside the briefcase */
+    .aiGuide {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    .aiGuideBox {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+
+    .guideCharacter {
+        width: 56px;
+    }
+
+    /* Speech bubble opens downward on landscape so it stays in-frame */
+    .speechBubble {
+        top: 110%;
+        bottom: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .speechBubble::after {
+        top: auto;
+        bottom: 100%;
+        border-top-color: transparent;
+        border-bottom-color: var(--gold);
     }
 }
 

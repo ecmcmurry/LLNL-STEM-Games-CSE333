@@ -82,6 +82,9 @@
     border-radius: 8px;
     padding: 8px;
     width: 180px;
+    max-width: min(180px, 55vw);   /* never wider than the viewport */
+    max-height: 40vh;              /* cap height so long hints don't overflow */
+    overflow-y: auto;
     display: none;
     z-index: 10;
 }
@@ -102,5 +105,64 @@
     color: var(--gold);
     text-align: left;
     line-height: 1.8;
-    border-right: 2px solid transparent; 
+    border-right: 2px solid transparent;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ── Themed scrollbar for the speech bubble ─────────────────────────────── */
+.speechBubble::-webkit-scrollbar {
+    width: 6px;
+}
+
+.speechBubble::-webkit-scrollbar-track {
+    background: var(--foam-inner);
+    border: 1px solid var(--foam);
+}
+
+.speechBubble::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 0;           /* keep it pixel/square to match the 8-bit theme */
+    box-shadow: inset 0 0 0 1px var(--black);
+}
+
+.speechBubble::-webkit-scrollbar-thumb:hover {
+    background: var(--yellow);
+    box-shadow: 0 0 4px var(--gold);
+}
+
+/* Firefox */
+.speechBubble {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) var(--foam-inner);
+}
+
+/* ── Mobile AI tutor fixes ───────────────────────────────────────────────── */
+/* Switch to position:fixed so the bubble is anchored to the VIEWPORT,
+   not to the guide container which sits at the edge of the screen.
+   This guarantees it can never overflow off any edge.                      */
+@media (max-width: 900px) {
+    .speechBubble {
+        position: fixed !important;
+        bottom: 12px !important;
+        top: auto !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: calc(100vw - 32px) !important;
+        max-width: 380px;
+        max-height: 35vh;
+        overflow-y: auto;
+        padding: 10px 12px;
+        border-radius: 8px;
+        z-index: 99998;
+    }
+
+    .speechBubble::after {
+        display: none;
+    }
+
+    #hintText {
+        font-size: 0.4rem;
+        line-height: 1.7;
+    }
 }

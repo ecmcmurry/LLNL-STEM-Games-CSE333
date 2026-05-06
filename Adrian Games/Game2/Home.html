@@ -3,6 +3,7 @@
   <head>
       <title>8-BIT CIRCUIT</title>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link rel="stylesheet" href="css/base.css">
       <link rel="stylesheet" href="css/briefcase.css">
       <link rel="stylesheet" href="css/screens.css">
@@ -20,6 +21,17 @@
       <script src="js/extraStyling.js" defer></script>
   </head>
   <body>
+
+      <!-- ── Rotate-device overlay ─────────────────────────────────────────────
+           Shown only in portrait mode on mobile. CSS controls visibility;
+           JS (extraStyling.js) also tries screen.orientation.lock('landscape').
+      ──────────────────────────────────────────────────────────────────────── -->
+      <div id="rotate-overlay" aria-hidden="true">
+          <div class="rotate-phone">&#x1F4F1;</div>
+          <p class="rotate-title">ROTATE DEVICE</p>
+          <p class="rotate-sub">8-BIT CIRCUIT plays in<br>landscape mode</p>
+          <div class="rotate-arrow">&#x21BB;</div>
+      </div>
 
       <div class="draggables">
         <p class="Tray">COMPONENTS</p>
