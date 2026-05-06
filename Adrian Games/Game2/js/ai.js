@@ -25,15 +25,31 @@ function hideTutorNudge() {
 /*This function calls on the functions askAI to retreave the LLMs response and utilize the text when clicked on
 When it is clicked on after wards it will then hide the text and display nothing.*/
 async function toggleHint() {
-    
-    const level = categoryLevel[currentLevel]; //has the correlating hint to the correct level
-    const hintText = document.getElementById('hintText');
+
+    const hintText    = document.getElementById('hintText');
     const speechBubble = document.getElementById('speechBubble');
 
-    if(!hintVisible){ 
+    // On the home screen just remind the student to pick a mode — no API call needed
+    const onHomeScreen = document.getElementById('home-screen').style.display !== 'none';
+    if (onHomeScreen) {
+        if (!hintVisible) {
+            hintText.innerText = 'Select a category to get started!';
+            speechBubble.style.display = 'block';
+            hintVisible = true;
+        } else {
+            speechBubble.style.display = 'none';
+            hintText.innerText = '';
+            hintVisible = false;
+        }
+        return;
+    }
+
+    const level = categoryLevel[currentLevel]; //has the correlating hint to the correct level
+
+    if(!hintVisible){
         //if the onclick function is activated the LLM will give the student help as prompted too
         speechBubble.style.display = 'block';
-        hintText.innerText = 'Thinking...';//just a stall to let students know it was activated and is thinking of a guided answer
+        hintText.innerText = 'Thinking...';
         try {
             const response = await askAI();
             hintText.innerText = response;
@@ -42,7 +58,7 @@ async function toggleHint() {
             console.error(err);
         }
         hintVisible = true;
-    } else { //if the character (AI tutor) is not clicked on it will display nothing
+    } else {
         speechBubble.style.display = 'none';
         hintText.innerText = '';
         hintVisible = false;
