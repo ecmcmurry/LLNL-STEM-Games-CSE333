@@ -2,7 +2,8 @@ module.exports = {
     testEnvironment: 'node',
     testMatch: ['**/tests/chemistry.unit.test.js'],
     collectCoverageFrom: [
-        'main.js',
+        "main.js",
+        'utils.js',
         'reactions.js',
         'swapScreen.js',
         '!node_modules/**'

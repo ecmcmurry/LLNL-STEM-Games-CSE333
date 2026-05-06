@@ -46,71 +46,107 @@ h1 {
 
 .games-wrapper {
     display: flex;
-    gap: 25px;
+    gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 1000px;
+    max-width: 900px;
+    width: 100%;
     opacity: 0;
     animation: floatUp 0.8s ease-out forwards;
     animation-delay: 0.2s;
 }
 
-.game {
-    background: rgba(255, 255, 255, 0.07);
-    padding: 20px;
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(219, 170, 0, 0.2);
-    text-align: center;
-    width: 250px;
-    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    cursor: pointer;
-}
-.game:hover {
-    transform: scale(1.05);
-    background: rgba(219, 170, 0, 0.08);
-    border-color: rgba(219, 170, 0, 0.5);
-}
-
-.game a {
+/* ── Image-only card ── */
+.mobile-card {
     display: block;
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #fff;
+    width: clamp(260px, 40vw, 380px);
     text-decoration: none;
-    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.18s ease;
 }
-.game a::after { content: ''; position: absolute; inset: 0; }
+.mobile-card:hover { transform: scale(1.02); }
+.mobile-card:hover .mc-img-wrapper { border-color: rgba(219, 170, 0, 0.7); }
 
-.game img {
+.mc-img-wrapper {
+    position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
+    border-radius: 8px;
+    border: 1px solid rgba(219, 170, 0, 0.3);
+    overflow: visible;
+    line-height: 0;
+}
+
+.mc-img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 15px;
+    display: block;
     background-color: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.08);
 }
 
-.game-img-placeholder {
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    background-color: rgba(0,0,0,0.2);
-    border: 1px dashed rgba(255,255,255,0.2);
+/* ── Info button ── */
+.mc-info {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: 10;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(7, 24, 40, 0.72);
+    border: 1px solid rgba(219, 170, 0, 0.55);
+    color: #dbaa00;
+    font-size: 0.75rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.3);
-    font-size: 0.8rem;
-    font-style: italic;
+    cursor: pointer;
+    line-height: 1;
 }
+.mc-info::before { content: 'i'; }
 
-.game p { margin: 4px 0 0 0; font-size: 1.1rem; color: rgba(255,255,255,0.65); }
+/* Tooltip (desktop hover only) */
+.mc-info::after {
+    content: attr(data-desc);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: rgba(7, 24, 40, 0.96);
+    border: 1px solid rgba(219, 170, 0, 0.4);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 8px 10px;
+    white-space: normal;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    z-index: 100;
+}
+.mc-info:hover::after { opacity: 1; }
+
+/* ── Mobile info popup (touch) ── */
+.mobile-info-popup {
+    position: absolute;
+    z-index: 9999;
+    width: 220px;
+    background: rgba(7, 24, 40, 0.97);
+    border: 1px solid rgba(219, 170, 0, 0.45);
+    border-radius: 9px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    padding: 10px 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.55);
+    pointer-events: auto;
+}
 
 @keyframes floatUp {
     from { transform: translateY(80px); opacity: 0; }
@@ -129,8 +165,8 @@ h1 {
     z-index: 1001;
     align-items: center;
     justify-content: center;
-    width: 69px;
-    height: 69px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 1px solid rgba(219, 170, 0, 0.45);
     background: rgba(255, 255, 255, 0.06);
@@ -145,8 +181,8 @@ h1 {
     transform: scale(1.08);
 }
 .theme-toggle svg {
-    width: 33px;
-    height: 33px;
+    width: 22px;
+    height: 22px;
     pointer-events: none;
 }
 .icon-sun  { display: block; }
@@ -154,7 +190,7 @@ h1 {
 .light-mode .icon-sun  { display: none;  }
 .light-mode .icon-moon { display: block; }
 
-/* Light mode  */
+/* Light mode */
 .light-mode body {
     background-color: #e8eef5;
     color: #071828;
@@ -169,20 +205,17 @@ h1 {
     border-color: rgba(15, 45, 82, 0.3);
 }
 .light-mode a.back:hover { background: rgba(15, 45, 82, 0.16); }
-.light-mode .game {
-    background: rgba(15, 45, 82, 0.06);
-    border-color: rgba(15, 45, 82, 0.18);
-}
-.light-mode .game:hover {
-    background: rgba(15, 45, 82, 0.12);
+.light-mode .mc-img-wrapper { border-color: rgba(15, 45, 82, 0.22); }
+.light-mode .mobile-card:hover .mc-img-wrapper { border-color: rgba(15, 45, 82, 0.55); }
+.light-mode .mc-info {
+    background: rgba(255, 255, 255, 0.85);
     border-color: rgba(15, 45, 82, 0.45);
+    color: #0f2d52;
 }
-.light-mode .game a { color: #071828; }
-.light-mode .game p { color: rgba(7, 24, 40, 0.6); }
-.light-mode .game-img-placeholder {
-    background-color: rgba(15, 45, 82, 0.08);
-    border-color: rgba(15, 45, 82, 0.2);
-    color: rgba(7, 24, 40, 0.35);
+.light-mode .mc-info::after {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(15, 45, 82, 0.3);
+    color: #071828;
 }
 .light-mode .theme-toggle {
     border-color: rgba(15, 45, 82, 0.45);

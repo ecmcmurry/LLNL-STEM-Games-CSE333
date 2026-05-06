@@ -23,39 +23,58 @@
     <h1>Science</h1>
 
     <div class="games-wrapper">
-      <div class="game">
-        <a
-          href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian Botello&from=science.html"
-          >Absolute Physics Master Lab</a
-        >
-        <img src="assets/Images/PhysicsGameLab.svg" alt="Game Image" />
-        <p>Play with physics concepts in this interactive lab!</p>
-        <p>Made by Adrian</p>
-      </div>
+      <a href="game.html?game=Adrian Games/Game1/index.html&title=Physics Game Lab&author=Adrian&from=science.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/PhysicsGameLab.svg" class="mc-img" alt="Physics Game Lab" />
+          <span class="mc-info" data-desc="Physics Game Lab — Play with physics concepts in this interactive lab — explore gravity, motion, and collisions hands-on." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
 
-      <div class="game">
-        <a
-          href="game.html?game=Eli Games/Sound and Valid/dist/index.html&title=Sound and Valid&author=Eli Olson&from=science.html"
-          >Sound and Valid</a
-        >
-        <img src="assets/Images/SoundAndValid.svg" alt="Game Image" />
-        <p>Wave hello to natural frequency!</p>
-        <p>Made by Eli</p>
-      </div>
+      <a href="game.html?game=Eli Games/Sound and Valid/dist/index.html&title=Sound and Valid&author=Eli&from=science.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/SoundAndValid.svg" class="mc-img" alt="Sound and Valid" />
+          <span class="mc-info" data-desc="Sound and Valid — Wave hello to natural frequency! Explore harmonics and resonance through sound." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
 
-      <div class="game">
-        <a href="#" aria-disabled="true">Reaction Lab</a>
-        <div class="game-img-placeholder">Cover image coming soon</div>
-        <p>Coming soon — chemistry reactions in the lab.</p>
-        <p>Made by TBA</p>
-      </div>
+      <a href="game.html?game=Elizabeth Games/chemistry/index.html&title=Reaction Lab&author=Elizabeth&from=science.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/ReactionLab.png" class="mc-img" alt="Reaction Lab" />
+          <span class="mc-info" data-desc="Reaction Lab — A virtual chemistry lab where you mix reagents and observe reactions." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
     </div>
+
     <script>
       function toggleTheme() {
         const isLight = document.documentElement.classList.toggle("light-mode");
         localStorage.setItem("theme", isLight ? "light" : "dark");
       }
       if (localStorage.getItem("theme") === "light") document.documentElement.classList.add("light-mode");
+
+      function showInfo(el) {
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const existing = document.getElementById('mobile-info-popup');
+        if (existing) { existing.remove(); return; }
+        const desc = el.getAttribute('data-desc');
+        const popup = document.createElement('div');
+        popup.id = 'mobile-info-popup';
+        popup.className = 'mobile-info-popup';
+        popup.textContent = desc;
+        popup.addEventListener('click', (e) => { e.stopPropagation(); popup.remove(); });
+        document.body.appendChild(popup);
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY - 8;
+        const left = Math.max(12, Math.min(rect.right - 220, window.innerWidth - 232));
+        popup.style.top = top + 'px';
+        popup.style.left = left + 'px';
+        popup.style.transform = 'translateY(-100%)';
+        setTimeout(() => popup.remove(), 4000);
+      }
+      document.addEventListener('click', () => {
+        const p = document.getElementById('mobile-info-popup');
+        if (p) p.remove();
+      });
     </script>
   </body>
 </html>

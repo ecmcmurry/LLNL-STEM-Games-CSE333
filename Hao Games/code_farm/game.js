@@ -871,7 +871,7 @@ function harvest() {
 }
 
 async function fetchAIPuzzle(flowerType) {
-  const response = await fetch("http://localhost:3000/api/bug-puzzle", {
+  const response = await fetch("/api/bug-puzzle", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
