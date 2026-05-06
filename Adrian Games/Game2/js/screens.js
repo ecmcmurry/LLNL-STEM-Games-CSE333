@@ -7,8 +7,14 @@ function homeScreen() {
     document.getElementById('levelScreen').style.display  = 'none';
     document.getElementById('home-screen').style.display  = 'flex';
     document.querySelector('.draggables').style.visibility = 'hidden';
-    //clear any lingering tutor nudge (e.g. category summary) when returning home
-    if(typeof hideTutorNudge === 'function') hideTutorNudge();
+    // Clear any previous message then prompt the student to pick a mode
+    if (typeof hideTutorNudge === 'function') hideTutorNudge();
+    if (typeof showTutorNudge === 'function') {
+        showTutorNudge(
+            "Welcome! Pick FULL CIRCUIT to play all levels, LEVELS to choose a topic, or SUPPORTED LEARNING for a personalised challenge.",
+            7000
+        );
+    }
 }
 
 function howToPlay() {
@@ -37,6 +43,16 @@ function levelScreen() {
         );
     }
 }
+
+// Fire the welcome prompt automatically on first page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof showTutorNudge === 'function') {
+        showTutorNudge(
+            "Welcome! Pick FULL CIRCUIT to play all levels, LEVELS to choose a topic, or SUPPORTED LEARNING for a personalised challenge.",
+            7000
+        );
+    }
+});
 
 function showPlayScreen() {
     document.getElementById('home-screen').style.display   = 'none';
