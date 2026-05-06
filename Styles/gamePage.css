@@ -101,7 +101,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
         flex-wrap: wrap;
     }
     .top h1 {
-        order: 3;
+        order: 4;
         flex: none;
         width: 100%;
         text-align: center;
@@ -109,7 +109,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
         margin: 0;
     }
     .fullscreen-btn {
-        margin-left: auto;
+        order: 3;
     }
 }
 
@@ -120,6 +120,110 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     margin: 0;
     border: none;
 }
+
+/* --- HOW TO PLAY BUTTON --- */
+.htp-btn {
+    background: rgba(219, 170, 0, 0.1);
+    border: 1px solid rgba(219, 170, 0, 0.4);
+    border-radius: 6px;
+    color: #dbaa00;
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.4rem;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    order: 2;
+}
+.htp-btn:hover { background: rgba(219, 170, 0, 0.22); }
+.htp-btn.hidden { display: none; }
+
+@media (max-width: 768px) {
+    .htp-btn { font-size: 1.1rem; padding: 6px 12px; order: 2; }
+}
+
+.light-mode .htp-btn {
+    background: rgba(15, 45, 82, 0.08);
+    border-color: rgba(15, 45, 82, 0.3);
+    color: #0f2d52;
+}
+.light-mode .htp-btn:hover { background: rgba(15, 45, 82, 0.16); }
+
+/* --- HOW TO PLAY OVERLAY --- */
+.htp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.htp-overlay.hidden { display: none; }
+
+.htp-overlay-inner {
+    background: #071828;
+    border: 1px solid rgba(219, 170, 0, 0.35);
+    border-radius: 14px;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: clamp(20px, 3vw, 36px);
+    box-sizing: border-box;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+.htp-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(219, 170, 0, 0.2);
+}
+
+.htp-overlay-title {
+    color: #dbaa00;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    margin: 0;
+}
+
+.htp-overlay-close {
+    background: rgba(219, 170, 0, 0.1);
+    border: 1px solid rgba(219, 170, 0, 0.4);
+    border-radius: 6px;
+    color: #dbaa00;
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, sans-serif;
+    font-size: 1.3rem;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.htp-overlay-close:hover { background: rgba(219, 170, 0, 0.26); }
+
+.htp-overlay-body { display: flex; flex-direction: column; gap: 32px; }
+
+/* Inside overlay the section headings are redundant — hide them */
+.htp-overlay .htp-heading { display: none; }
+.htp-overlay .htp-section { margin: 0; width: 100%; }
+.htp-overlay .htp-section.hidden { display: none; }
+
+.light-mode .htp-overlay-inner {
+    background: #ffffff;
+    border-color: rgba(15, 45, 82, 0.3);
+}
+.light-mode .htp-overlay-title { color: #0f2d52; }
+.light-mode .htp-overlay-close {
+    background: rgba(15, 45, 82, 0.08);
+    border-color: rgba(15, 45, 82, 0.3);
+    color: #0f2d52;
+}
+.light-mode .htp-overlay-close:hover { background: rgba(15, 45, 82, 0.16); }
 
 /* --- HOW TO PLAY / WHAT YOU'LL LEARN SECTIONS --- */
 .htp-section {
@@ -210,7 +314,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 
 /* Title — white, reads naturally */
 .htp-card-title {
-    font-size: clamp(1rem, 1.8vw, 1.35rem);
+    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
     font-weight: 700;
     color: #ffffff;
     margin-bottom: clamp(6px, 1vw, 10px);
@@ -221,7 +325,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 /* Coloured category tag under the title */
 .htp-card-tag {
     display: inline-block;
-    font-size: clamp(0.6rem, 1vw, 0.75rem);
+    font-size: clamp(0.8rem, 1.2vw, 1rem);
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -235,8 +339,8 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 }
 
 .htp-card-body {
-    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
-    color: rgba(255, 255, 255, 0.65);
+    font-size: clamp(1.05rem, 1.9vw, 1.35rem);
+    color: rgba(255, 255, 255, 0.72);
     line-height: 1.7;
     margin: 0;
     position: relative;
@@ -244,14 +348,11 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 
 .theme-toggle {
     display: flex;
-    position: absolute;
-    top: 35px;
-    right: 140px; 
-    z-index: 1001;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 69px;
-    height: 69px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 1px solid rgba(219, 170, 0, 0.45);
     background: rgba(255, 255, 255, 0.06);
@@ -263,14 +364,24 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
 
 @media (max-width: 768px) {
     .theme-toggle {
-        width: 48px;
-        height: 48px;
-        top: 12px;
-        right: 14px;
+        /* Leave absolute positioning — join the .top flex row */
+        position: static;
+        width: 32px;
+        height: 32px;
+        order: 3;          /* back=1, htp=2, theme=3, fullscreen=4, title=5 */
+        margin-left: auto; /* shunts the theme+fullscreen pair to the right */
+        flex-shrink: 0;
     }
     .theme-toggle svg {
-        width: 24px;
-        height: 24px;
+        width: 16px;
+        height: 16px;
+    }
+    .fullscreen-btn {
+        order: 4;
+        margin-left: 0;
+    }
+    .back {
+        order: 1;
     }
 }
 .theme-toggle:hover {
@@ -279,8 +390,8 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     transform: scale(1.08);
 }
 .theme-toggle svg {
-    width: 33px;
-    height: 33px;
+    width: 22px;
+    height: 22px;
     pointer-events: none;
 }
 .icon-sun  { display: block; }

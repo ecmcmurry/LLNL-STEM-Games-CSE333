@@ -23,32 +23,51 @@
     <h1>Math</h1>
 
     <div class="games-wrapper">
-      <div class="game">
-        <a
-          href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=math.html"
-          >What Wave</a
-        >
-        <img src="assets/Images/Fourier.png" alt="Game Image" />
-        <p>Description of the game goes here.</p>
-        <p>Made by Elizabeth</p>
-      </div>
+      <a href="game.html?game=Elizabeth Games/fourier/index.html&title=What Wave&author=Elizabeth&from=math.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/WhatWave.png" class="mc-img" alt="What Wave" />
+          <span class="mc-info" data-desc="What Wave — Adjust waves and combine to match a target wave." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
 
-      <div class="game">
-        <a
-          href="game.html?game=Ella Games/GraphGame1/index.html&title=Feed The Function&author=Ella&from=math.html"
-          >Feed The Function</a
-        >
-        <div class="game-img-placeholder">Cover image coming soon</div>
-        <p>Recognize the shape, name the function.</p>
-        <p>Made by Ella</p>
-      </div>
+      <a href="game.html?game=Ella Games/GraphGame1/index.html&title=Feed The Function&author=Ella&from=math.html" class="mobile-card">
+        <div class="mc-img-wrapper">
+          <img src="assets/Images/FunctionLogo.svg" class="mc-img" alt="Feed the Function" />
+          <span class="mc-info" data-desc="Feed The Function — Recognize the shape, name the function, feed the right answer to advance." onclick="event.stopPropagation(); showInfo(this)"></span>
+        </div>
+      </a>
     </div>
+
     <script>
       function toggleTheme() {
         const isLight = document.documentElement.classList.toggle("light-mode");
         localStorage.setItem("theme", isLight ? "light" : "dark");
       }
       if (localStorage.getItem("theme") === "light") document.documentElement.classList.add("light-mode");
+
+      function showInfo(el) {
+        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        const existing = document.getElementById('mobile-info-popup');
+        if (existing) { existing.remove(); return; }
+        const desc = el.getAttribute('data-desc');
+        const popup = document.createElement('div');
+        popup.id = 'mobile-info-popup';
+        popup.className = 'mobile-info-popup';
+        popup.textContent = desc;
+        popup.addEventListener('click', (e) => { e.stopPropagation(); popup.remove(); });
+        document.body.appendChild(popup);
+        const rect = el.getBoundingClientRect();
+        const top = rect.top + window.scrollY - 8;
+        const left = Math.max(12, Math.min(rect.right - 220, window.innerWidth - 232));
+        popup.style.top = top + 'px';
+        popup.style.left = left + 'px';
+        popup.style.transform = 'translateY(-100%)';
+        setTimeout(() => popup.remove(), 4000);
+      }
+      document.addEventListener('click', () => {
+        const p = document.getElementById('mobile-info-popup');
+        if (p) p.remove();
+      });
     </script>
   </body>
 </html>
