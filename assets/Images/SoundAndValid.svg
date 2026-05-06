@@ -3,6 +3,11 @@
     <clipPath id="clip">
       <rect width="400" height="225"/>
     </clipPath>
+    <radialGradient id="title-glow" cx="50%" cy="50%" r="50%" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="white" stop-opacity="0.38"/>
+      <stop offset="55%"  stop-color="white" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
     <style>
       @font-face {
         font-family: 'PixelPurl';
@@ -14,19 +19,33 @@
   <!-- Background -->
   <rect width="400" height="225" fill="#ffffff"/>
 
-  <!-- Decorative sine waves in background -->
-  <g clip-path="url(#clip)" opacity="0.18">
-    <path d="M-20 112 C20 72, 60 152, 100 112 S180 72, 220 112 S300 152, 340 112 S400 72, 440 112"
-      fill="none" stroke="#0DA186" stroke-width="2.5"/>
-    <path d="M-20 130 C20 90, 60 170, 100 130 S180 90, 220 130 S300 170, 340 130 S400 90, 440 130"
-      fill="none" stroke="#0D72A1" stroke-width="2.5"/>
-    <path d="M-20 94 C20 54, 60 134, 100 94 S180 54, 220 94 S300 134, 340 94 S400 54, 440 94"
-      fill="none" stroke="#0DA13C" stroke-width="2.5"/>
+  <!-- Animated sine waves — scroll + breathe, matching the homepage WaveAnimation -->
+  <g clip-path="url(#clip)">
+    <!-- Wave 1: teal, medium speed -->
+    <g opacity="0.45">
+      <animate attributeName="opacity" values="0.35;0.60;0.35" keyTimes="0;0.5;1" dur="10s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="-240,0" dur="12s" repeatCount="indefinite"/>
+      <path d="M-240,112 C-200,72 -160,72 -120,112 S-40,152 0,112 S80,72 120,112 S200,152 240,112 S320,72 360,112 S440,152 480,112 S560,72 600,112 S680,152 720,112"
+        fill="none" stroke="#0DA186" stroke-width="3"/>
+    </g>
+    <!-- Wave 2: blue, slow (stagger 3.5s) -->
+    <g opacity="0.35">
+      <animate attributeName="opacity" values="0.25;0.55;0.25" keyTimes="0;0.5;1" dur="12s" begin="3.5s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="-240,0" dur="15s" repeatCount="indefinite"/>
+      <path d="M-240,130 C-200,90 -160,90 -120,130 S-40,170 0,130 S80,90 120,130 S200,170 240,130 S320,90 360,130 S440,170 480,130 S560,90 600,130 S680,170 720,130"
+        fill="none" stroke="#0D72A1" stroke-width="3"/>
+    </g>
+    <!-- Wave 3: green, fast (stagger 7s) -->
+    <g opacity="0.30">
+      <animate attributeName="opacity" values="0.20;0.50;0.20" keyTimes="0;0.5;1" dur="9s" begin="7s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="-240,0" dur="8s" repeatCount="indefinite"/>
+      <path d="M-240,94 C-200,54 -160,54 -120,94 S-40,134 0,94 S80,54 120,94 S200,134 240,94 S320,54 360,94 S440,134 480,94 S560,54 600,94 S680,134 720,94"
+        fill="none" stroke="#0DA13C" stroke-width="3"/>
+    </g>
   </g>
 
   <!-- Frosted backdrop behind title -->
-  <rect x="60" y="70" width="280" height="85" rx="16"
-    fill="rgba(255,255,255,0.72)"/>
+  <ellipse cx="200" cy="118" rx="175" ry="65" fill="url(#title-glow)"/>
 
   <!-- Main title -->
   <text x="200" y="108"
