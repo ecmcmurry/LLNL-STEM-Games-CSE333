@@ -1,7 +1,9 @@
 import { el } from '../ui/components.js';
 import { LEVELS } from '../data/levels.js';
-import { loadProgress, saveProgress } from '../utils/storage.js';
+import { loadProgress, saveProgress, loadDiscoveredPatterns } from '../utils/storage.js';
 import { setCurrentLevel } from '../state.js';
+import { STRUCTURAL_PATTERNS } from '../recognition/patterns.js';
+import { rarityBadge } from '../ui/components.js';
 
 // [LEVEL-PROGRESS] Renders the home/level-select screen.
 // The player sees a grid of level cards, with locked/unlocked/starred states.
@@ -37,7 +39,10 @@ export function render(container) {
       el('div', { class: 'home-beam home-beam--bot' }),
     ),
     el('main', { class: 'home-levels' },
-      el('h2', { class: 'home-levels__heading' }, 'Select Level'),
+      el('div', { class: 'home-levels__toolbar' },
+        el('h2', { class: 'home-levels__heading' }, 'Select Level'),
+        el('button', { class: 'home-notebook-btn', onClick: _openNotebook }, 'Notebook'),
+      ),
       el('div', { class: 'level-grid' },
         ...LEVELS.map(level => _buildLevelCard(level, progress)),
       ),
@@ -93,4 +98,64 @@ function _startLevel(levelId) {
   if (!level) return;
   setCurrentLevel(levelId, level.budget);
   location.hash = '#build';
+}
+
+// [NOTEBOOK] Opens the engineering notebook overlay.
+function _openNotebook() {
+  if (document.querySelector('.notebook-overlay')) return;
+  const discovered = loadDiscoveredPatterns();
+
+  const rarityOrder = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
+  const sorted = [...STRUCTURAL_PATTERNS].sort(
+    (a, b) => rarityOrder[a.rarity] - rarityOrder[b.rarity],
+  );
+
+  const entries = sorted.map(pattern => {
+    const known = discovered.has(pattern.id);
+    return el('div', { class: `notebook-entry notebook-entry--${pattern.rarity}${known ? '' : ' notebook-entry--locked'}` },
+      el('div', { class: 'notebook-entry__header' },
+        el('span', { class: 'notebook-entry__icon' }, known ? pattern.icon : '?'),
+        el('span', { class: 'notebook-entry__name' }, known ? pattern.name : '???'),
+        rarityBadge(pattern.rarity),
+      ),
+      known ? el('div', { class: 'notebook-entry__body' },
+        el('p', { class: 'notebook-entry__purpose' }, pattern.engineeringPurpose),
+        el('p', { class: 'notebook-entry__example' },
+          el('span', { class: 'notebook-entry__example-label' }, 'Real world: '),
+          pattern.realWorldExample,
+        ),
+      ) : el('div', { class: 'notebook-entry__body notebook-entry__body--locked' },
+        'Discover this pattern while building to unlock.',
+      ),
+    );
+  });
+
+  const discoveredCount = discovered.size;
+  const totalCount = STRUCTURAL_PATTERNS.length;
+
+  const overlay = el('div', { class: 'notebook-overlay' },
+    el('div', { class: 'notebook-panel' },
+      el('div', { class: 'notebook-panel__header' },
+        el('div', {},
+          el('h2', { class: 'notebook-panel__title' }, 'Engineering Notebook'),
+          el('p', { class: 'notebook-panel__subtitle' },
+            `${discoveredCount} / ${totalCount} patterns discovered`,
+          ),
+        ),
+        el('button', { class: 'notebook-panel__close', onClick: _closeNotebook }, '✕'),
+      ),
+      el('div', { class: 'notebook-entries' }, ...entries),
+    ),
+  );
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) _closeNotebook(); });
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('notebook-overlay--visible'));
+}
+
+function _closeNotebook() {
+  const overlay = document.querySelector('.notebook-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('notebook-overlay--visible');
+  overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
 }
