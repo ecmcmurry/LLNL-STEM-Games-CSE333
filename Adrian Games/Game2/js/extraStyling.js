@@ -14,17 +14,64 @@ const JUICE_ENABLED = true;
 function applyPortraitScale() {
     const wrapper = document.querySelector('.briefcase-wrapper');
     if (!wrapper) return;
-    const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth < 900;
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    const isPortrait        = h > w && w < 900;
+    const isLandscapeMobile = w < 900 && w > h && h < 600;
+
     if (isPortrait) {
-        wrapper.style.zoom = Math.min(1, (window.innerWidth * 0.95) / 620);
+        // Portrait mobile: scale down to fit width
+        wrapper.style.zoom = Math.min(1, (w * 0.95) / 620);
+
+    } else if (isLandscapeMobile) {
+        // Landscape mobile: scale to fit height (tray sidebar eats ~90px)
+        wrapper.style.zoom = Math.min(1, (h * 0.88) / 520);
+
     } else {
-        wrapper.style.zoom = '';
+        // Desktop / large iframe: scale briefcase to fill the container.
+        //
+        // Width budget: subtract ~200px for tray + AI guide in play mode.
+        // Height budget: 82% of the iframe height.
+        //   game.html's top bar (~76px) + gameContainer margin (20px) + author
+        //   badge below the iframe eat into the visible area even though the
+        //   iframe itself reports the full parent viewport height. 0.82 keeps
+        //   the briefcase comfortably inside the visible region on all screens.
+        //
+        // Briefcase design size: 620px wide × 520px tall (lid included).
+        const BRIEF_W = 620;
+        const BRIEF_H = 520;
+        const scaleW  = (w - 200) / BRIEF_W;
+        const scaleH  = (h * 0.82) / BRIEF_H;
+        // Use the smaller axis so it never clips, cap at 1.6 to avoid oversizing
+        const scale   = Math.min(scaleW, scaleH, 1.6);
+        wrapper.style.zoom = scale > 0.5 ? scale : 0.5; // never shrink below 50%
     }
 }
 
 window.addEventListener('resize', applyPortraitScale);
 window.addEventListener('orientationchange', applyPortraitScale);
 document.addEventListener('DOMContentLoaded', applyPortraitScale);
+
+/* ── Landscape lock ──────────────────────────────────────────────────────────
+ * On supported browsers (Android Chrome, most PWAs) this locks the viewport
+ * to landscape so the OS rotates the screen automatically when the device is
+ * turned. On iOS and desktop it silently fails — the rotate overlay handles
+ * those cases via CSS instead.
+ * Only fires on clearly-mobile viewports to avoid affecting desktop DevTools.
+ */
+function tryLockLandscape() {
+    const isMobile = window.innerWidth < 900 || window.innerHeight < 600;
+    if (!isMobile) return;
+    if (screen.orientation && typeof screen.orientation.lock === 'function') {
+        screen.orientation.lock('landscape').catch(() => {
+            // Lock rejected (iOS, desktop) — rotate overlay CSS takes over
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', tryLockLandscape);
 
 /* Glowing pulse around the circuit happens when the user correctly picks the answer */
 function juiceCorrectAnswer() {
