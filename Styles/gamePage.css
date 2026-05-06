@@ -368,7 +368,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
         position: static;
         width: 32px;
         height: 32px;
-        order: 3;          /* back=1, htp=2, theme=3, fullscreen=4, title=5 */
+        order: 3;         
         margin-left: auto; /* shunts the theme+fullscreen pair to the right */
         flex-shrink: 0;
     }
@@ -377,8 +377,15 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
         height: 16px;
     }
     .fullscreen-btn {
-        order: 4;
+        order: 3;          /* same row as theme-toggle, right next to it */
         margin-left: 0;
+        font-size: 1rem;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .back {
         order: 1;
