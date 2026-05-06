@@ -97,8 +97,7 @@ export function render(container) {
     { className: "text-center mt-16" },
     el("p", { className: "text-secondary text-sm" }, "Target Frequency"),
     el("div", {
-      className: "font-mono",
-      style: { fontSize: "2rem", fontWeight: "700", color: "var(--color-primary)" },
+      style: { fontFamily: "var(--font-sans)", fontSize: "2.25rem", fontWeight: "700", color: "var(--color-primary)" },
       textContent: `${obj.frequency.toFixed(1)} Hz`,
     })
   );

@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'PixelPurl';
   src: url('/PixelPurl.ttf') format('truetype');
-  font-weight: normal;
+  font-weight: 100 900;
   font-style: normal;
 }
 
@@ -31,7 +31,7 @@
   --color-harmonic: #d97706;
   --color-harmonic-light: #fef3c7;
   --font-sans: 'PixelPurl', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: "SF Mono", "Fira Code", "Fira Mono", monospace;
+  --font-mono: 'PixelPurl', "SF Mono", "Fira Code", "Fira Mono", monospace;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
@@ -73,7 +73,7 @@
 
 html {
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--color-text);
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
@@ -95,19 +95,19 @@ body {
 
 /* ─── Typography ─── */
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   line-height: 1.2;
 }
 
 h2 {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 600;
   line-height: 1.3;
 }
 
 h3 {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -125,12 +125,12 @@ p {
   padding: 12px 24px;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
-  min-height: 48px;
+  min-height: 52px;
 }
 
 .btn:active {
@@ -165,8 +165,8 @@ p {
 
 .btn-large {
   width: 100%;
-  padding: 16px 24px;
-  font-size: 1.1rem;
+  padding: 18px 24px;
+  font-size: 1.2rem;
   border-radius: var(--radius-lg);
 }
 
@@ -257,7 +257,7 @@ p {
   padding: 8px 0 6px;
   background: none;
   border: none;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -290,8 +290,8 @@ p {
   display: flex;
   justify-content: space-between;
   margin-top: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
 }
 
 .meter-target {
@@ -396,9 +396,9 @@ p {
 
 .object-name {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   line-height: 1.2;
-  height: 1.8rem; /* exactly 2 lines — keeps freq + stars at a fixed position */
+  height: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,8 +406,8 @@ p {
 }
 
 .object-freq {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -458,14 +458,14 @@ p {
 }
 
 .bingo-cell-name {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .bingo-cell-freq {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
@@ -481,11 +481,11 @@ p {
 
 .filter-tab {
   flex-shrink: 0;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
   border: 1px solid var(--color-border);
   background: var(--color-bg);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -502,7 +502,7 @@ p {
 .props-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .props-table td {
@@ -516,14 +516,14 @@ p {
 }
 
 .props-table td:last-child {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 500;
   text-align: right;
 }
 
 /* ─── Formula Scope Note ─── */
 .formula-scope-note {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
@@ -535,8 +535,8 @@ p {
   border-radius: var(--radius-md);
   padding: 16px;
   margin: 12px 0;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
   line-height: 1.8;
 }
 
@@ -555,7 +555,7 @@ p {
 .formula-label {
   font-family: var(--font-sans);
   color: var(--color-text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .formula-value {
@@ -565,13 +565,13 @@ p {
 .formula-result {
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
 }
 
 /* ─── Timer ─── */
 .timer {
-  font-family: var(--font-mono);
-  font-size: 2rem;
+  font-family: var(--font-sans);
+  font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
   letter-spacing: 0.05em;
@@ -582,9 +582,9 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
 }
 
@@ -616,10 +616,10 @@ p {
 /* ─── Match Status ─── */
 .match-status {
   text-align: center;
-  padding: 16px;
+  padding: 18px;
   border-radius: var(--radius-lg);
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   margin: 12px 0;
   transition: all 0.3s;
 }
@@ -652,20 +652,20 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 4px;
 }
 .race-best-label { color: var(--color-text-secondary); }
-.race-best-time  { color: var(--color-primary); font-family: var(--font-mono); }
+.race-best-time  { color: var(--color-primary); font-family: var(--font-sans); }
 .race-history {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 .race-history-entry {
-  font-size: 0.75rem;
-  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
   color: var(--color-text-secondary);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -681,7 +681,7 @@ p {
 .slider-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   margin-bottom: 4px;
 }
 
@@ -697,8 +697,8 @@ p {
 }
 
 .slider-number-input {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
   width: 4.5em;
   text-align: right;
   border: 1.5px solid var(--color-border);
@@ -732,8 +732,8 @@ p {
 }
 
 .slider-unit {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
   color: var(--color-text-secondary);
 }
 
@@ -746,11 +746,11 @@ p {
 
 .preset-btn {
   flex: 1;
-  padding: 6px 8px;
+  padding: 7px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -777,10 +777,10 @@ p {
 .items-center { align-items: center; }
 .justify-between { justify-content: space-between; }
 .text-center { text-align: center; }
-.text-sm { font-size: 0.85rem; }
-.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.95rem; }
+.text-xs { font-size: 0.82rem; }
 .text-secondary { color: var(--color-text-secondary); }
-.font-mono { font-family: var(--font-mono); }
+.font-mono { font-family: var(--font-sans); }
 .w-full { width: 100%; }
 
 /* ─── Landing Page ─── */
@@ -822,7 +822,7 @@ p {
 }
 
 .landing-title {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
   position: relative;
   z-index: 1;
@@ -831,10 +831,10 @@ p {
 }
 
 .landing-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   position: relative;
   z-index: 1;
-  max-width: 320px;
+  max-width: 340px;
   margin-bottom: 56px;
   color: var(--color-text-secondary);
   line-height: 1.5;
@@ -878,7 +878,7 @@ p {
 }
 
 .landing-edu-heading {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 24px;
   text-align: center;
@@ -913,8 +913,8 @@ p {
 
 .freq-explorer-readout {
   text-align: center;
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-primary);
   padding: 8px 0 0;
