@@ -5,7 +5,7 @@ import {
   getCurrentLevelIndex, getStructure, getBudgetRemaining,
   deductBudget, refundBudget, setStructure, setBuildScreenSnapshot, setBuildCanvasTransform,
 } from '../state.js';
-import { saveStructure, loadStructure } from '../utils/storage.js';
+import { saveStructure, loadStructure, markPatternDiscovered } from '../utils/storage.js';
 import {
   initialiseBlueprintCanvas, drawBlueprintGrid, drawElement, drawNode,
   drawSupportSymbol, drawLoadArrow, drawSnapPreview, drawConnectionPreview,
@@ -460,6 +460,7 @@ export function render(container) {
     for (const patternId of detected) {
       if (!alreadyDetectedPatterns.has(patternId)) {
         alreadyDetectedPatterns.add(patternId);
+        markPatternDiscovered(patternId);
         showPatternRecognisedNotification(patternId);
       }
     }

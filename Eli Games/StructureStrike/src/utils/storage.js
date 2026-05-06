@@ -1,5 +1,6 @@
 const PROGRESS_KEY = 'ss_progress';
 const STRUCTURE_KEY_PREFIX = 'ss_structure_';
+const DISCOVERED_PATTERNS_KEY = 'ss_discovered_patterns';
 
 // [LEVEL-PROGRESS] Loads the player's persistent progress (unlocked levels, stars)
 export function loadProgress() {
@@ -54,6 +55,26 @@ export function loadStructure(levelIndex) {
   } catch {
     return null;
   }
+}
+
+// [NOTEBOOK] Returns the Set of pattern IDs the player has ever discovered
+export function loadDiscoveredPatterns() {
+  try {
+    const raw = localStorage.getItem(DISCOVERED_PATTERNS_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+// [NOTEBOOK] Marks a pattern as discovered and persists it
+export function markPatternDiscovered(patternId) {
+  const discovered = loadDiscoveredPatterns();
+  if (discovered.has(patternId)) return;
+  discovered.add(patternId);
+  try {
+    localStorage.setItem(DISCOVERED_PATTERNS_KEY, JSON.stringify([...discovered]));
+  } catch {}
 }
 
 // [BUILD-PHASE] Clears a saved structure for a level (used on "restart")
