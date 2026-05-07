@@ -9,6 +9,21 @@ frame.src = game;
 document.getElementById('game-title').innerText = title;
 document.getElementById('gameAuthor').innerText = author;
 
+const TEACHES = {
+    'Adrian Games/Game1/index.html':                    'kinematics and Newtonian mechanics',
+    'Adrian Games/Game2/Home.html':                     'circuit analysis and Ohm\'s Law',
+    'Eli Games/Sound and Valid/dist/index.html':        'sound frequency and resonance',
+    'Hao Games/code_farm/index.html':                   'conditional logic and loop debugging',
+    'Ella Games/Game2Engineering/index.html':           'material properties and heat treatment',
+    'Eli Games/StructureStrike/dist/index.html':        'structural loads and engineering design',
+    'Elizabeth Games/fourier/index.html':               'Fourier analysis and wave superposition',
+    'Ella Games/GraphGame1/index.html':                 'function families and graph recognition',
+    'Elizabeth Games/chemistry/index.html':             'chemical reactions and lab technique',
+};
+
+const teachesEl = document.getElementById('game-teaches');
+if (TEACHES[game]) teachesEl.textContent = 'This game teaches ' + TEACHES[game];
+
 const backLink = document.getElementById('back-link');
 backLink.href = from ? from : 'index.html';
 

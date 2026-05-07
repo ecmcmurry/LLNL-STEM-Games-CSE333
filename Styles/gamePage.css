@@ -79,9 +79,29 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     gap: 16px;
     margin-bottom: 20px;
     padding: 12px 20px 0 20px;
+    position: relative;
 }
 
-.top h1 { align-content: center; color: #ffffff; flex: 1; border-bottom: none; }
+.title-group {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+    max-width: 55%;
+}
+.top h1 { align-content: center; color: #ffffff; border-bottom: none; margin: 0; }
+.game-teaches {
+    margin: 0;
+    font-size: 1.3rem;
+    color: rgba(219, 170, 0, 0.6);
+    font-family: 'PixelPurl', 'Segoe UI', system-ui, sans-serif;
+    text-align: center;
+}
+.game-teaches:empty { display: none; }
 
 .fullscreen-btn {
     background: rgba(219, 170, 0, 0.1);
@@ -100,9 +120,16 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     .top {
         flex-wrap: wrap;
     }
-    .top h1 {
+    .title-group {
+        position: static;
+        transform: none;
+        pointer-events: auto;
+        max-width: 100%;
         order: 4;
         flex: none;
+        width: 100%;
+    }
+    .top h1 {
         width: 100%;
         text-align: center;
         font-size: 2.4rem;
@@ -360,6 +387,7 @@ a.back:hover { background: rgba(219, 170, 0, 0.22); }
     cursor: pointer;
     padding: 0;
     transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    margin-left: auto;
 }
 
 @media (max-width: 768px) {
