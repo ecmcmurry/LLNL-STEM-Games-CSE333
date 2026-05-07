@@ -56,6 +56,10 @@ function physicsStep(dt, P) {
                 } else {
                     ballVel.addScaledVector(n, -vDotN);   // absorb — zero out normal component
                 }
+                // W5 drop-tower hook: notify the level the instant the ball first hits the
+                // floor, before any subsequent sub-steps move it back upward and the
+                // post-frame check in w5UpdateVisuals misses the contact entirely.
+                if (typeof w5OnPhysicsFloorContact === 'function') w5OnPhysicsFloorContact();
             }
         }
     }
