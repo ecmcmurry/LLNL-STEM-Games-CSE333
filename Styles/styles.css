@@ -380,7 +380,7 @@ nav a:hover {
         flex: 0 0 auto;
         width: 100%;
         min-width: 0;
-        height: 300px;
+        height: auto;
         background: transparent;
         padding: 10px;
         border-radius: 10px;
@@ -406,14 +406,15 @@ nav a:hover {
     }
 
     .dc-img-wrapper {
-        flex: 1;
-        min-height: 0;
+        flex: none;
         width: 100%;
+        aspect-ratio: 16 / 9;
         border-radius: 5px;
         margin-bottom: 0;
-        overflow: visible;
+        overflow: hidden;
         position: relative;
         border: 1px solid rgba(219, 170, 0, 0.3);
+        background: rgba(219, 170, 0, 0.08);
         transition: border-color 0.18s ease;
     }
 
@@ -422,7 +423,7 @@ nav a:hover {
         inset: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         display: block;
         border: none;
         border-radius: 5px;
@@ -571,7 +572,7 @@ nav a:hover {
     .dc-title      { font-size: clamp(1rem, 1.4vw, 1.15rem); }
     .dc-author     { font-size: clamp(0.85rem, 1.2vw, 0.95rem); }
 
-    .desktop-card   { height: 270px; }
+    .desktop-card   { height: auto; }
 }
 
 /* ── Landscape phones: wide but very short (e.g. iPhone in landscape) ── */
@@ -588,7 +589,7 @@ nav a:hover {
     .games-col     { gap: 8px; }
     .dc-title      { font-size: 0.85rem; }
     .dc-author     { font-size: 0.75rem; }
-    .desktop-card  { height: 150px; }
+    .desktop-card  { height: auto; }
 }
 
 @media (max-width: 768px) {
@@ -782,6 +783,7 @@ nav a:hover {
     }
     .light-mode .dc-img-wrapper {
         border-color: rgba(15, 45, 82, 0.25);
+        background: rgba(15, 45, 82, 0.06);
     }
     .light-mode .dc-author { color: #0f2d52; }
     .light-mode .dc-placeholder {
