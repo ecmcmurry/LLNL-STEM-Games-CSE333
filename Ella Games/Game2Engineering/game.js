@@ -1719,41 +1719,49 @@ $('btn-neg-order').onclick = () => {
 $('btn-neg-handbook').onclick = () => openModal('modal-handbook');
 
 async function sendNegMessage() {
-  if (!negState) return;
-  const txt = $('chat-input').value.trim(); if (!txt) return;
-  $('chat-input').value = '';
-  addChat('player', txt);
-  negState.history.push({ role: 'player', text: txt });
-  $('chat-thinking').style.display = 'block';
-  aiStatusBusy('AI: negotiating…');
-
-  const resp = await negotiate({
-    customer: negState.ticket,
-    design: { ...negState.design, failedConstraints: negState.failedConstraints },
-    history: negState.history,
-    playerMessage: txt
-  });
-  $('chat-thinking').style.display = 'none';
-  checkAIStatus();
-  addChat('customer', resp.reply);
-  negState.history.push({ role: 'customer', text: resp.reply });
-
   if (resp.decision === 'accept') {
-    const reward = Math.round(negState.ticket.reward * (1 - (resp.concession || 0) / 100));
-    completeTicket(negState.item, negState.ticket, reward, +2);
-    addChat('system', `Accepted at $${reward}.`);
-    audioBeep(660, 0.12);
-    setTimeout(() => {
-      closeModal('modal-negotiate');
-      if (negState && negState.resolve) { negState.resolve(true); negState = null; }
-    }, 1100);
-  } else if (resp.decision === 'reject') {
-    addChat('system', 'The customer walked.');
-    setTimeout(() => {
-      closeModal('modal-negotiate');
-      if (negState && negState.resolve) { negState.resolve(false); negState = null; }
-    }, 1100);
-  }
+  const reward = Math.round(negState.ticket.reward * (1 - (resp.concession || 0) / 100));
+  completeTicket(negState.item, negState.ticket, reward, +2);
+  audioBeep(660, 0.12);
+
+  // lock the chat — conversation is over
+  $('chat-input').disabled = true;
+  $('btn-send-chat').disabled = true;
+
+  // success tab
+  $('neg-outcome-title').textContent = '🤝 Deal Closed!';
+  $('neg-outcome-title').style.color = 'var(--money)';
+  $('neg-outcome-body').innerHTML =
+    `You convinced the customer.<br><strong>+ $${reward}</strong> received` +
+    (resp.concession ? ` <small>(${resp.concession}% concession)</small>` : '');
+  showNegOutcome(true);
+
+} else if (resp.decision === 'reject') {
+  // lock the chat — conversation is over
+  $('chat-input').disabled = true;
+  $('btn-send-chat').disabled = true;
+
+  // failure tab
+  $('neg-outcome-title').textContent = '❌ Negotiation Failed';
+  $('neg-outcome-title').style.color = '#c0392b';
+  $('neg-outcome-body').textContent = 'You failed to convince the customer.';
+  showNegOutcome(false);
+}
+}
+
+function showNegOutcome(accepted) {
+  openModal('modal-neg-outcome');
+  // wire the continue button once per open
+  $('btn-neg-outcome-close').onclick = () => {
+    closeModal('modal-neg-outcome');
+    closeModal('modal-negotiate');
+    // re-enable for next negotiation
+    $('chat-input').disabled = false;
+    $('btn-send-chat').disabled = false;
+    if (negState && negState.resolve) {
+      const r = negState.resolve; negState = null; r(accepted);
+    }
+  };
 }
 
 // ═══════════════════════════════════════════════════════════

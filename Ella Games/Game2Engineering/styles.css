@@ -3077,7 +3077,7 @@ body:has(#screen-title.active) #game-container {
   #room-signs { top: -45px; height: clamp(75px, 18vh, 140px); left: 3%; right: 3%; gap: 6px; }
 }
 
-s.anvil-icon-img {
+.anvil-icon-img {
   display: block;
   max-width: 78%;
   max-height: 78%;
