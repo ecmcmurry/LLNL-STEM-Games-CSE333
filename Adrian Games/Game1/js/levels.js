@@ -1617,7 +1617,10 @@ function w5UpdateVisuals(dt) {
         `SIM: ${w5AccelDisplay.toFixed(2)} m/s²${phoneStr}  ·  t = ${elapsed.toFixed(3)} s`
     );
 
-    //landing: ball reaches ground level (within 2 cm tolerance for bouncing)
+    // Primary landing detection is handled in w5OnPhysicsFloorContact() which fires
+    // inside physicsStep at the exact sub-step of first contact — before the ball
+    // bounces back up and this post-frame check would miss it.
+    // This line is a safety-net only (e.g. if the ball somehow skips the physics hook).
     if (elapsed > 0.1 && ballPos.y <= BALL_RADIUS + 0.02) {
         w5OnLand(elapsed);
     }
@@ -1625,6 +1628,16 @@ function w5UpdateVisuals(dt) {
 
 //game-loop hook
 function updateW5(dt) { w5UpdateVisuals(dt); }
+
+// Called directly from physicsStep the instant the ball contacts the floor.
+// Because physics runs multiple sub-steps per visual frame, w5UpdateVisuals()
+// would normally see the ball already bouncing upward and miss the first hit.
+// This hook captures the exact sub-step time so elapsed is never inflated.
+function w5OnPhysicsFloorContact() {
+    if (!w5Falling || levelState?.phase !== 'dropping') return;
+    const elapsed = performance.now() / 1000 - w5FallStart;
+    if (elapsed > 0.1) w5OnLand(elapsed);
+}
 
 //process impact: vibrate, log trial, show result modal
 function w5OnLand(tMeas) {
