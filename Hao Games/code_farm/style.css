@@ -90,6 +90,47 @@ body {
   text-shadow: 10px 10px 0 rgba(0,0,0,0.35);
 }
 
+.rotateWarning {
+  display: none;
+}
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .rotateWarning {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(20, 80, 30, 0.95);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .rotateBox {
+    background: rgba(60, 42, 20, 0.95);
+    border: 3px solid rgba(38, 25, 10, 0.95);
+    border-radius: 18px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  .rotateBox h2,
+  .rotateBox p {
+    font-family: "Press Start 2P", monospace;
+  }
+
+  .rotateBox h2 {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .rotateBox p {
+    font-size: 10px;
+    line-height: 1.8;
+  }
+}
+
 .homeButtons {
   display: flex;
   flex-direction: column;
@@ -269,6 +310,7 @@ body {
   place-items: center;
   padding: 18px;
   z-index: 999;
+  overflow-y: auto;
 }
 
 .modal {
@@ -278,6 +320,23 @@ body {
   /* border: 1px solid var(--outline); */
   border-radius: 16px;
   padding: 18px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+@media screen and (max-width: 768px) {
+  .modal-backdrop {
+    align-items: start;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  .modal {
+    max-height: 88vh;
+    overflow-y: auto;
+  }
 }
 
 .modal h2 {
