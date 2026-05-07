@@ -51,14 +51,19 @@
             ><span class="dot"></span
             ><span id="ai-status-text">checking…</span></span
           >
-          <button class="btn btn-small" id="btn-handbook">📖<span class="btn-label"> Handbook</span></button>
-          <button class="btn btn-small" id="btn-main-menu">🏠<span class="btn-label"> Main Menu</span></button>
+          <button class="btn btn-small" id="btn-handbook">
+            📖<span class="btn-label"> Handbook</span>
+          </button>
+          <button class="btn btn-small" id="btn-main-menu">
+            🏠<span class="btn-label"> Main Menu</span>
+          </button>
           <button
             class="btn btn-small"
             id="btn-pause"
             title="Pause time and gameplay"
           >
-            <span class="btn-pause-glyph">⏸</span><span class="btn-label"> Pause</span>
+            <span class="btn-pause-glyph">⏸</span
+            ><span class="btn-label"> Pause</span>
           </button>
         </div>
       </header>
@@ -212,7 +217,11 @@
              painted counter and the painted drop-off box on this image
              do double duty as the order surface and the delivery target. -->
         <div id="room-bg" aria-hidden="true">
-          <img id="room-bg-img" src="assets/New Art/StrippedGeneralBackground.svg?v=4" alt="" />
+          <img
+            id="room-bg-img"
+            src="assets/New Art/StrippedGeneralBackground.svg?v=5"
+            alt=""
+          />
         </div>
 
         <!-- Drop-off: invisible click region over the box that's painted
@@ -739,15 +748,19 @@
         </div>
       </div>
 
-
       <!-- Negotiation outcome tab -->
-<div class="modal-overlay" id="modal-neg-outcome">
-  <div class="modal-content" style="max-width: 380px; text-align: center;">
-    <h2 id="neg-outcome-title">Deal!</h2>
-    <div id="neg-outcome-body" style="font-size: 1rem; line-height: 1.5; margin: 10px 0 16px;"></div>
-    <button class="btn btn-primary" id="btn-neg-outcome-close">CONTINUE</button>
-  </div>
-</div>
+      <div class="modal-overlay" id="modal-neg-outcome">
+        <div class="modal-content" style="max-width: 380px; text-align: center">
+          <h2 id="neg-outcome-title">Deal!</h2>
+          <div
+            id="neg-outcome-body"
+            style="font-size: 1rem; line-height: 1.5; margin: 10px 0 16px"
+          ></div>
+          <button class="btn btn-primary" id="btn-neg-outcome-close">
+            CONTINUE
+          </button>
+        </div>
+      </div>
 
       <!-- Autopsy -->
       <div class="modal-overlay" id="modal-autopsy">
